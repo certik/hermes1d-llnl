@@ -15,6 +15,10 @@ double kappa = 1;
 
 // speed of light (in atomic units)
 double c = 137.036;
+// Hydrogen atom:
+#define _V(r) (-1/r)
+// Harmonic oscillator
+//#define _V(r) (r*r)
 
 double A_00(int num, double *x, double *weights,
                 double *u, double *dudx, double *v, double *dvdx,
@@ -26,8 +30,7 @@ double A_00(int num, double *x, double *weights,
     for(int i = 0; i<num; i++) {
         double r = x[i];
         // specify V:
-        double V = -1/r;
-        //double V = 0;
+        double V = _V(r);
         val += u[i]*V*v[i]*weights[i];
     }
     return val;
@@ -43,8 +46,7 @@ double A_11(int num, double *x, double *weights,
     for(int i = 0; i<num; i++) {
         double r = x[i];
         // specify V:
-        double V = -1/r;
-        //double V = 0;
+        double V = _V(r);
         val += u[i]*(V-2*c*c)*v[i]*weights[i];
     }
     return val;
