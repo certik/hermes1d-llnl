@@ -21,7 +21,7 @@ def plot_eigs(mesh, eigs, n=10):
     n = 4
     for E, eig in eigs:
         if E < -2*c**2:
-            # skipt the positron states
+            # skip the positron states
             continue
         if E > 0:
             break
