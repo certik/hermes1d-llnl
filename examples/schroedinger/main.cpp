@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 
   printf("still ok\n");
   if (import_hermes1d___hermes1d())
-      throw std::runtime_error("");
+      throw std::runtime_error("Can't import hermes1d");
   p.push("mesh",  c2py_Mesh(mesh));
   printf("2\n");
   p.exec("from plot import plot_eigs, plot_file");
