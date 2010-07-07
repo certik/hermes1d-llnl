@@ -43,13 +43,6 @@ int main(int argc, char* argv[]) {
   //p.exec("eigs = solve_eig_pysparse(A.to_scipy_coo(), B.to_scipy_coo())");
   p.exec("E, v = eigs[0]");
 
-
-
-  Linearizer l(mesh);
-  const char *out_filename = "solution.gp";
-  l.plot_solution(out_filename);
-
-  printf("still ok\n");
   if (import_hermes1d___hermes1d())
       throw std::runtime_error("Can't import hermes1d");
   p.push("mesh",  c2py_Mesh(mesh));
