@@ -2,7 +2,7 @@
 
 from hermes1d import Mesh, CooMatrix
 
-#from _forms import assemble_schroedinger
+from _forms import assemble_schroedinger
 from utils import solve_eig_numpy, solve_eig_pysparse
 from plot import plot_eigs, plot_file
 
@@ -16,7 +16,7 @@ def main():
     N_dof = mesh.assign_dofs()
     A = CooMatrix(N_dof)
     B = CooMatrix(N_dof)
-    #assemble_schroedinger(mesh, A, B)
+    assemble_schroedinger(mesh, A, B)
     eigs = solve_eig_numpy(A.to_scipy_coo(), B.to_scipy_coo())
     #eigs = solve_eig_pysparse(A.to_scipy_coo(), B.to_scipy_coo())
     E, v = eigs[0]
