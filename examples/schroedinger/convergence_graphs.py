@@ -1,6 +1,6 @@
 from math import e, log, exp
 
-from pylab import plot, show, savefig, grid, gca, legend
+from pylab import plot, show, savefig, grid, gca, legend, figure
 
 class Convert(object):
 
@@ -39,6 +39,8 @@ g = Convert([
 ], scale="log", axis="y")
 
 Rn0_x = [23, 29, 41, 47, 53, 65, 83, 107]
+Rn1_x = [23, 29, 35, 41, 47, 65, 77, 95, 107]
+
 R10_y = g.convert([
     (254, 305),
     (319, 325),
@@ -78,6 +80,54 @@ R40_y = g.convert([
     (640, 787),
     ])
 
+R32_y = g.convert([
+    (973, 274),
+    (1037, 339),
+    (1102, 377),
+    (1165, 479),
+    (1230, 635),
+    (1295, 711),
+    (1359, 807),
+    (1425, 809),
+    (1488, 828),
+])
+
+R42_y = g.convert([
+    (973, 278),
+    (1038, 335),
+    (1102, 384),
+    (1166, 493),
+    (1230, 619),
+    (1294, 698),
+    (1359, 785),
+    (1423, 812),
+    (1488, 818),
+])
+
+R52_y = g.convert([
+    (972, 288),
+    (1038, 341),
+    (1103, 391),
+    (1166, 506),
+    (1231, 602),
+    (1295, 669),
+    (1359, 752),
+    (1424, 818),
+    (1488, 825),
+])
+
+R62_y = g.convert([
+    (973, 296),
+    (1037, 346),
+    (1102, 401),
+    (1166, 516),
+    (1231, 581),
+    (1295, 600),
+    (1360, 725),
+    (1424, 811),
+    (1488, 829),
+])
+
 def do_plot(x, y, label, marker="o"):
     z = zip(x, y)
     x = [_[0] for _ in z]
@@ -85,16 +135,24 @@ def do_plot(x, y, label, marker="o"):
     plot(x, y, "k-")
     plot(x, y, "k" + marker, label=label)
 
+    grid(True)
+    ax = gca()
+    ax.set_yscale("log")
+    legend()
+
 do_plot(Rn0_x, R10_y, "$R_{10}$", "s")
 do_plot(Rn0_x, R20_y, "$R_{20}$", "o")
 do_plot(Rn0_x, R30_y, "$R_{30}$", "^")
 do_plot(Rn0_x, R40_y, "$R_{40}$", "v")
 
+figure()
+
+do_plot(Rn1_x, R32_y, "$R_{32}$", "s")
+do_plot(Rn1_x, R42_y, "$R_{42}$", "o")
+do_plot(Rn1_x, R52_y, "$R_{52}$", "^")
+do_plot(Rn1_x, R62_y, "$R_{62}$", "v")
 
 
-grid(True)
-ax = gca()
-ax.set_yscale("log")
-legend()
+
 show()
 #savefig("dofs_l_2.png")
