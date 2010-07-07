@@ -51,3 +51,6 @@ cdef extern from "hermes1d.h":
         void get_xy_mesh(int comp, int plotting_elem_subdivision,
                 double **x, double **y, int *n)
     c_Linearizer *new_Linearizer "new Linearizer" (c_Mesh *mesh)
+
+cdef class Mesh:
+    cdef c_Mesh *thisptr

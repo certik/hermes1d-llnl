@@ -22,7 +22,6 @@ cdef class Element:
         return self.thisptr.x2
 
 cdef class Mesh:
-    cdef c_Mesh *thisptr
 
     def __init__(self, double a, double b, int n_elem, int p_init, int eq_num):
         self.thisptr = new_Mesh(a, b, n_elem, p_init, eq_num)
