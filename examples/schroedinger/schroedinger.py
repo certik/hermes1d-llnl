@@ -16,10 +16,10 @@ def main():
     N_dof = mesh.assign_dofs()
     A = CooMatrix(N_dof)
     B = CooMatrix(N_dof)
-    assemble_schroedinger(mesh, A, B)
+    assemble_schroedinger(mesh, A, B, l=0)
     eigs = solve_eig_numpy(A.to_scipy_coo(), B.to_scipy_coo())
     #eigs = solve_eig_pysparse(A.to_scipy_coo(), B.to_scipy_coo())
-    E, v = eigs[0]
+    #E, v = eigs[0]
     plot_eigs(mesh, eigs)
 
 if __name__ == "__main__":

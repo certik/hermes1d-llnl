@@ -40,11 +40,12 @@ double rhs(int num, double *x, double *weights,
 /*
    Assembles the discrete problem A*x = E*B*x
 */
-void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B)
+void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B, int _l)
 {
   int N_dof = mesh->assign_dofs();
   printf("Assembling A, B. ndofs: %d\n", N_dof);
 
+  l = _l;
   // register weak forms
   DiscreteProblem *dp1 = new DiscreteProblem();
   dp1->add_matrix_form(0, 0, lhs);
