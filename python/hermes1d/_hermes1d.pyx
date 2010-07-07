@@ -36,6 +36,9 @@ cdef class Mesh:
         numpy2c_double_inplace(sol, &Y, &n)
         self.thisptr.copy_vector_to_mesh(Y, comp)
 
+    def assign_dofs(self):
+        return self.thisptr.assign_dofs()
+
 cdef class Linearizer:
     cdef c_Linearizer *thisptr
     cdef Mesh mesh
