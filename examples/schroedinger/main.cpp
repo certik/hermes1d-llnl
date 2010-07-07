@@ -19,19 +19,11 @@ int main(int argc, char* argv[]) {
 
   // variable for the total number of DOF
   int N_dof = mesh->assign_dofs();
-  printf("ndofs: %d\n", N_dof);
-
-  // register weak forms
-  DiscreteProblem *dp1 = new DiscreteProblem();
-  dp1->add_matrix_form(0, 0, lhs);
-  DiscreteProblem *dp2 = new DiscreteProblem();
-  dp2->add_matrix_form(0, 0, rhs);
 
   CooMatrix *mat1 = new CooMatrix(N_dof);
   CooMatrix *mat2 = new CooMatrix(N_dof);
+  assemble_schroedinger(mesh, mat1, mat2);
 
-  dp1->assemble_matrix(mesh, mat1);
-  dp2->assemble_matrix(mesh, mat2);
 
   Python p;
 
