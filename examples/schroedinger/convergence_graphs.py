@@ -1,6 +1,7 @@
 from math import e, log, exp
 
-from pylab import plot, show, savefig, grid, gca, legend, figure
+from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
+        xlabel, ylabel
 
 class Convert(object):
 
@@ -183,38 +184,39 @@ R62_y = g.convert([
     (1488, 829),
 ])
 
-def do_plot(x, y, label, marker="o"):
+def do_plot(x, y, n, l):
     z = zip(x, y)
     x = [_[0] for _ in z]
     y = [_[1] for _ in z]
-    plot(x, y, "k-")
-    plot(x, y, "k" + marker, label=label)
+    n_r = n - l - 1
+    styles = {0: "-s", 1: "--o", 2: ":^", 3: "-.v"}
+    plot(x, y, "k" + styles[n_r], label="$R_{%d%d}$" % (n, l))
 
     grid(True)
     ax = gca()
+    xlabel("DOFs")
+    ylabel("$E_{num}-E$")
     ax.set_yscale("log")
+    title("l=%d" % l)
     legend()
 
-do_plot(Rn0_x, R10_y, "$R_{10}$", "s")
-do_plot(Rn0_x, R20_y, "$R_{20}$", "o")
-do_plot(Rn0_x, R30_y, "$R_{30}$", "^")
-do_plot(Rn0_x, R40_y, "$R_{40}$", "v")
+figure()
+do_plot(Rn0_x, R10_y, 1, 0)
+do_plot(Rn0_x, R20_y, 2, 0)
+do_plot(Rn0_x, R30_y, 3, 0)
+do_plot(Rn0_x, R40_y, 4, 0)
 
 figure()
-
-do_plot(Rn1_x, R21_y, "$R_{21}$", "s")
-do_plot(Rn1_x, R31_y, "$R_{31}$", "o")
-do_plot(Rn1_x, R41_y, "$R_{41}$", "^")
-do_plot(Rn1_x, R51_y, "$R_{51}$", "v")
+do_plot(Rn1_x, R21_y, 2, 1)
+do_plot(Rn1_x, R31_y, 3, 1)
+do_plot(Rn1_x, R41_y, 4, 1)
+do_plot(Rn1_x, R51_y, 5, 1)
 
 figure()
-
-do_plot(Rn2_x, R32_y, "$R_{32}$", "s")
-do_plot(Rn2_x, R42_y, "$R_{42}$", "o")
-do_plot(Rn2_x, R52_y, "$R_{52}$", "^")
-do_plot(Rn2_x, R62_y, "$R_{62}$", "v")
-
-
+do_plot(Rn2_x, R32_y, 3, 2)
+do_plot(Rn2_x, R42_y, 4, 2)
+do_plot(Rn2_x, R52_y, 5, 2)
+do_plot(Rn2_x, R62_y, 6, 2)
 
 show()
 #savefig("dofs_l_2.png")
