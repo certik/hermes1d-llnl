@@ -74,8 +74,8 @@ def main():
             break
         els2refine = list(set(els2refine))
         print "Will refine the elements:", els2refine
-        #plot_eigs(mesh, eigs)
         mesh = refine_mesh(mesh, els2refine)
+    #plot_eigs(mesh, eigs)
 
 if __name__ == "__main__":
     main()
