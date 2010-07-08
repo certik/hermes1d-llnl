@@ -6,13 +6,12 @@ from hermes1d.solvers.eigen import solve_eig_numpy, solve_eig_pysparse
 from _forms import assemble_schroedinger
 from plot import plot_eigs, plot_file
 
-N_eq = 1
 N_elem = 40                         # number of elements
 R = 20                              # right hand side of the domain
 P_init = 2                          # initial polynomal degree
 
 def main():
-    mesh = Mesh(0, R, N_elem, P_init, N_eq)
+    mesh = Mesh(0, R, N_elem, P_init)
     N_dof = mesh.assign_dofs()
     A = CooMatrix(N_dof)
     B = CooMatrix(N_dof)
