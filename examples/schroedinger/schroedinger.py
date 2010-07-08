@@ -47,7 +47,7 @@ def main():
     pts = arange(0, R, float(R)/(N_elem+1))
     orders = [P_init]*N_elem
     mesh = Mesh(pts, orders)
-    for i in range(1):
+    for i in range(10):
         print "-"*80
         print "adaptivity iteration:", i
         N_dof = mesh.assign_dofs()
@@ -56,6 +56,7 @@ def main():
         assemble_schroedinger(mesh, A, B, l=0)
         eigs = solve_eig_numpy(A.to_scipy_coo(), B.to_scipy_coo())[:4]
         els2refine = []
+        print
         for E, eig in eigs:
             s = FESolution(mesh, eig)
             id = find_element_romanowski(s.get_element_coeffs())
