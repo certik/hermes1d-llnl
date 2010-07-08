@@ -46,7 +46,7 @@ def refine_mesh(mesh, els2refine):
 
 def main():
     pts = arange(0, R, float(R)/(N_elem+1))
-    pts = list(pts) + [1000]
+    pts = list(pts) + [10000]
     orders = [P_init]*(N_elem+1)
     mesh = Mesh(pts, orders)
     for i in range(100000):
