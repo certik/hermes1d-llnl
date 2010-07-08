@@ -112,13 +112,13 @@ int main(int argc, char* argv[]) {
   p.exec("print 'Python initialized'");
   p.push("A", c2py_CooMatrix(mat1));
   p.push("B", c2py_CooMatrix(mat2));
-  p.exec("from utils import solve_eig_numpy, solve_eig_pysparse");
+  p.exec("from hermes1d.solvers.eigen import solve_eig_numpy, solve_eig_pysparse");
   p.exec("eigs = solve_eig_numpy(A.to_scipy_coo(), B.to_scipy_coo())");
   //p.exec("eigs = solve_eig_pysparse(A.to_scipy_coo(), B.to_scipy_coo())");
   p.exec("from utils import show_eigs");
   p.exec("show_eigs(eigs)");
 
-  if (import_hermes1d___hermes1d())
+  if (import_hermes1d__h1d_wrapper___hermes1d())
       throw std::runtime_error("");
   p.push("mesh",  c2py_Mesh(mesh));
   printf("2\n");
