@@ -1,7 +1,11 @@
 #! /usr/bin/env python
 
-from hermes1d import Mesh, CooMatrix
+import sys
+sys.path.insert(0, "../..")
+
+from hermes1d import Mesh
 from hermes1d.solvers.eigen import solve_eig_numpy, solve_eig_pysparse
+from hermes_common._hermes_common import CooMatrix
 
 from _forms import assemble_schroedinger
 from plot import plot_eigs, plot_file
