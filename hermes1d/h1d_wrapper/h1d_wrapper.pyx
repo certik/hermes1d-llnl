@@ -90,7 +90,7 @@ cdef class Mesh:
         pts = []
         p = []
         I = Iterator(self)
-        e = I._next_active_element()
+        cdef hermes1d.Element *e = I._next_active_element()
         while e != NULL:
             if len(pts) == 0:
                 pts.append(e.x1)

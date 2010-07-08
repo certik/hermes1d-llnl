@@ -231,6 +231,17 @@ void Element::get_solution_plot(double x_phys[MAX_PLOT_PTS_NUM], int pts_num,
   }
 } 
 
+// Evaluate solution (just the specified component) at a point 'x_phys' in the
+// element.
+double Element::get_solution_value(double x_phys, int comp)
+{
+    double val[MAX_EQN_NUM];
+    double der[MAX_EQN_NUM];
+    // This needs the coefficients to be copied to the mesh, with index 0:
+    this->get_solution_point(x_phys, val, der, 0);
+    return val[comp];
+}
+
 // Calculates square of the L2 or H1 norm of the solution in element
 double Element::calc_elem_norm_squared(int norm)
 {

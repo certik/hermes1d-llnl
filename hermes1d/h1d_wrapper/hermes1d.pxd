@@ -14,6 +14,7 @@ cdef extern from "hermes1d.h":
         double x1, x2
         int p
         int *dof
+        double get_solution_value(double x_phys, int comp)
 
     cdef cppclass Mesh:
         Mesh(double a, double b, int n_elem, int p_init, int n_eq, int

@@ -37,6 +37,7 @@ public:
     void get_solution_plot(double x_phys[MAX_PLOT_PTS_NUM], int pts_num,
          double val_phys[MAX_EQN_NUM][MAX_PLOT_PTS_NUM], 
 			   double der_phys[MAX_EQN_NUM][MAX_PLOT_PTS_NUM], int sln=0);
+    double get_solution_value(double x_phys, int c);
     void get_solution_point(double x_phys, 
 			    double val[MAX_EQN_NUM], double der[MAX_EQN_NUM], int sln=0);
     int create_cand_list(int adapt_type, int p_ref_left, int p_ref_right, int3 *cand_list);
