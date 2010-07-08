@@ -2,6 +2,7 @@
 
 from utils import conv_graph
 from hydrogen_certik import R_x, R_y
+from hydrogen_romanowski import R_x as R2_x, R_y as R2_y
 
 conv_graph(R_x, R_y, 0)
 conv_graph(R_x, R_y, 1)
