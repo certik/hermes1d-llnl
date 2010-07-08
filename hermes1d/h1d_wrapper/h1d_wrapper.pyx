@@ -163,3 +163,45 @@ cdef class Iterator:
 
     def last_active_element(self):
         return c2py_Element(self._last_active_element())
+
+class FESolution:
+    """
+    Represents an FE solution on an hp-mesh.
+
+    It represents all the components (for multiple equations).
+    """
+
+    def __init__(self, mesh, coefs):
+        self._mesh = mesh
+        self._coefs = coefs
+
+    def value(self, x, int comp=0):
+        """
+        Returns the value of the solution at a point 'x'.
+        """
+        self._mesh.copy_vector_to_mesh(self._coefs, comp)
+
+        pts = []
+        p = []
+        I = Iterator(self._mesh)
+        cdef hermes1d.Element *e = I._next_active_element()
+        while e != NULL:
+            if e.x1 <= x and x <= e.x2:
+                return e.get_solution_value(x, comp)
+            e = I._next_active_element()
+
+    def to_discrete_function(self, int comp=0):
+        """
+        Returns a Function instance, that uses Fekete points to represent the
+        solution.
+        """
+        from hermes1d.fekete.fekete import Function, Mesh1D
+        pts, orders = self._mesh.get_mesh_data()
+        m = Mesh1D(pts, orders)
+        # This can be sped up by evaluating at fekete points at each element at
+        # once:
+        self._component = comp
+        return Function(self, m)
+
+    def __call__(self, x):
+        return self.value(x, self._component)
