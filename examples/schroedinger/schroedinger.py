@@ -66,21 +66,25 @@ def plot_conv(conv_graph, exact=None, l=None):
         x.append(dofs)
         for i in range(4):
             y[i].append(energies[i]-exact[i])
-    #print x, y[i], l+1, l
+    print x
     for i in range(4):
-        do_plot(x, y[i], l+1+i, l)
+        n = l+1+i
+        print n, l
+        print y[i]
+        do_plot(x, y[i], n, l)
     savefig("conv_l_0.png")
 
 def main():
     #do_plot([23, 29, 41, 47], [0.1, 0.01, 0.001, 0.004], 1, 0)
-    pts = arange(0, R, float(R)/(N_elem+1))
+    pts = arange(0, R, float(R)/(N_elem))
+    pts = list(pts) + [R]
     #pts = list(pts) + [10000]
     orders = [P_init]*(len(pts)-1)
     mesh = Mesh(pts, orders)
     conv_graph = []
     l = 0
     error_tol = 1e-6
-    error_tol = 1e-2
+    #error_tol = 1e-2
     for i in range(100000):
         print "-"*80
         print "adaptivity iteration:", i
