@@ -1,7 +1,7 @@
 #include "hermes1d.h"
 
 #include "python_api.h"
-#include "_hermes1d_api.h"
+#include "h1d_wrapper_api.h"
 
 #include "forms.h"
 
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
   //p.exec("eigs = solve_eig_pysparse(A.to_scipy_coo(), B.to_scipy_coo())");
   p.exec("E, v = eigs[0]");
 
-  if (import_hermes1d__h1d_wrapper___hermes1d())
+  if (import_hermes1d__h1d_wrapper__h1d_wrapper())
       throw std::runtime_error("Can't import hermes1d");
   p.push("mesh",  c2py_Mesh(mesh));
   printf("2\n");
