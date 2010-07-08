@@ -4,7 +4,7 @@
 # Email: hermes1d@googlegroups.com, home page: http://hpfem.org/
 
 from _hermes_common cimport c2numpy_double, delete, PY_NEW, \
-    numpy2c_double_inplace
+    numpy2c_double_inplace, numpy2c_int_inplace
 
 cdef class Element:
     cdef c_Element *thisptr
@@ -23,8 +23,37 @@ cdef class Element:
 
 cdef class Mesh:
 
-    def __init__(self, double a, double b, int n_elem, int p_init, int eq_num):
-        self.thisptr = new_Mesh(a, b, n_elem, p_init, eq_num)
+    def __init__(self, *args):
+        from numpy import array
+        cdef double a, b
+        cdef int n_elem, p_init, eq_num, n
+        cdef double *pts_array
+        cdef int *p_array, *m_array, *div_array
+        if len(args) == 5:
+            a, b, n_elem, p_init, eq_num = args
+            self.thisptr = new_Mesh(a, b, n_elem, p_init, eq_num)
+        elif len(args) == 4:
+            a, b, n_elem, p_init = args
+            eq_num = 1
+            self.thisptr = new_Mesh(a, b, n_elem, p_init, eq_num)
+        elif len(args) == 2:
+            pts, p = args
+            pts = array(pts)
+            p = array(p)
+            if not (len(pts) == len(p) + 1):
+                raise ValueError("len(pts) must be equal to len(p) + 1")
+            n_elem = len(p)
+            m = array([1]*len(p))
+            div = array([1]*len(p))
+            eq_num = 1
+            numpy2c_double_inplace(pts, &pts_array, &n)
+            numpy2c_int_inplace(p, &p_array, &n)
+            numpy2c_int_inplace(m, &m_array, &n)
+            numpy2c_int_inplace(div, &div_array, &n)
+            self.thisptr = new_Mesh2(n_elem, pts_array, p_array, m_array, div_array,
+                    eq_num)
+        else:
+            raise ValueError("Don't understand the arguments")
 
     def __dealloc__(self):
         delete(self.thisptr)
@@ -37,6 +66,9 @@ cdef class Mesh:
 
     def assign_dofs(self):
         return self.thisptr.assign_dofs()
+
+    def plot_to_file(self, filename):
+        self.thisptr.plot(filename)
 
 cdef class Linearizer:
     cdef c_Linearizer *thisptr

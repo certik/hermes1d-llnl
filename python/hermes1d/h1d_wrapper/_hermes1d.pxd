@@ -26,8 +26,11 @@ cdef extern from "hermes1d.h":
         void set_dirichlet_bc_right(int eq_n, double val)
         void copy_vector_to_mesh(double *y, int sln)
         void copy_mesh_to_vector(double *y, int sln)
+        void plot(char* filename)
     c_Mesh *new_Mesh "new Mesh" (double a, double b, int n_elem, int p_init,
             int eq_num)
+    c_Mesh *new_Mesh2 "new Mesh" (int n_macro_elem, double *pts_array,
+            int *p_array, int *m_array, int *div_array, int n_eq)
 
     cdef struct c_Linearizer "Linearizer":
         void plot_solution(char *out_filename,
