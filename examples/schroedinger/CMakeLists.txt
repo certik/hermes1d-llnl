@@ -1,4 +1,4 @@
-project(schroedinger)
+project(cppschroedinger)
 
 find_package(PythonLibs REQUIRED)
 
