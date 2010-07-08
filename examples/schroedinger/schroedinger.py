@@ -16,7 +16,7 @@ from plot import plot_eigs, plot_file
 
 
 N_elem = 4                         # number of elements
-R = 1000                            # right hand side of the domain
+R = 150                            # right hand side of the domain
 P_init = 6                         # initial polynomal degree
 
 def find_element_romanowski(coeffs):
@@ -46,12 +46,16 @@ def refine_mesh(mesh, els2refine):
 
 def main():
     pts = arange(0, R, float(R)/(N_elem+1))
-    orders = [P_init]*N_elem
+    pts = list(pts) + [1000]
+    orders = [P_init]*(N_elem+1)
     mesh = Mesh(pts, orders)
     for i in range(100000):
         print "-"*80
         print "adaptivity iteration:", i
         N_dof = mesh.assign_dofs()
+        pts, orders = mesh.get_mesh_data()
+        print "Current mesh:"
+        print pts
         A = CooMatrix(N_dof)
         B = CooMatrix(N_dof)
         assemble_schroedinger(mesh, A, B, l=0)
