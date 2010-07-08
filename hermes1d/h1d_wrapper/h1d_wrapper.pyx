@@ -220,6 +220,7 @@ class FESolution:
         Returns a list of FE coefficients for each element, corresponding to
         the solution component 'comp'.
         """
+        self._mesh.copy_vector_to_mesh(self._coefs, comp)
         coeffs = []
         I = Iterator(self._mesh)
         cdef hermes1d.Element *e = I._next_active_element()
