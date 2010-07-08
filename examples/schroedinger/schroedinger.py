@@ -29,13 +29,27 @@ def find_element_romanowski(coeffs):
     n, error = els[0]
     return n
 
+def refine_mesh(mesh, els2refine):
+    new_pts = []
+    pts, orders = mesh.get_mesh_data()
+    new_pts.append(pts[0])
+    for id in range(len(orders)):
+        if id in els2refine:
+            new_pts.append((pts[id]+pts[id+1])/2.)
+        new_pts.append(pts[id+1])
+    # assumes uniform order:
+    orders = [orders[0]] * (len(new_pts)-1)
+    return Mesh(new_pts, orders)
+
+
+
 def main():
     pts = arange(0, R, float(R)/(N_elem+1))
     orders = [P_init]*N_elem
+    mesh = Mesh(pts, orders)
     for i in range(1):
         print "-"*80
         print "adaptivity iteration:", i
-        mesh = Mesh(pts, orders)
         N_dof = mesh.assign_dofs()
         A = CooMatrix(N_dof)
         B = CooMatrix(N_dof)
@@ -53,6 +67,7 @@ def main():
         els2refine = list(set(els2refine))
         print "Will refine the elements:", els2refine
         #plot_eigs(mesh, eigs)
+        mesh = refine_mesh(mesh, els2refine)
 
 if __name__ == "__main__":
     main()
