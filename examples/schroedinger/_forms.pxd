@@ -1,4 +1,4 @@
-from _hermes1d cimport c_Mesh
+from hermes1d.h1d_wrapper._hermes1d cimport c_Mesh
 from _hermes_common cimport c_Matrix
 
 cdef extern from "forms.h":

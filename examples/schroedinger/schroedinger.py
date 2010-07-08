@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
 from hermes1d import Mesh, CooMatrix
+from hermes1d.solvers.eigen import solve_eig_numpy, solve_eig_pysparse
 
 from _forms import assemble_schroedinger
-from utils import solve_eig_numpy, solve_eig_pysparse
 from plot import plot_eigs, plot_file
 
 N_eq = 1

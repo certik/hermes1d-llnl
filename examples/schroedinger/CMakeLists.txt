@@ -11,6 +11,6 @@ target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
 add_dependencies(${PROJECT_NAME} _hermes1d)
 
 SET(CYTHON_INCLUDE_DIRECTORIES . -I../../hermes_common/
-    -I../../python/hermes1d/)
+    -I../../python/)
 cython_add_module(_forms forms.cpp)
 target_link_libraries(_forms ${HERMES_BIN})
