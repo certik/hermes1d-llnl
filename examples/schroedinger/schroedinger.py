@@ -23,6 +23,7 @@ def find_element_romanowski(coeffs):
     els = []
     for n, e in enumerate(coeffs):
         error = min(abs(e[2:]))
+        #print n, e, error
         els.append((n, error))
     els.sort(key=lambda x: x[1])
     els.reverse()
