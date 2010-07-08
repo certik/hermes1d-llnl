@@ -24,6 +24,15 @@ def conv_graph(R_x, R_y, l):
         do_plot(R_x[l], R_y[(n, l)], n, l)
     savefig(filename)
 
+def conv_graph2(R_x, R_y, R2_x, R2_y, l):
+    filename = "conv_dof_l_%d.png" % l
+    print "Creating %s" % filename
+    figure()
+    for n in range(l+1, l+5):
+        do_plot(R_x[l], R_y[(n, l)], n, l, "b")
+        do_plot(R2_x[l], R2_y[(n, l)], n, l)
+    savefig(filename)
+
 class Convert(object):
 
     def __init__(self, points, scale="linear", axis="x"):
