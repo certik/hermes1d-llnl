@@ -23,6 +23,15 @@ cdef class Element:
     def x2(self):
         return self.thisptr.x2
 
+    def get_coeffs(self, int comp=0):
+        from numpy import empty
+        cdef double *coeffs_array
+        cdef int n
+        coeffs = empty((self.p+1,), dtype="double")
+        numpy2c_double_inplace(coeffs, &coeffs_array, &n)
+        self.thisptr.get_coeffs(0, comp, coeffs_array)
+        return coeffs
+
 cdef api object c2py_Element(hermes1d.Element *h):
     cdef Element n
     n = <Element>PY_NEW(Element)
@@ -205,3 +214,16 @@ class FESolution:
 
     def __call__(self, x):
         return self.value(x, self._component)
+
+    def get_element_coeffs(self, int comp=0):
+        """
+        Returns a list of FE coefficients for each element, corresponding to
+        the solution component 'comp'.
+        """
+        coeffs = []
+        I = Iterator(self._mesh)
+        cdef hermes1d.Element *e = I._next_active_element()
+        while e != NULL:
+            coeffs.append(c2py_Element(e).get_coeffs(comp))
+            e = I._next_active_element()
+        return coeffs
