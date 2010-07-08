@@ -29,8 +29,11 @@ def main():
     assemble_schroedinger(mesh, A, B, l=0)
     eigs = solve_eig_numpy(A.to_scipy_coo(), B.to_scipy_coo())[:4]
     for E, eig in eigs:
+        print "-"*60
         print E
         s = FESolution(mesh, eig)
+        print eig
+        print s.get_element_coeffs()
         f = s.to_discrete_function()
         print "plotting"
         f.plot(False)
