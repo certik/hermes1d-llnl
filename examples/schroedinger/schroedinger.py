@@ -16,7 +16,7 @@ from plot import plot_eigs, plot_file
 
 
 N_elem = 4                         # number of elements
-R = 150                            # right hand side of the domain
+R = 1000                            # right hand side of the domain
 P_init = 6                         # initial polynomal degree
 
 def find_element_romanowski(coeffs):
@@ -28,7 +28,7 @@ def find_element_romanowski(coeffs):
     els.sort(key=lambda x: x[1])
     els.reverse()
     n, error = els[0]
-    return n
+    return n, error
 
 def refine_mesh(mesh, els2refine):
     new_pts = []
@@ -48,7 +48,7 @@ def main():
     pts = arange(0, R, float(R)/(N_elem+1))
     orders = [P_init]*N_elem
     mesh = Mesh(pts, orders)
-    for i in range(10):
+    for i in range(100000):
         print "-"*80
         print "adaptivity iteration:", i
         N_dof = mesh.assign_dofs()
@@ -56,16 +56,22 @@ def main():
         B = CooMatrix(N_dof)
         assemble_schroedinger(mesh, A, B, l=0)
         eigs = solve_eig_numpy(A.to_scipy_coo(), B.to_scipy_coo())[:4]
-        els2refine = []
         print
+        els2refine = []
+        errors = []
         for E, eig in eigs:
             s = FESolution(mesh, eig)
-            id = find_element_romanowski(s.get_element_coeffs())
+            id, error = find_element_romanowski(s.get_element_coeffs())
             els2refine.append(id)
-            print E, id
+            errors.append(error)
+            print E, id, error
             #f = s.to_discrete_function()
             #print "plotting"
             #f.plot(False)
+        total_error = max(errors)
+        print "Total error:", total_error
+        if total_error < 1e-6:
+            break
         els2refine = list(set(els2refine))
         print "Will refine the elements:", els2refine
         #plot_eigs(mesh, eigs)
