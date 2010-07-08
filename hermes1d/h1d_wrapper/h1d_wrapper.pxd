@@ -1,2 +1,5 @@
+cimport hermes1d
+
 cdef class Mesh:
-    cdef c_Mesh *thisptr
+    cdef hermes1d.Mesh *thisptr
+    cdef object delptr
