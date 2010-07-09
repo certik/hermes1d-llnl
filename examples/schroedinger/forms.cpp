@@ -86,6 +86,7 @@ void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B, int _l,
     printf("Assembling A, B. ndofs: %d\n", N_dof);
 
     l = _l;
+    // TODO: cache those DiscreteProblems and reuse them.
     // register weak forms
     DiscreteProblem dp1;
     DiscreteProblem dp2;
@@ -93,6 +94,8 @@ void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B, int _l,
         dp1.add_matrix_form(0, 0, lhs_R);
         dp2.add_matrix_form(0, 0, rhs_R);
     } else if (equation_type == eqn_type_rR) {
+        mesh->set_bc_left_dirichlet(0, 0);
+        mesh->set_bc_right_dirichlet(0, 0);
         dp1.add_matrix_form(0, 0, lhs_rR);
         dp2.add_matrix_form(0, 0, rhs_rR);
     } else
