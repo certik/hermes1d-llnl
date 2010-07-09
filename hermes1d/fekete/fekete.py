@@ -472,16 +472,16 @@ def main():
             c = g.get_candidates_with_errors(f)
             cands.extend(c)
         cands.sort(key=lambda x: x[1])
-        cands = cands[:4]
+        cands = cands[:1]
         print "    Done."
         print "Will use the following candidates:"
         for m, err in cands:
             print "   ", err, m._points, m._orders
         m, _ = cands[0]
-        for m2, _ in cands[1:]:
-            m = m.union(m2)
-        print "Union of the candidates is:"
-        print m._points, m._orders
+        #for m2, _ in cands[1:]:
+        #    m = m.union(m2)
+        #print "Union of the candidates is:"
+        #print m._points, m._orders
         print "Refining mesh..."
         g_mesh = g_mesh.use_candidate(m)
         print "    Done."
