@@ -467,16 +467,22 @@ def main():
         print "  ", g_mesh._points
         print "  ", g_mesh._orders
         print "Calculating errors for all candidates..."
-        cand_with_errors = []
+        cands = []
         for f, g in zip(exact_fns, g_fns):
-            cands = g.get_candidates_with_errors(f)
-            cand_with_errors.extend(cands)
-        cand_with_errors.sort(key=lambda x: x[1])
+            c = g.get_candidates_with_errors(f)
+            cands.extend(c)
+        cands.sort(key=lambda x: x[1])
+        cands = cands[:4]
         print "    Done."
-        for m, err in cand_with_errors[:10]:
+        print "Will use the following candidates:"
+        for m, err in cands:
             print "   ", err, m._points, m._orders
+        m, _ = cands[0]
+        for m2, _ in cands[1:]:
+            m = m.union(m2)
+        print "Union of the candidates is:"
+        print m._points, m._orders
         print "Refining mesh..."
-        m, _ = cand_with_errors[0]
         g_mesh = g_mesh.use_candidate(m)
         print "    Done."
         print "Projecting onto the new mesh (and calculating the error)..."
