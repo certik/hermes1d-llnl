@@ -36,21 +36,18 @@ def solve_eig_scipy(A, B):
     Uses scipy to solve the A*x = lambda*B*x eigenproblem.
     """
     from numpy import array
-    from scipy.linalg import eig
+    from scipy.linalg import eigh
     A = A.todense()
     B = B.todense()
 
     print "solving"
-    w, v = eig(A, B)
+    w, v = eigh(A, B)
     print "sorting the eigenvalues"
 
     r = []
     for i in range(len(w)):
         vec = v[:, i]
         E = w[i]
-        if not (abs(E.imag) < 1e-12):
-            raise Exception("Getting complex eigenvalues");
-        E = E.real
         r.append((E, vec))
     r.sort(key=lambda x: x[0])
     print "eigenvalues:"
