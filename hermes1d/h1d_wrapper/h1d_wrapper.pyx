@@ -108,6 +108,12 @@ cdef class Mesh:
             e = I._next_active_element()
         return array(pts), array(p)
 
+    def set_bc_left_dirichlet(self, eq_n, val):
+        self.thisptr.set_bc_left_dirichlet(eq_n, val)
+
+    def set_bc_right_dirichlet(self, eq_n, val):
+        self.thisptr.set_bc_right_dirichlet(eq_n, val)
+
 cdef api object c2py_Mesh(hermes1d.Mesh *h):
     cdef Mesh n
     n = <Mesh>PY_NEW(Mesh)
