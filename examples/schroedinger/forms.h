@@ -15,6 +15,10 @@ double rhs(int num, double *x, double *weights,
                 double du_prevdx[MAX_SLN_NUM][MAX_EQN_NUM][MAX_QUAD_PTS_NUM],
                 void *user_data);
 
-void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B, int l);
+#define eqn_type_R  0
+#define eqn_type_rR 1
+
+void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B, int _l,
+        int equation_type=eqn_type_R);
 
 #endif
