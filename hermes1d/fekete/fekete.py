@@ -400,6 +400,7 @@ class Function(object):
             cands = generate_candidates(a, b, order)
             #print "-"*40
             #print a, b, order
+            best_crit = 1e10
             for m in cands:
                 cand_mesh = self._mesh.use_candidate(m)
                 cand = f.project_onto(cand_mesh)
@@ -430,10 +431,13 @@ class Function(object):
                         crit = -1e10
                     else:
                         crit = 1e10 # forget this candidate
-                cand_with_errors.append((m, crit))
-                if crit < -1e9:
-                    cand_with_errors.sort(key=lambda x: x[1])
-                    return cand_with_errors
+                if crit < best_crit:
+                    best_m = m
+                    best_crit = crit
+            cand_with_errors.append((best_m, best_crit))
+                #if crit < -1e9:
+                #    cand_with_errors.sort(key=lambda x: x[1])
+                #    return cand_with_errors
 
         cand_with_errors.sort(key=lambda x: x[1])
         return cand_with_errors
@@ -472,18 +476,14 @@ def main():
             c = g.get_candidates_with_errors(f)
             cands.extend(c)
         cands.sort(key=lambda x: x[1])
-        cands = cands[:1]
+        cands = cands[:4]
         print "    Done."
         print "Will use the following candidates:"
         for m, err in cands:
             print "   ", err, m._points, m._orders
-        m, _ = cands[0]
-        #for m2, _ in cands[1:]:
-        #    m = m.union(m2)
-        #print "Union of the candidates is:"
-        #print m._points, m._orders
         print "Refining mesh..."
-        g_mesh = g_mesh.use_candidate(m)
+        for m, _ in cands:
+            g_mesh = g_mesh.use_candidate(m)
         print "    Done."
         print "Projecting onto the new mesh (and calculating the error)..."
         g_fns = [f.project_onto(g_mesh) for f in exact_fns]
