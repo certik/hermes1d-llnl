@@ -89,6 +89,8 @@ def main():
     for i in range(100000):
         print "-"*80
         print "adaptivity iteration:", i
+        mesh.set_bc_left_dirichlet(0, 0)
+        mesh.set_bc_right_dirichlet(0, 0)
         N_dof = mesh.assign_dofs()
         pts, orders = mesh.get_mesh_data()
         print "Current mesh:"
