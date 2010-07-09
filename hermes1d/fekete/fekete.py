@@ -202,6 +202,34 @@ class Mesh1D(object):
         orders = self._orders[:n1] + cand._orders + self._orders[n2:]
         return Mesh1D(points, orders)
 
+    def dofs(self):
+        """
+        Returns the number of DOFs needed to represent the function using H1
+        elements.
+
+        It assumes no Dirichlet BC at either end. If you have a Dirichlet BC at
+        one end, substract 1, if you have Dirichlet BC at both ends, substract
+        2.
+
+        Example::
+
+        >>> from fekete import Mesh1D, Function
+        >>> from math import sin
+        >>> m = Mesh1D((0, 10, 20, 30, 40), (6, 6, 6, 6))
+        >>> f = Function(sin, m)
+        >>> f.dofs()
+        25
+
+        If you prescribe values at both ends using Dirichlet, then f.dofs()
+        returns 25 (as it doesn't know about any FEM), but the number of DOFs
+        that you get in FEM is 23.
+
+        """
+        n = 1
+        for a, b, order in self.iter_elems():
+            n += order
+        return n
+
 class Function(object):
     """
     Represents a function on a mesh.
@@ -355,34 +383,6 @@ class Function(object):
             i += val
         return i
 
-    def dofs(self):
-        """
-        Returns the number of DOFs needed to represent the function using H1
-        elements.
-
-        It assumes no Dirichlet BC at either end. If you have a Dirichlet BC at
-        one end, substract 1, if you have Dirichlet BC at both ends, substract
-        2.
-
-        Example::
-
-        >>> from fekete import Mesh1D, Function
-        >>> from math import sin
-        >>> m = Mesh1D((0, 10, 20, 30, 40), (6, 6, 6, 6))
-        >>> f = Function(sin, m)
-        >>> f.dofs()
-        25
-
-        If you prescribe values at both ends using Dirichlet, then f.dofs()
-        returns 25 (as it doesn't know about any FEM), but the number of DOFs
-        that you get in FEM is 23.
-
-        """
-        n = 1
-        for a, b, order in self._mesh.iter_elems():
-            n += order
-        return n
-
     def get_candidates_with_errors(self, f):
         """
         Returns a sorted list of all candidates and their errors.
@@ -433,6 +433,9 @@ class Function(object):
                 cand_with_errors.append((m, crit))
         cand_with_errors.sort(key=lambda x: x[1])
         return cand_with_errors
+
+    def dofs(self):
+        return self._mesh.dofs()
 
 def main():
     pts = (0, 2, 4, 6, 8, 10, 50, 80, 100, 120, 150)
