@@ -71,12 +71,16 @@ def plot_conv(conv_graph, exact=None, l=None):
         x.append(dofs)
         for i in range(4):
             y[i].append(energies[i]-exact[i])
-    print x
+    f = open("data.py", "w")
+    f.write("R_x = {\n")
+    f.write("        %d: %s,\n" % (l, x))
+    f.write("    }\n")
+    f.write("R_y = {\n")
     for i in range(4):
         n = l+1+i
-        print n, l
-        print y[i]
+        f.write("        (%d, %d): %s,\n" % (n, l, y[i]))
         do_plot(x, y[i], n, l)
+    f.write("    }\n")
     savefig("conv_l_0.png")
 
 def main():
