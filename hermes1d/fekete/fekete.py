@@ -410,7 +410,7 @@ class Function(object):
                         # if this happens, it means that we can get better
                         # approximation with the same DOFs, so we definitely take
                         # this candidate:
-                        print "XXX", dof_cand, dof_orig, err_cand, err_orig
+                        print "DOF_cand == DOF_orig:", dof_cand, dof_orig, err_cand, err_orig
                         crit = -1e10
                     else:
                         crit = 1e10 # forget this candidate
@@ -457,7 +457,7 @@ def main():
         print "-"*80
         print "Adaptivity step:", i
         print "Current errors:", errors
-        print "Current DOFs  :", [g.dofs() for g in g_fns]
+        print "Current DOFs  :", g_mesh.dofs()
         graph.append((g_mesh.dofs(), errors))
         print "Current mesh (and orders):"
         print "  ", g_mesh._points
@@ -484,10 +484,10 @@ def main():
     graph.append((g.dofs(), error))
     print
     print "Adaptivity converged."
-    print "Final error:", errors
-    print "Final DOFs :", [g.dofs() for g in g_fns]
-    print "DOFs used to approximate the exact function:    ", \
-        [f.dofs() for f in exact_fns]
+    print "Final errors:", errors
+    print "Final DOFs  :", g_mesh.dofs()
+    print "DOFs used to approximate the exact functions:    ", \
+        f_mesh.dofs()
     print "Final mesh (and orders):"
     print "  ", g_mesh._points
     print "  ", g_mesh._orders
