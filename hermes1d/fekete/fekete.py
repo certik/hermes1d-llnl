@@ -356,7 +356,26 @@ class Function(object):
 
     def dofs(self):
         """
-        Returns the number of DOFs needed to represent the function.
+        Returns the number of DOFs needed to represent the function using H1
+        elements.
+
+        It assumes no Dirichlet BC at either end. If you have a Dirichlet BC at
+        one end, substract 1, if you have Dirichlet BC at both ends, substract
+        2.
+
+        Example::
+
+        >>> from fekete import Mesh1D, Function
+        >>> from math import sin
+        >>> m = Mesh1D((0, 10, 20, 30, 40), (6, 6, 6, 6))
+        >>> f = Function(sin, m)
+        >>> f.dofs()
+        25
+
+        If you prescribe values at both ends using Dirichlet, then f.dofs()
+        returns 25 (as it doesn't know about any FEM), but the number of DOFs
+        that you get in FEM is 23.
+
         """
         n = 1
         for a, b, order in self._mesh.iter_elems():
