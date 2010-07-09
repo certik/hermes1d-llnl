@@ -82,8 +82,6 @@ double rhs_rR(int num, double *x, double *weights,
 void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B, int _l,
         int equation_type)
 {
-    int N_dof = mesh->assign_dofs();
-    printf("Assembling A, B. ndofs: %d\n", N_dof);
 
     l = _l;
     // TODO: cache those DiscreteProblems and reuse them.
@@ -101,6 +99,8 @@ void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B, int _l,
     } else
         throw std::runtime_error("Unknown equation type");
 
+    int N_dof = mesh->assign_dofs();
+    printf("Assembling A, B. ndofs: %d\n", N_dof);
     dp1.assemble_matrix(mesh, A);
     dp2.assemble_matrix(mesh, B);
     printf("  Done assembling.\n");
