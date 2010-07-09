@@ -431,6 +431,10 @@ class Function(object):
                     else:
                         crit = 1e10 # forget this candidate
                 cand_with_errors.append((m, crit))
+                if crit < -1e9:
+                    cand_with_errors.sort(key=lambda x: x[1])
+                    return cand_with_errors
+
         cand_with_errors.sort(key=lambda x: x[1])
         return cand_with_errors
 
