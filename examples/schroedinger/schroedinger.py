@@ -20,6 +20,9 @@ from plot import plot_eigs, plot_file
 N_elem = 4                         # number of elements
 R = 150                            # right hand side of the domain
 P_init = 6                         # initial polynomal degree
+l = 0                              # angular momentum quantum number
+error_tol = 1e-6                   # error tolerance
+#error_tol = 1e-2
 
 def find_element_romanowski(coeffs):
     els = []
@@ -82,9 +85,6 @@ def main():
     orders = [P_init]*(len(pts)-1)
     mesh = Mesh(pts, orders)
     conv_graph = []
-    l = 0
-    error_tol = 1e-6
-    #error_tol = 1e-2
     for i in range(100000):
         print "-"*80
         print "adaptivity iteration:", i
