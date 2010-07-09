@@ -442,34 +442,47 @@ def main():
     g = f.project_onto(g_mesh)
     error = (g-f).l2_norm()
     graph = []
-    while error > 1e-9:
-        print error, g.dofs()
+    for i in range(100000):
+        print "-"*80
+        print "Adaptivity step:", i
+        print "Current error:", error
+        print "Current DOFs :", g.dofs()
         graph.append((g.dofs(), error))
+        print "Current mesh (and orders):"
         print "  ", g._mesh._points
         print "  ", g._mesh._orders
+        print "Calculating errors for all candidates..."
         cand_with_errors = g.get_candidates_with_errors(f)
         #for m, err in cand_with_errors[:10]:
         #    print "   ", err, m._points, m._orders
+        print "    Done."
+        print "Refining mesh..."
         m, _ = cand_with_errors[0]
         g_mesh = g_mesh.use_candidate(m)
+        print "    Done."
+        print "Projecting onto the new mesh (and calculating the error)..."
         g = f.project_onto(g_mesh)
         error = (g-f).l2_norm()
+        print "    Done."
+        if error < 1e-9:
+            break
     graph.append((g.dofs(), error))
-    print "Done.", error
+    print
+    print "Adaptivity converged. Final error: ", error
     error = (g - f)
     print "error:     ", error.l2_norm()
     print "f dofs:    ", f.dofs()
     print "g dofs:    ", g.dofs()
-    f.plot(False)
-    g.plot(False)
-    g._mesh.plot(False)
-    from pylab import figure, show, semilogy, grid
-    figure()
-    xx = [x[0] for x in graph]
-    yy = [x[1] for x in graph]
-    semilogy(xx, yy)
-    grid()
-    show()
+    #f.plot(False)
+    #g.plot(False)
+    #g._mesh.plot(False)
+    #from pylab import figure, show, semilogy, grid
+    #figure()
+    #xx = [x[0] for x in graph]
+    #yy = [x[1] for x in graph]
+    #semilogy(xx, yy)
+    #grid()
+    #show()
 
 if __name__ == "__main__":
     main()
