@@ -476,7 +476,7 @@ def main():
             c = g.get_candidates_with_errors(f)
             cands.extend(c)
         cands.sort(key=lambda x: x[1])
-        cands = cands[:4]
+        cands = cands[:4+len(cands)/3]
         print "    Done."
         print "Will use the following candidates:"
         for m, err in cands:
