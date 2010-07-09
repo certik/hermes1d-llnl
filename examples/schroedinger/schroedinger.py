@@ -23,10 +23,17 @@ R = 150                            # right hand side of the domain
 P_init = 6                         # initial polynomal degree
 l = 0                              # angular momentum quantum number
 error_tol = 1e-6                   # error tolerance
-eqn_type="rR"                      # either R or rR
+eqn_type="R"                      # either R or rR
 #error_tol = 1e-2
 
 def find_element_romanowski(coeffs):
+    """
+    Finds the smallest coefficient at each element (error) and return the
+    element with the largest error.
+
+    Effectivelly it is just using the coefficient at the highest bubble
+    function and it needs at least quadratic elements (or higher) to work.
+    """
     els = []
     for n, e in enumerate(coeffs):
         error = min(abs(e[2:]))
