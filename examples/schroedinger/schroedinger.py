@@ -23,6 +23,7 @@ R = 150                            # right hand side of the domain
 P_init = 6                         # initial polynomal degree
 l = 0                              # angular momentum quantum number
 error_tol = 1e-6                   # error tolerance
+eqn_type="rR"                      # either R or rR
 #error_tol = 1e-2
 
 def find_element_romanowski(coeffs):
@@ -89,15 +90,16 @@ def main():
     for i in range(100000):
         print "-"*80
         print "adaptivity iteration:", i
-        mesh.set_bc_left_dirichlet(0, 0)
-        mesh.set_bc_right_dirichlet(0, 0)
+        if eqn_type == "rR":
+            mesh.set_bc_left_dirichlet(0, 0)
+            mesh.set_bc_right_dirichlet(0, 0)
         N_dof = mesh.assign_dofs()
         pts, orders = mesh.get_mesh_data()
         print "Current mesh:"
         print pts
         A = CooMatrix(N_dof)
         B = CooMatrix(N_dof)
-        assemble_schroedinger(mesh, A, B, l=l, eqn_type="R")
+        assemble_schroedinger(mesh, A, B, l=l, eqn_type=eqn_type)
         #eigs = solve_eig_numpy(A.to_scipy_coo(), B.to_scipy_coo())[:4]
         eigs = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())[:4]
         print
