@@ -96,6 +96,7 @@ def main():
         A = CooMatrix(N_dof)
         B = CooMatrix(N_dof)
         assemble_schroedinger(mesh, A, B, l=l, eqn_type="R")
+        #eigs = solve_eig_numpy(A.to_scipy_coo(), B.to_scipy_coo())[:4]
         eigs = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())[:4]
         print
         els2refine = []
