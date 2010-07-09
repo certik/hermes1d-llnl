@@ -442,44 +442,52 @@ def main():
     orders = tuple([12]*(len(pts)-1))
     f_mesh = Mesh1D(pts, orders)
     print "Projecting the hydrogen wavefunctions into a very fine mesh..."
-    f = Function(lambda x: R_nl_numeric(1, 0, x), f_mesh)
+    exact_fns = [
+        Function(lambda x: R_nl_numeric(1, 0, x), f_mesh),
+        Function(lambda x: R_nl_numeric(2, 0, x), f_mesh),
+        Function(lambda x: R_nl_numeric(3, 0, x), f_mesh),
+        Function(lambda x: R_nl_numeric(4, 0, x), f_mesh),
+        ]
     print "    Done."
-    #mesh = f.get_mesh_adapt(max_order=1)
     g_mesh = Mesh1D((0, pts[-1]), (1,))
-    #mesh.plot(False)
-    g = f.project_onto(g_mesh)
-    error = (g-f).l2_norm()
+    g_fns = [f.project_onto(g_mesh) for f in exact_fns]
+    errors = [(g-f).l2_norm() for f, g in zip(exact_fns, g_fns)]
     graph = []
     for i in range(100000):
         print "-"*80
         print "Adaptivity step:", i
-        print "Current error:", error
-        print "Current DOFs :", g.dofs()
-        graph.append((g.dofs(), error))
+        print "Current errors:", errors
+        print "Current DOFs  :", [g.dofs() for g in g_fns]
+        graph.append((g_mesh.dofs(), errors))
         print "Current mesh (and orders):"
         print "  ", g_mesh._points
         print "  ", g_mesh._orders
         print "Calculating errors for all candidates..."
-        cand_with_errors = g.get_candidates_with_errors(f)
-        #for m, err in cand_with_errors[:10]:
-        #    print "   ", err, m._points, m._orders
+        cand_with_errors = []
+        for f, g in zip(exact_fns, g_fns):
+            cands = g.get_candidates_with_errors(f)
+            cand_with_errors.extend(cands)
+        cand_with_errors.sort(key=lambda x: x[1])
         print "    Done."
+        for m, err in cand_with_errors[:10]:
+            print "   ", err, m._points, m._orders
         print "Refining mesh..."
         m, _ = cand_with_errors[0]
         g_mesh = g_mesh.use_candidate(m)
         print "    Done."
         print "Projecting onto the new mesh (and calculating the error)..."
-        g = f.project_onto(g_mesh)
-        error = (g-f).l2_norm()
+        g_fns = [f.project_onto(g_mesh) for f in exact_fns]
+        errors = [(g-f).l2_norm() for f, g in zip(exact_fns, g_fns)]
         print "    Done."
-        if error < 1e-9:
+        if max(errors) < 1e-9:
             break
     graph.append((g.dofs(), error))
     print
     print "Adaptivity converged."
-    print "Final error:", error
-    print "Final DOFs :", g.dofs()
-    print "DOFs used to approximate the exact function:    ", f.dofs()
+    print "Final error:", errors
+    print "Final DOFs :", [g.dofs() for g in g_fns]
+    print "DOFs used to approximate the exact function:    ", \
+        [f.dofs() for f in exact_fns]
     print "Final mesh (and orders):"
     print "  ", g_mesh._points
     print "  ", g_mesh._orders
