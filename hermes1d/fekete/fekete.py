@@ -468,11 +468,13 @@ def main():
             break
     graph.append((g.dofs(), error))
     print
-    print "Adaptivity converged. Final error: ", error
-    error = (g - f)
-    print "error:     ", error.l2_norm()
-    print "f dofs:    ", f.dofs()
-    print "g dofs:    ", g.dofs()
+    print "Adaptivity converged."
+    print "Final error:", error
+    print "Final DOFs :", g.dofs()
+    print "DOFs used to approximate the exact function:    ", f.dofs()
+    print "Final mesh (and orders):"
+    print "  ", g._mesh._points
+    print "  ", g._mesh._orders
     #f.plot(False)
     #g.plot(False)
     #g._mesh.plot(False)
