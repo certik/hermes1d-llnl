@@ -10,6 +10,7 @@ from numpy.linalg import solve
 from scipy.integrate import quadrature
 
 from gauss_lobatto_points import points
+from hydrogen import R_nl_numeric
 
 def get_x_phys(x_ref, a, b):
     return (a+b)/2. + x_ref*(b-a)/2.;
@@ -435,7 +436,9 @@ class Function(object):
 
 def main():
     f_mesh = Mesh1D((0, 2, 4, 6, 8, 10), (12, 12, 12, 12, 12))
-    f = Function(lambda x: exp(-x), f_mesh)
+    print "Projecting the hydrogen wavefunctions into a very fine mesh..."
+    f = Function(lambda x: R_nl_numeric(1, 0, x), f_mesh)
+    print "    Done."
     #mesh = f.get_mesh_adapt(max_order=1)
     g_mesh = Mesh1D((0, 10), (1,))
     #mesh.plot(False)
