@@ -435,12 +435,14 @@ class Function(object):
         return cand_with_errors
 
 def main():
-    f_mesh = Mesh1D((0, 2, 4, 6, 8, 10), (12, 12, 12, 12, 12))
+    pts = (0, 2, 4, 6, 8, 10, 50, 80, 100, 120, 150)
+    orders = tuple([12]*(len(pts)-1))
+    f_mesh = Mesh1D(pts, orders)
     print "Projecting the hydrogen wavefunctions into a very fine mesh..."
     f = Function(lambda x: R_nl_numeric(1, 0, x), f_mesh)
     print "    Done."
     #mesh = f.get_mesh_adapt(max_order=1)
-    g_mesh = Mesh1D((0, 10), (1,))
+    g_mesh = Mesh1D((0, pts[-1]), (1,))
     #mesh.plot(False)
     g = f.project_onto(g_mesh)
     error = (g-f).l2_norm()
@@ -452,8 +454,8 @@ def main():
         print "Current DOFs :", g.dofs()
         graph.append((g.dofs(), error))
         print "Current mesh (and orders):"
-        print "  ", g._mesh._points
-        print "  ", g._mesh._orders
+        print "  ", g_mesh._points
+        print "  ", g_mesh._orders
         print "Calculating errors for all candidates..."
         cand_with_errors = g.get_candidates_with_errors(f)
         #for m, err in cand_with_errors[:10]:
@@ -476,8 +478,8 @@ def main():
     print "Final DOFs :", g.dofs()
     print "DOFs used to approximate the exact function:    ", f.dofs()
     print "Final mesh (and orders):"
-    print "  ", g._mesh._points
-    print "  ", g._mesh._orders
+    print "  ", g_mesh._points
+    print "  ", g_mesh._orders
     #f.plot(False)
     #g.plot(False)
     #g._mesh.plot(False)
