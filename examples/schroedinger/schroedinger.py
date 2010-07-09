@@ -8,7 +8,8 @@ from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
         xlabel, ylabel
 
 from hermes1d import Mesh
-from hermes1d.solvers.eigen import solve_eig_numpy, solve_eig_pysparse
+from hermes1d.solvers.eigen import solve_eig_numpy, solve_eig_pysparse, \
+        solve_eig_scipy
 from hermes1d.h1d_wrapper.h1d_wrapper import FESolution
 from hermes1d.fekete.fekete import Function, Mesh1D
 from hermes_common._hermes_common import CooMatrix
@@ -95,7 +96,7 @@ def main():
         A = CooMatrix(N_dof)
         B = CooMatrix(N_dof)
         assemble_schroedinger(mesh, A, B, l=l, eqn_type="R")
-        eigs = solve_eig_numpy(A.to_scipy_coo(), B.to_scipy_coo())[:4]
+        eigs = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())[:4]
         print
         els2refine = []
         errors = []
