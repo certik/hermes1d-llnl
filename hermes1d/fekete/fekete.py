@@ -3,6 +3,9 @@ Module for handling Fekete points approximations.
 """
 
 from math import pi, sin, log, sqrt, exp, cos
+import logging
+import datetime
+import time
 
 from numpy import empty, arange, array, ndarray
 from numpy.linalg import solve
@@ -62,9 +65,12 @@ class Mesh1D(object):
             raise Exception("points vs order mismatch")
         self._points = tuple(points)
         self._orders = tuple(orders)
+        self.logger = logging.getLogger("hermes1d.Mesh1D")
 
-    def iter_elems(self):
-        for i in range(len(self._orders)):
+    def iter_elems(self, elems_id=None):
+        if elems_id is None:
+            elems_id = range(len(self._orders))
+        for i in elems_id:
             yield (self._points[i], self._points[i+1], self._orders[i])
 
     def plot(self, call_show=True):
@@ -230,6 +236,53 @@ class Mesh1D(object):
             n += order
         return n
 
+    def adapt(self, exact_fns):
+        """
+        Adapts the mesh using the set of exact (or reference) solutions
+        'exact_fns'.
+        """
+        g_mesh = self
+        g_fns = [f.project_onto(g_mesh) for f in exact_fns]
+        errors = [(g-f).l2_norm() for f, g in zip(exact_fns, g_fns)]
+        graph = []
+        for i in range(100000):
+            self.logger.info("-"*80)
+            self.logger.info("Adaptivity step: %s", i)
+            self.logger.info("Current errors: %s", errors)
+            self.logger.info("Current DOFs  : %s", g_mesh.dofs())
+            graph.append((g_mesh.dofs(), errors))
+            self.logger.info("Current mesh (and orders):")
+            self.logger.info("   %s", g_mesh._points)
+            self.logger.info("   %s", g_mesh._orders)
+            self.logger.info("Determining which elements to refine...")
+            elems_to_refine = [0]
+            self.logger.info("Will refine the following elements: %s",
+                    elems_to_refine)
+            self.logger.info("    Done.")
+            self.logger.info("Calculating errors for all candidates...")
+            cands = []
+            for f, g in zip(exact_fns, g_fns):
+                c = g.get_candidates_with_errors(f, elems_to_refine)
+                cands.extend(c)
+            cands.sort(key=lambda x: x[1])
+            cands = cands[:4+len(cands)/3]
+            self.logger.info("    Done.")
+            self.logger.info("Will use the following candidates:")
+            for m, err in cands:
+                self.logger.info("   %s %s %s", err, m._points, m._orders)
+            self.logger.info("Refining mesh...")
+            for m, _ in cands:
+                g_mesh = g_mesh.use_candidate(m)
+            self.logger.info("    Done.")
+            self.logger.info("Projecting onto the new mesh (and calculating the error)...")
+            g_fns = [f.project_onto(g_mesh) for f in exact_fns]
+            errors = [(g-f).l2_norm() for f, g in zip(exact_fns, g_fns)]
+            self.logger.info("    Done.")
+            if max(errors) < 1e-9:
+                break
+        graph.append((g.dofs(), error))
+        return g_mesh
+
 class Function(object):
     """
     Represents a function on a mesh.
@@ -258,6 +311,8 @@ class Function(object):
                     val = obj(p)
                     elem_values.append(val)
                 self._values.append(elem_values)
+
+        self.logger = logging.getLogger("hermes1d.Function")
 
     def get_polynomial(self, values, a, b):
         """
@@ -383,7 +438,7 @@ class Function(object):
             i += val
         return i
 
-    def get_candidates_with_errors(self, f):
+    def get_candidates_with_errors(self, f, elems=None):
         """
         Returns a sorted list of all candidates and their errors.
 
@@ -396,8 +451,10 @@ class Function(object):
         orig = f.project_onto(self._mesh)
         dof_orig = orig.dofs()
         err_orig = (f - orig).l2_norm()
-        for a, b, order in self._mesh.iter_elems():
+        for a, b, order in self._mesh.iter_elems(elems):
+            self.logger.info("Considering element: %s %s %s", a, b, order)
             cands = generate_candidates(a, b, order)
+            self.logger.debug("Candidates %s", cands)
             #print "-"*40
             #print a, b, order
             best_crit = 1e10
@@ -446,61 +503,29 @@ class Function(object):
         return self._mesh.dofs()
 
 def main():
+    logger = logging.getLogger("hermes1d")
+
     pts = (0, 2, 4, 6, 8, 10, 50, 80, 100, 120, 150)
     orders = tuple([12]*(len(pts)-1))
     f_mesh = Mesh1D(pts, orders)
-    print "Projecting the hydrogen wavefunctions into a very fine mesh..."
+    logger.info("Projecting the hydrogen wavefunctions into a very fine mesh...")
     exact_fns = [
         Function(lambda x: R_nl_numeric(1, 0, x), f_mesh),
         Function(lambda x: R_nl_numeric(2, 0, x), f_mesh),
         Function(lambda x: R_nl_numeric(3, 0, x), f_mesh),
         Function(lambda x: R_nl_numeric(4, 0, x), f_mesh),
         ]
-    print "    Done."
+    logger.info("    Done.")
     g_mesh = Mesh1D((0, pts[-1]), (1,))
-    g_fns = [f.project_onto(g_mesh) for f in exact_fns]
-    errors = [(g-f).l2_norm() for f, g in zip(exact_fns, g_fns)]
-    graph = []
-    for i in range(100000):
-        print "-"*80
-        print "Adaptivity step:", i
-        print "Current errors:", errors
-        print "Current DOFs  :", g_mesh.dofs()
-        graph.append((g_mesh.dofs(), errors))
-        print "Current mesh (and orders):"
-        print "  ", g_mesh._points
-        print "  ", g_mesh._orders
-        print "Calculating errors for all candidates..."
-        cands = []
-        for f, g in zip(exact_fns, g_fns):
-            c = g.get_candidates_with_errors(f)
-            cands.extend(c)
-        cands.sort(key=lambda x: x[1])
-        cands = cands[:4+len(cands)/3]
-        print "    Done."
-        print "Will use the following candidates:"
-        for m, err in cands:
-            print "   ", err, m._points, m._orders
-        print "Refining mesh..."
-        for m, _ in cands:
-            g_mesh = g_mesh.use_candidate(m)
-        print "    Done."
-        print "Projecting onto the new mesh (and calculating the error)..."
-        g_fns = [f.project_onto(g_mesh) for f in exact_fns]
-        errors = [(g-f).l2_norm() for f, g in zip(exact_fns, g_fns)]
-        print "    Done."
-        if max(errors) < 1e-9:
-            break
-    graph.append((g.dofs(), error))
-    print
-    print "Adaptivity converged."
-    print "Final errors:", errors
-    print "Final DOFs  :", g_mesh.dofs()
-    print "DOFs used to approximate the exact functions:    ", \
-        f_mesh.dofs()
-    print "Final mesh (and orders):"
-    print "  ", g_mesh._points
-    print "  ", g_mesh._orders
+    g_mesh = g_mesh.adapt(exact_fns)
+    logger.info("Adaptivity converged.")
+    #logger.info("Final errors:", errors)
+    logger.info("Final DOFs  : %s", g_mesh.dofs())
+    logger.info("DOFs used to approximate the exact functions:    %s", \
+        f_mesh.dofs())
+    logger.info("Final mesh (and orders):")
+    logger.info("   %s", g_mesh._points)
+    logger.info("   %s", g_mesh._orders)
     #f.plot(False)
     #g.plot(False)
     #g._mesh.plot(False)
@@ -513,4 +538,29 @@ def main():
     #show()
 
 if __name__ == "__main__":
+    class TimeFormatter(logging.Formatter):
+        """
+        Uses datetime to format the time.
+
+        Also counts the time interval from creating this instance.
+
+        Otherwise it's the same as Formatter.  This is useful if you need to
+        print milliseconds, that Formatter doesn't support.
+        """
+        def __init__(self, *args, **kwargs):
+            self._created = time.time()
+            logging.Formatter.__init__(self, *args, **kwargs)
+
+        def formatTime(self, record, datefmt=None):
+            delta = record.created - self._created
+            return "%8.3f" % delta
+
+    logging.basicConfig(level=logging.DEBUG, filename="fekete.log",
+            format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+            filemode="w")
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    formatter = TimeFormatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+    console.setFormatter(formatter)
+    logging.getLogger("").addHandler(console)
     main()
