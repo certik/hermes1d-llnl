@@ -468,14 +468,14 @@ class Function(object):
         """
         Returns the L2 norm of the function.
         """
-        self.logger.debug("l2_norm:")
+        #self.logger.debug("l2_norm:")
         i = 0
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
             def f(x):
                 return self.get_values_in_element(n, x)**2
-            val, _ = fixed_quad(f, a, b, (), 2*order+1)
+            val, _ = fixed_quad(f, a, b, (), order+3)
             i += val
-        self.logger.debug("    done.")
+        #self.logger.debug("    done.")
         return i
 
     def get_candidates_with_errors(self, f, elems=None):
@@ -509,7 +509,6 @@ class Function(object):
                 # SLOW:
                 diff = f - cand
                 self.logger.debug("  l2_norm...")
-                # SLOW:
                 err_cand = diff.l2_norm()
                 self.logger.debug("  Choose...")
                 if dof_cand == dof_orig:
