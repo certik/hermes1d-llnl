@@ -465,10 +465,18 @@ class Function(object):
             best_crit = 1e10
             for m in cands:
                 self.logger.debug("Candidate: %s", m)
+                self.logger.debug("  create_mesh...")
                 cand_mesh = self._mesh.use_candidate(m)
+                self.logger.debug("  project...")
                 cand = f.project_onto(cand_mesh)
                 dof_cand = cand.dofs()
-                err_cand = (f - cand).l2_norm()
+                self.logger.debug("  f-cand...")
+                # SLOW:
+                diff = f - cand
+                self.logger.debug("  l2_norm...")
+                # SLOW:
+                err_cand = diff.l2_norm()
+                self.logger.debug("  Choose...")
                 if dof_cand == dof_orig:
                     if err_cand < err_orig:
                         # if this happens, it means that we can get better
