@@ -287,7 +287,7 @@ class Mesh1D(object):
             if max(errors) < 1e-9:
                 break
         graph.append((g.dofs(), errors))
-        return g_mesh
+        return g_mesh, errors
 
 class Function(object):
     """
@@ -571,9 +571,9 @@ def main():
         ]
     logger.info("    Done.")
     g_mesh = Mesh1D((0, pts[-1]), (1,))
-    g_mesh = g_mesh.adapt(exact_fns)
+    g_mesh, errors = g_mesh.adapt(exact_fns)
     logger.info("Adaptivity converged.")
-    #logger.info("Final errors:", errors)
+    logger.info("Final errors: %s", errors)
     logger.info("Final DOFs  : %s", g_mesh.dofs())
     logger.info("DOFs used to approximate the exact functions:    %s", \
         f_mesh.dofs())
