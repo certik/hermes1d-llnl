@@ -506,7 +506,7 @@ class Function(object):
                 cand = f.project_onto(cand_mesh)
                 dof_cand = cand.dofs()
                 self.logger.debug("  f-cand...")
-                # SLOW:
+                # SLOW (project_onto is slow in __add__):
                 diff = f - cand
                 self.logger.debug("  l2_norm...")
                 err_cand = diff.l2_norm()
