@@ -14,6 +14,7 @@ from scipy.integrate import quadrature, fixed_quad
 
 from gauss_lobatto_points import points
 from hydrogen import R_nl_numeric
+import _fekete
 
 def get_x_phys(x_ref, a, b):
     return (a+b)/2. + x_ref*(b-a)/2.;
@@ -285,7 +286,7 @@ class Mesh1D(object):
             self.logger.info("    Done.")
             if max(errors) < 1e-9:
                 break
-        graph.append((g.dofs(), error))
+        graph.append((g.dofs(), errors))
         return g_mesh
 
 class Function(object):
@@ -349,6 +350,9 @@ class Function(object):
 
 
     def eval_polynomial(self, coeffs, x):
+        # This is about 15x faster
+        return _fekete.eval_polynomial2(coeffs, x)
+        # than this:
         r = 0
         n = len(coeffs)
         for i, a in enumerate(coeffs):
