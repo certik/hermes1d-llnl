@@ -494,23 +494,25 @@ class Function(object):
         for a, b, order in self._mesh.iter_elems(elems):
             self.logger.info("Considering element: %s %s %s", a, b, order)
             cands = generate_candidates(a, b, order)
-            self.logger.debug("Candidates %s", cands)
+            #self.logger.debug("Candidates %s", cands)
             #print "-"*40
             #print a, b, order
             best_crit = 1e10
             for m in cands:
-                self.logger.debug("Candidate: %s", m)
-                self.logger.debug("  create_mesh...")
+                #self.logger.debug("Candidate: %s", m)
+                #self.logger.debug("  create_mesh...")
                 cand_mesh = self._mesh.use_candidate(m)
-                self.logger.debug("  project...")
+                #self.logger.debug("  project...")
                 cand = f.project_onto(cand_mesh)
                 dof_cand = cand.dofs()
-                self.logger.debug("  f-cand...")
-                # SLOW (project_onto is slow in __add__):
+                #self.logger.debug("  l2_norm...")
+                # This is slow, because we are calculating the l2_norm over the
+                # whole mesh and we are doing the union mesh as well. All we
+                # need to do is integrate over the element we are interested
+                # and cache the rest of the elements.
                 diff = f - cand
-                self.logger.debug("  l2_norm...")
                 err_cand = diff.l2_norm()
-                self.logger.debug("  Choose...")
+                #self.logger.debug("  Choose...")
                 if dof_cand == dof_orig:
                     if err_cand < err_orig:
                         # if this happens, it means that we can get better
