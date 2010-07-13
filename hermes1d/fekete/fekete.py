@@ -73,6 +73,9 @@ class Mesh1D(object):
         for i in elems_id:
             yield (self._points[i], self._points[i+1], self._orders[i])
 
+    def __str__(self):
+        return "<%s, orders: %s>" % (self._points, self._orders)
+
     def plot(self, call_show=True):
         try:
             from jsplot import plot, show
@@ -255,13 +258,15 @@ class Mesh1D(object):
             self.logger.info("   %s", g_mesh._points)
             self.logger.info("   %s", g_mesh._orders)
             self.logger.info("Determining which elements to refine...")
-            elems_to_refine = [0]
+            #elems_to_refine = [0]
+            elems_to_refine = None
             self.logger.info("Will refine the following elements: %s",
                     elems_to_refine)
             self.logger.info("    Done.")
             self.logger.info("Calculating errors for all candidates...")
             cands = []
-            for f, g in zip(exact_fns, g_fns):
+            for n, f, g in zip(range(len(exact_fns)), exact_fns, g_fns):
+                self.logger.info("  Considering mesh %d:" % n)
                 c = g.get_candidates_with_errors(f, elems_to_refine)
                 cands.extend(c)
             cands.sort(key=lambda x: x[1])
@@ -459,6 +464,7 @@ class Function(object):
             #print a, b, order
             best_crit = 1e10
             for m in cands:
+                self.logger.debug("Candidate: %s", m)
                 cand_mesh = self._mesh.use_candidate(m)
                 cand = f.project_onto(cand_mesh)
                 dof_cand = cand.dofs()
@@ -559,7 +565,7 @@ if __name__ == "__main__":
             format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
             filemode="w")
     console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
+    console.setLevel(logging.DEBUG)
     formatter = TimeFormatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
     console.setFormatter(formatter)
     logging.getLogger("").addHandler(console)
