@@ -7,7 +7,7 @@ import logging
 import datetime
 import time
 
-from numpy import empty, arange, array, ndarray
+from numpy import empty, arange, array, ndarray, zeros
 from numpy.linalg import solve
 
 from scipy.integrate import quadrature
@@ -317,6 +317,8 @@ class Function(object):
                     elem_values.append(val)
                 self._values.append(elem_values)
 
+        self._poly_coeffs = {}
+
         self.logger = logging.getLogger("hermes1d.Function")
 
     def get_polynomial(self, values, a, b):
@@ -353,6 +355,13 @@ class Function(object):
             r += a*x**(n-i-1)
         return r
 
+    def eval_polynomial_array(self, coeffs, x):
+        r = zeros(len(x))
+        n = len(coeffs)
+        for i, a in enumerate(coeffs):
+            r += a*x**(n-i-1)
+        return r
+
     def __call__(self, x):
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
             if b < x:
@@ -362,6 +371,30 @@ class Function(object):
             # polynomial below). The results are however identical.
             coeffs = self.get_polynomial(self._values[n], a, b)
             return self.eval_polynomial(coeffs, x)
+
+    def get_values_in_element(self, n, x):
+        """
+        Return the values in points 'x' in the element 'n'.
+
+        'x' is a numpy array of points
+        'n' is an element id
+
+        It returns a numpy array of values of the function in points 'x'.
+        All points 'x' must be in the element 'n'.
+        """
+        a, b, order = self._mesh.get_element_by_id(n)
+        assert (a<=x).all()
+        assert (x<=b).all()
+        # This can be made faster by using Lagrange interpolation
+        # polynomials (no need to invert a matrix in order to get the
+        # polynomial below). The results are however identical.
+        coeffs = self.get_polynomial_coeffs(n, a, b)
+        return self.eval_polynomial_array(coeffs, x)
+
+    def get_polynomial_coeffs(self, n, a, b):
+        if n not in self._poly_coeffs:
+            self._poly_coeffs[n] = self.get_polynomial(self._values[n], a, b)
+        return self._poly_coeffs[n]
 
     def project_onto(self, mesh):
         # This is not a true projection, only some approximation:
@@ -435,12 +468,14 @@ class Function(object):
         """
         Returns the L2 norm of the function.
         """
+        self.logger.debug("l2_norm:")
         i = 0
-        def f(x):
-            return [self(_)**2 for _ in x]
-        for a, b, order in self._mesh.iter_elems():
+        for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
+            def f(x):
+                return self.get_values_in_element(n, x)**2
             val, err = quadrature(f, a, b)
             i += val
+        self.logger.debug("    done.")
         return i
 
     def get_candidates_with_errors(self, f, elems=None):
