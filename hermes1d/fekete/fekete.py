@@ -10,7 +10,7 @@ import time
 from numpy import empty, arange, array, ndarray, zeros
 from numpy.linalg import solve
 
-from scipy.integrate import quadrature
+from scipy.integrate import quadrature, fixed_quad
 
 from gauss_lobatto_points import points
 from hydrogen import R_nl_numeric
@@ -473,7 +473,7 @@ class Function(object):
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
             def f(x):
                 return self.get_values_in_element(n, x)**2
-            val, err = quadrature(f, a, b)
+            val, _ = fixed_quad(f, a, b, (), 2*order+1)
             i += val
         self.logger.debug("    done.")
         return i
