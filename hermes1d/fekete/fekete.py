@@ -271,7 +271,8 @@ class Mesh1D(object):
                 c = g.get_candidates_with_errors(f, elems_to_refine)
                 cands.extend(c)
             cands.sort(key=lambda x: x[1])
-            cands = cands[:4+len(cands)/3]
+            #cands = cands[:4+len(cands)/3]
+            cands = cands[:1]
             self.logger.info("    Done.")
             self.logger.info("Will use the following candidates:")
             for m, err in cands:
