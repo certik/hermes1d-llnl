@@ -25,6 +25,7 @@ P_init = 6                         # initial polynomal degree
 l = 0                              # angular momentum quantum number
 error_tol = 1e-6                   # error tolerance
 eqn_type="R"                      # either R or rR
+NORM = 1 # 1 ... H1; 0 ... L2;
 #error_tol = 1e-2
 
 def find_element_romanowski(coeffs):
@@ -158,11 +159,21 @@ def main():
         conv_graph.append((N_dof, energies))
         print
         #mesh, errors = refine_mesh_romanowski(mesh, eigs)
-        mesh, errors = refine_mesh_h1_adapt(mesh, eigs)
-        total_error = max(errors)
-        print "Total error:", total_error
-        if total_error < error_tol:
+        mesh_ref = mesh.reference_refinement()
+        print "Fine mesh created (%d DOF)." % mesh_ref.get_n_dof()
+        A = CooMatrix(N_dof); B = CooMatrix(N_dof)
+        assemble_schroedinger(mesh_ref, A, B, l=l, eqn_type=eqn_type)
+        eigs = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())
+        eigs = eigs[:N_eig]
+        # TODO: project to mesh_ref, and mesh
+        err_est_total, err_est_array = calc_error_estimate(NORM, mesh,
+                mesh_ref, err_est_array);
+        ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
+        err_est_rel = err_est_total/ref_sol_norm
+        print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
+        if err_est_rel < error_tol:
             break
+        adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
     plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l, N_eig+1+l)],
             l=l)
     #plot_eigs(mesh, eigs)
