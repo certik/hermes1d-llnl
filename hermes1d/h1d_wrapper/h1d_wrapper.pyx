@@ -277,7 +277,7 @@ def calc_error_estimate(int norm, Mesh mesh, Mesh mesh_ref):
 def calc_solution_norm(int norm, Mesh mesh):
     return hermes1d.calc_solution_norm(norm, mesh.thisptr)
 
-def adapt(norm, adapt_type, threshold, ndarray[double] err_squared_array,
-        Mesh mesh, Mesh mesh_ref):
+def adapt(norm, adapt_type, threshold,
+        ndarray[double, mode="c"] err_squared_array, Mesh mesh, Mesh mesh_ref):
     hermes1d.adapt(norm, adapt_type, threshold, &err_squared_array[0],
             mesh.thisptr, mesh_ref.thisptr)
