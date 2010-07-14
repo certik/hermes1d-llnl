@@ -125,8 +125,24 @@ cdef class Mesh:
     def get_n_dof(self):
         return self.thisptr.get_n_dof()
 
-    def reference_refinement(self, a, b):
+    def _reference_refinement(self, a, b):
+        """
+        Refines the mesh in place.
+        """
         self.thisptr.reference_refinement(a, b)
+
+    def reference_refinement(self, start_elem_id=None, num_to_ref=None):
+        """
+        Returns a new instance of refined mesh.
+        """
+        mesh_ref = self.replicate()
+        if start_elem_id is None:
+            start_elem_id = 0
+        if num_to_ref is None:
+            num_to_ref = mesh_ref.get_n_active_elem()
+        mesh_ref._reference_refinement(start_elem_id, num_to_ref)
+        return mesh_ref
+
 
 cdef api object c2py_Mesh(hermes1d.Mesh *h):
     cdef Mesh n

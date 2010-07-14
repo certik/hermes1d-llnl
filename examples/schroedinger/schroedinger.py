@@ -72,10 +72,7 @@ def refine_mesh_h1_adapt(mesh, solutions):
     # so far only for one solution:
     assert len(solutions) == 1
     sol = solutions[0]
-    mesh_ref = mesh.replicate()
-    start_elem_id = 0
-    num_to_ref = mesh_ref.get_n_active_elem()
-    mesh_ref.reference_refinement(start_elem_id, num_to_ref)
+    mesh_ref = mesh.reference_refinement()
     print "Fine mesh created (%d DOF)." % mesh_ref.get_n_dof()
     return mesh_ref, [1.0]
 
