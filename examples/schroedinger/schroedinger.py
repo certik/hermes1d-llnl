@@ -11,7 +11,7 @@ from hermes1d import Mesh
 from hermes1d.solvers.eigen import solve_eig_numpy, solve_eig_pysparse, \
         solve_eig_scipy
 from hermes1d.h1d_wrapper.h1d_wrapper import FESolution, calc_error_estimate, \
-        calc_solution_norm
+        calc_solution_norm, adapt
 from hermes1d.fekete.fekete import Function, Mesh1D
 from hermes_common._hermes_common import CooMatrix
 
@@ -27,6 +27,8 @@ l = 0                              # angular momentum quantum number
 error_tol = 1e-6                   # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
+ADAPT_TYPE = 0
+THRESHOLD = 0.7
 #error_tol = 1e-2
 
 def find_element_romanowski(coeffs):
@@ -164,9 +166,11 @@ def main():
         print "Fine mesh created (%d DOF)." % mesh_ref.get_n_dof()
         A = CooMatrix(N_dof); B = CooMatrix(N_dof)
         assemble_schroedinger(mesh_ref, A, B, l=l, eqn_type=eqn_type)
-        eigs = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())
-        eigs = eigs[:N_eig]
+        eigs_ref = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())
+        eigs_ref = eigs_ref[:N_eig]
         # TODO: project to mesh_ref, and mesh
+        mesh.copy_vector_to_mesh(eigs[0], 0)
+        mesh_ref.copy_vector_to_mesh(eigs_ref[0], 0)
         err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
         ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
         err_est_rel = err_est_total/ref_sol_norm
