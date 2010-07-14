@@ -10,11 +10,16 @@ if(NOT CYTHON_INCLUDE_DIRECTORIES)
 endif(NOT CYTHON_INCLUDE_DIRECTORIES)
 
 macro(CYTHON_ADD_MODULE name)
+    if(EXISTS ${name}.pxd)
+        set(DEPS ${name}.pxd)
+    else(EXISTS ${name}.pxd)
+        set(DEPS)
+    endif(EXISTS ${name}.pxd)
     add_custom_command(
         OUTPUT ${name}.cpp
         COMMAND cython
         ARGS --cplus -I ${CYTHON_INCLUDE_DIRECTORIES} -o ${name}.cpp ${CMAKE_CURRENT_SOURCE_DIR}/${name}.pyx
-        DEPENDS ${name}.pyx ${name}.pxd
+        DEPENDS ${name}.pyx ${DEPS}
         COMMENT "Cythonizing ${name}.pyx")
     # When linking Python extension modules, a special care must be taken about
     # the link flags, which is platform dependent:
