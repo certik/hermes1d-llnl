@@ -3,6 +3,9 @@
 # file for the exact terms).
 # Email: hermes1d@googlegroups.com, home page: http://hpfem.org/
 
+from numpy import empty
+from numpy cimport ndarray
+
 from hermes_common._hermes_common cimport c2numpy_double, delete, PY_NEW, \
     numpy2c_double_inplace, numpy2c_int_inplace
 
@@ -265,7 +268,11 @@ class FESolution:
             e = I._next_active_element()
         return coeffs
 
-def calc_error_estimate(int norm, Mesh mesh, Mesh mesh_ref,
-        object[double] err_array):
-    return hermes1d.calc_error_estimate(norm, mesh.thisptr, mesh_ref.thisptr,
-            &(err_array[0]))
+def calc_error_estimate(int norm, Mesh mesh, Mesh mesh_ref):
+    cdef ndarray[double] err_array = empty(mesh.get_n_active_elem())
+    err_total = hermes1d.calc_error_estimate(norm, mesh.thisptr,
+            mesh_ref.thisptr, &(err_array[0]))
+    return err_total, err_array
+
+def calc_solution_norm(int norm, Mesh mesh):
+    return hermes1d.calc_solution_norm(norm, mesh.thisptr)

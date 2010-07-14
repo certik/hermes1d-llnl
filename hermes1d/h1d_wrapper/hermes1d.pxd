@@ -53,3 +53,4 @@ cdef extern from "hermes1d.h":
 
     double calc_error_estimate(int norm, Mesh* mesh, Mesh* mesh_ref,
                        double *err_array)
+    double calc_solution_norm(int norm, Mesh* mesh)
