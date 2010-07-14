@@ -278,12 +278,6 @@ def calc_solution_norm(int norm, Mesh mesh):
     return hermes1d.calc_solution_norm(norm, mesh.thisptr)
 
 def adapt(norm, adapt_type, threshold, ndarray[double] err_squared_array,
-        Mesh mesh, Mesh mesh_ref, y_prev, y_prev_ref):
-    cdef ndarray[double] _y_prev = y_prev.copy()
-    cdef ndarray[double] _y_prev_ref = y_prev_ref.copy()
-    cdef int n_dof=mesh.get_n_active_elem()
-    cdef int n_dof_ref = mesh_ref.get_n_active_elem()
-    cdef double *p1 = &(_y_prev[0])
-    cdef double *p2 = &(_y_prev_ref[0])
+        Mesh mesh, Mesh mesh_ref):
     hermes1d.adapt(norm, adapt_type, threshold, &err_squared_array[0],
-            mesh.thisptr, mesh_ref.thisptr, p1, p2, n_dof, n_dof_ref)
+            mesh.thisptr, mesh_ref.thisptr)
