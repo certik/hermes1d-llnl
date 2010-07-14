@@ -264,3 +264,8 @@ class FESolution:
             coeffs.append(c2py_Element(e).get_coeffs(comp))
             e = I._next_active_element()
         return coeffs
+
+def calc_error_estimate(int norm, Mesh mesh, Mesh mesh_ref,
+        object[double] err_array):
+    return hermes1d.calc_error_estimate(norm, mesh.thisptr, mesh_ref.thisptr,
+            &(err_array[0]))

@@ -50,3 +50,6 @@ cdef extern from "hermes1d.h":
         Element *first_active_element()
         Element *next_active_element()
         Element *last_active_element()
+
+    double calc_error_estimate(int norm, Mesh* mesh, Mesh* mesh_ref,
+                       double *err_array)
