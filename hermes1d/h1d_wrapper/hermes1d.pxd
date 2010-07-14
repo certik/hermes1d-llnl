@@ -24,7 +24,6 @@ cdef extern from "hermes1d.h":
              int *div_array, int n_eq, int n_sln, int print_banner)
         void create(double A, double B, int n)
         int get_n_base_elems()
-        int get_n_dofs()
         void set_poly_orders(int poly_order)
         int assign_dofs()
         Element *get_base_elems()
@@ -33,6 +32,10 @@ cdef extern from "hermes1d.h":
         void copy_vector_to_mesh(double *y, int sln)
         void copy_mesh_to_vector(double *y, int sln)
         void plot(char* filename)
+        Mesh *replicate()
+        void reference_refinement(int start_elem_id, int elem_num)
+        int get_n_active_elem()
+        int get_n_dof()
 
     cdef cppclass Linearizer:
         Linearizer(Mesh *mesh)

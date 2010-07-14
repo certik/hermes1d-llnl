@@ -114,6 +114,20 @@ cdef class Mesh:
     def set_bc_right_dirichlet(self, eq_n, val):
         self.thisptr.set_bc_right_dirichlet(eq_n, val)
 
+    def replicate(self):
+        cdef Mesh m = c2py_Mesh(self.thisptr.replicate())
+        m.delptr = True
+        return m
+
+    def get_n_active_elem(self):
+        return self.thisptr.get_n_active_elem()
+
+    def get_n_dof(self):
+        return self.thisptr.get_n_dof()
+
+    def reference_refinement(self, a, b):
+        self.thisptr.reference_refinement(a, b)
+
 cdef api object c2py_Mesh(hermes1d.Mesh *h):
     cdef Mesh n
     n = <Mesh>PY_NEW(Mesh)
