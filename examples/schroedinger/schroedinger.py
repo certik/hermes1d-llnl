@@ -10,7 +10,8 @@ from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
 from hermes1d import Mesh
 from hermes1d.solvers.eigen import solve_eig_numpy, solve_eig_pysparse, \
         solve_eig_scipy
-from hermes1d.h1d_wrapper.h1d_wrapper import FESolution
+from hermes1d.h1d_wrapper.h1d_wrapper import FESolution, calc_error_estimate, \
+        calc_solution_norm
 from hermes1d.fekete.fekete import Function, Mesh1D
 from hermes_common._hermes_common import CooMatrix
 
@@ -166,8 +167,7 @@ def main():
         eigs = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())
         eigs = eigs[:N_eig]
         # TODO: project to mesh_ref, and mesh
-        err_est_total, err_est_array = calc_error_estimate(NORM, mesh,
-                mesh_ref, err_est_array);
+        err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
         ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
         err_est_rel = err_est_total/ref_sol_norm
         print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
