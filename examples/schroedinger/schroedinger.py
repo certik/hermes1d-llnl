@@ -22,7 +22,7 @@ from plot import plot_eigs, plot_file
 N_eig = 1
 N_elem = 4                         # number of elements
 R = 150                            # right hand side of the domain
-P_init = 6                         # initial polynomal degree
+P_init = 1                         # initial polynomal degree
 l = 0                              # angular momentum quantum number
 error_tol = 1e-6                   # error tolerance
 eqn_type="R"                      # either R or rR
@@ -171,14 +171,21 @@ def main():
         eigs_ref = eigs_ref[:N_eig]
         eigs_ref = [eig for E, eig in eigs_ref]
         # TODO: project to mesh_ref, and mesh
+        if eigs[0][0] < 0:
+            eigs[0] = -eigs[0]
+        if eigs_ref[0][0] < 0:
+            eigs_ref[0] = -eigs_ref[0]
+        #print eigs[0]
+        #print eigs_ref[0]
         mesh.copy_vector_to_mesh(eigs[0], 0)
         mesh_ref.copy_vector_to_mesh(eigs_ref[0], 0)
         #s_ref = FESolution(mesh_ref, eigs_ref[0]).to_discrete_function()
+        #s = FESolution(mesh, eigs[0]).to_discrete_function()
         #pts, orders = mesh.get_mesh_data()
         #m = Mesh1D(pts, orders)
         #s = Function(s_ref, m)
-        #s.plot()
-        ##s_ref.plot()
+        #s.plot(False)
+        #s_ref.plot()
         #stop
         err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
         ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
