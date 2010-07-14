@@ -45,6 +45,24 @@ def find_element_romanowski(coeffs):
     n, error = els[0]
     return n, error
 
+def refine_mesh_romanowski(mesh, solutions):
+    """
+    Uses Romanowski refinement for all solutions in 'solutions'.
+
+    Solutions are given as vectors coming from the matrix solver.
+    """
+    els2refine = []
+    errors = []
+    for sol in solutions:
+        s = FESolution(mesh, sol)
+        id, error = find_element_romanowski(s.get_element_coeffs())
+        els2refine.append(id)
+        errors.append(error)
+    els2refine = list(set(els2refine))
+    print "Will refine the elements:", els2refine
+    mesh = refine_mesh(mesh, els2refine)
+    return mesh, errors
+
 def refine_mesh(mesh, els2refine):
     new_pts = []
     pts, orders = mesh.get_mesh_data()
@@ -122,28 +140,15 @@ def main():
         eigs = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())
         eigs = eigs[:N_eig]
         assert len(eigs) == N_eig
-        print
-        els2refine = []
-        errors = []
-        energies = []
-        for E, eig in eigs:
-            s = FESolution(mesh, eig)
-            id, error = find_element_romanowski(s.get_element_coeffs())
-            els2refine.append(id)
-            errors.append(error)
-            energies.append(E)
-            print E, id, error
-            #f = s.to_discrete_function()
-            #print "plotting"
-            #f.plot(False)
+        energies = [E for E, eig in eigs]
+        eigs = [eig for E, eig in eigs]
         conv_graph.append((N_dof, energies))
+        print
+        mesh, errors = refine_mesh_romanowski(mesh, eigs)
         total_error = max(errors)
         print "Total error:", total_error
         if total_error < error_tol:
             break
-        els2refine = list(set(els2refine))
-        print "Will refine the elements:", els2refine
-        mesh = refine_mesh(mesh, els2refine)
     plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l, N_eig+1+l)],
             l=l)
     #plot_eigs(mesh, eigs)
