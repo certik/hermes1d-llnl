@@ -18,7 +18,7 @@ from _forms import assemble_schroedinger
 from plot import plot_eigs, plot_file
 
 
-N_eig = 4
+N_eig = 1
 N_elem = 4                         # number of elements
 R = 150                            # right hand side of the domain
 P_init = 6                         # initial polynomal degree
@@ -62,6 +62,22 @@ def refine_mesh_romanowski(mesh, solutions):
     print "Will refine the elements:", els2refine
     mesh = refine_mesh(mesh, els2refine)
     return mesh, errors
+
+def refine_mesh_h1_adapt(mesh, solutions):
+    """
+    Uses H1 adaptivity refinement for all solutions in 'solutions'.
+
+    Solutions are given as vectors coming from the matrix solver.
+    """
+    # so far only for one solution:
+    assert len(solutions) == 1
+    sol = solutions[0]
+    mesh_ref = mesh.replicate()
+    start_elem_id = 0
+    num_to_ref = mesh_ref.get_n_active_elem()
+    mesh_ref.reference_refinement(start_elem_id, num_to_ref)
+    print "Fine mesh created (%d DOF)." % mesh_ref.get_n_dof()
+    return mesh_ref, [1.0]
 
 def refine_mesh(mesh, els2refine):
     new_pts = []
@@ -144,7 +160,8 @@ def main():
         eigs = [eig for E, eig in eigs]
         conv_graph.append((N_dof, energies))
         print
-        mesh, errors = refine_mesh_romanowski(mesh, eigs)
+        #mesh, errors = refine_mesh_romanowski(mesh, eigs)
+        mesh, errors = refine_mesh_h1_adapt(mesh, eigs)
         total_error = max(errors)
         print "Total error:", total_error
         if total_error < error_tol:
