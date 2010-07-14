@@ -150,6 +150,7 @@ def main():
         pts, orders = mesh.get_mesh_data()
         print "Current mesh:"
         print pts
+        print orders
         A = CooMatrix(N_dof)
         B = CooMatrix(N_dof)
         assemble_schroedinger(mesh, A, B, l=l, eqn_type=eqn_type)
@@ -168,9 +169,17 @@ def main():
         assemble_schroedinger(mesh_ref, A, B, l=l, eqn_type=eqn_type)
         eigs_ref = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())
         eigs_ref = eigs_ref[:N_eig]
+        eigs_ref = [eig for E, eig in eigs_ref]
         # TODO: project to mesh_ref, and mesh
         mesh.copy_vector_to_mesh(eigs[0], 0)
         mesh_ref.copy_vector_to_mesh(eigs_ref[0], 0)
+        #s_ref = FESolution(mesh_ref, eigs_ref[0]).to_discrete_function()
+        #pts, orders = mesh.get_mesh_data()
+        #m = Mesh1D(pts, orders)
+        #s = Function(s_ref, m)
+        #s.plot()
+        ##s_ref.plot()
+        #stop
         err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
         ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
         err_est_rel = err_est_total/ref_sol_norm
