@@ -35,7 +35,7 @@ cdef extern from "stdlib.h":
 
     void exit(int exit_code)
 
-cdef extern from "arrayobject.h":
+cdef extern from "numpy/arrayobject.h":
     cdef enum NPY_TYPES:
         NPY_BOOL
         NPY_BYTE
