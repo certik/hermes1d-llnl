@@ -420,6 +420,30 @@ class Function(object):
             return self
         return Function(self, mesh)
 
+    def project_onto_union(self, mesh):
+        """
+        The same as project_onto, only "mesh" is a subset of self._mesh.
+        """
+        if mesh == self._mesh:
+            return self
+        values = []
+        n = 0
+        for a, b, order in mesh.iter_elems():
+            if a >= self._mesh._points[n+1]:
+                n += 1
+            if order not in points:
+                raise ValueError("order '%d' not implememented" % order)
+            fekete_points = [_fekete.get_x_phys(p, a, b) for p in
+                    points[order]]
+            fekete_points = array(fekete_points)
+            elem_values = []
+            # Note: this is not a projection (it only evaluates obj in
+            # fekete points), so the result is not the best
+            # approximation possible:
+            elem_values = self.get_values_in_element(n, fekete_points)
+            values.append(elem_values)
+        return Function(values, mesh)
+
     def plot(self, call_show=True):
         try:
             from jsplot import plot, show
@@ -472,7 +496,7 @@ class Function(object):
             return Function(values, self._mesh)
         else:
             union_mesh = self._mesh.union(o._mesh)
-            return self.project_onto(union_mesh) + o.project_onto(union_mesh)
+            return self.project_onto_union(union_mesh) + o.project_onto_union(union_mesh)
 
     def __sub__(self, o):
         return self + (-o)
