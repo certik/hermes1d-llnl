@@ -290,6 +290,22 @@ class Mesh1D(object):
         graph.append((g.dofs(), errors))
         return g_mesh, errors
 
+    def refine_all_elements(self):
+        pts = []
+        orders = []
+        for a, b, order in self.iter_elems():
+            mid = (a+b)/2.
+            pts.append(a)
+            pts.append(mid)
+            orders.append(order)
+            orders.append(order)
+            last = b
+        pts.append(last)
+        return Mesh1D(pts, orders)
+
+    def increase_order(self):
+        return Mesh1D(self._points, array(self._orders)+1)
+
 class Function(object):
     """
     Represents a function on a mesh.
@@ -403,6 +419,8 @@ class Function(object):
 
     def project_onto(self, mesh):
         # This is not a true projection, only some approximation:
+        if mesh == self._mesh:
+            return self
         return Function(self, mesh)
 
     def plot(self, call_show=True):
