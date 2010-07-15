@@ -20,6 +20,7 @@ from plot import plot_eigs, plot_file
 
 
 N_eig = 1
+N_eig_plot = 4
 N_elem = 4                         # number of elements
 R = 150                            # right hand side of the domain
 P_init = 1                         # initial polynomal degree
@@ -27,7 +28,7 @@ l = 0                              # angular momentum quantum number
 error_tol = 1e-6                   # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
-ADAPT_TYPE = 0
+ADAPT_TYPE = 2  # 0 ... hp, 1 ... h, 2 ... p
 THRESHOLD = 0.7
 #error_tol = 1e-2
 
@@ -109,17 +110,17 @@ def plot_conv(conv_graph, exact=None, l=None):
     assert exact is not None
     assert l is not None
     x = []
-    y = [[] for n in range(N_eig)]
+    y = [[] for n in range(N_eig_plot)]
     for dofs, energies in conv_graph:
         x.append(dofs)
-        for i in range(N_eig):
+        for i in range(N_eig_plot):
             y[i].append(energies[i]-exact[i])
     f = open("data.py", "w")
     f.write("R_x = {\n")
     f.write("        %d: %s,\n" % (l, x))
     f.write("    }\n")
     f.write("R_y = {\n")
-    for i in range(N_eig):
+    for i in range(N_eig_plot):
         n = l+1+i
         f.write("        (%d, %d): %s,\n" % (n, l, y[i]))
         do_plot(x, y[i], n, l)
@@ -156,9 +157,9 @@ def main():
         assemble_schroedinger(mesh, A, B, l=l, eqn_type=eqn_type)
         #eigs = solve_eig_numpy(A.to_scipy_coo(), B.to_scipy_coo())
         eigs = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())
+        energies = [E for E, eig in eigs[:N_eig_plot]]
         eigs = eigs[:N_eig]
         assert len(eigs) == N_eig
-        energies = [E for E, eig in eigs]
         eigs = [eig for E, eig in eigs]
         conv_graph.append((N_dof, energies))
         print
@@ -194,8 +195,8 @@ def main():
         if err_est_rel < error_tol:
             break
         adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
-    plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l, N_eig+1+l)],
-            l=l)
+    plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l,
+        N_eig_plot+1+l)], l=l)
     #plot_eigs(mesh, eigs)
 
 if __name__ == "__main__":
