@@ -336,7 +336,7 @@ class Function(object):
 
         self.logger = logging.getLogger("hermes1d.Function")
 
-    def get_polynomial(self, values, a, b):
+    def get_polynomial(self, x, values, a, b):
         """
         Returns the interpolating polynomial's coeffs.
 
@@ -345,7 +345,6 @@ class Function(object):
         n = len(values)
         A = empty((n, n), dtype="double")
         y = empty((n,), dtype="double")
-        x = points[n-1]
         assert len(x) == n
         for i in range(n):
             for j in range(n):
@@ -414,7 +413,9 @@ class Function(object):
 
     def get_polynomial_coeffs(self, n, a, b):
         if n not in self._poly_coeffs:
-            self._poly_coeffs[n] = self.get_polynomial(self._values[n], a, b)
+            vals = self._values[n]
+            x = points[len(vals)-1]
+            self._poly_coeffs[n] = self.get_polynomial(x, vals, a, b)
         return self._poly_coeffs[n]
 
     def project_onto(self, mesh):
