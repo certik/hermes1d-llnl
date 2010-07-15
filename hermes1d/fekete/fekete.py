@@ -518,14 +518,20 @@ class Function(object):
         """
         Returns the L2 norm of the function.
         """
-        #self.logger.debug("l2_norm:")
         i = 0
-        for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
+        pts = self._mesh._points
+        orders = self._mesh._orders
+        elem_coeffs = [self.get_polynomial_coeffs(n, a, b) for n, (a, b, order) \
+                in enumerate(self._mesh.iter_elems())]
+        for n in range(len(orders)):
+            a = pts[n]
+            b = pts[n+1]
+            order = orders[n]
+            coeffs = elem_coeffs[n]
             def f(x):
-                return self.get_values_in_element(n, x)**2
+                return _fekete.eval_polynomial_array(coeffs, x)**2
             val, _ = fixed_quad(f, a, b, (), order+3)
             i += val
-        #self.logger.debug("    done.")
         return i
 
     def get_candidates_with_errors(self, f, elems=None):
