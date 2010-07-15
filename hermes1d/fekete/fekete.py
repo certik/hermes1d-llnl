@@ -342,6 +342,7 @@ class Function(object):
 
         The len(values) specifies the order and we work in the element <a, b>
         """
+        # Note: the version in _fekete is 2.6x faster
         n = len(values)
         A = empty((n, n), dtype="double")
         y = empty((n,), dtype="double")
