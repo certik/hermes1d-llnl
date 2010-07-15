@@ -12,7 +12,7 @@ def eval_polynomial_orig(coeffs, x):
     return r
 
 @cython.boundscheck(False)
-def eval_polynomial(ndarray[double] coeffs not None, double x):
+def eval_polynomial(ndarray[double, mode="c"] coeffs not None, double x):
     cdef double r=0
     cdef unsigned n = len(coeffs)
     cdef unsigned i
@@ -23,7 +23,7 @@ def eval_polynomial(ndarray[double] coeffs not None, double x):
 def get_x_phys_orig(x_ref, a, b):
     return (a+b)/2. + x_ref*(b-a)/2.
 
-cpdef get_x_phys(double x_ref, double a, double b):
+cpdef double get_x_phys(double x_ref, double a, double b):
     return (a+b)/2. + x_ref*(b-a)/2.
 
 def eval_polynomial_array_orig(coeffs, x):
@@ -34,10 +34,10 @@ def eval_polynomial_array_orig(coeffs, x):
     return r
 
 @cython.boundscheck(False)
-def eval_polynomial_array(ndarray[double] coeffs not None, ndarray[double] x not None):
+def eval_polynomial_array(ndarray[double, mode="c"] coeffs not None, ndarray[double, mode="c"] x not None):
     cdef unsigned n_coeffs = len(coeffs)
     cdef unsigned n_x = len(x)
-    cdef ndarray[double] r=zeros(n_x)
+    cdef ndarray[double, mode="c"] r=zeros(n_x)
     cdef unsigned i, j
     for j in range(n_x):
         for i in range(n_coeffs):
@@ -61,7 +61,9 @@ def get_polynomial_orig(x, values, a, b):
     a = solve(A, y)
     return a
 
-def get_polynomial(ndarray[double] x not None, ndarray[double] values not None,
+@cython.boundscheck(False)
+def get_polynomial(ndarray[double, mode="c"] x not None,
+        ndarray[double, mode="c"] values not None,
         double a, double b):
     """
     Returns the interpolating polynomial's coeffs.
@@ -69,8 +71,8 @@ def get_polynomial(ndarray[double] x not None, ndarray[double] values not None,
     The len(values) specifies the order and we work in the element <a, b>
     """
     cdef unsigned n = len(values)
-    cdef ndarray[double, ndim=2] A = empty((n, n), dtype="double")
-    cdef ndarray[double] y = empty((n,), dtype="double")
+    cdef ndarray[double, ndim=2, mode="c"] A = empty((n, n), dtype="double")
+    cdef ndarray[double, mode="c"] y = empty((n,), dtype="double")
     assert len(x) == n
     cdef unsigned i, j
     for i in range(n):
