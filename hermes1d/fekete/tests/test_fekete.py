@@ -1,3 +1,5 @@
+from math import sin, pi, sqrt
+
 from hermes1d.fekete.fekete import Mesh1D, Function
 
 def test1():
@@ -232,3 +234,9 @@ def test8():
     assert f - Function(lambda x: x**2, mesh5) == zero
     assert f - Function(lambda x: x**2, mesh6) != zero
 
+def test_l2():
+    eps = 1e-12
+    func = lambda x: sin(x)
+    mesh1 = Mesh1D((0, pi), (20,))
+    f = Function(func, mesh1)
+    assert abs(f.l2_norm()-sqrt(pi/2)) < eps

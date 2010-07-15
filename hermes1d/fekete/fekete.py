@@ -533,13 +533,13 @@ class Function(object):
         """
         Returns the L2 norm of the function.
         """
-        i = 0
+        r = 0
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
             x, w = get_gauss_points(a, b, order+3)
             coeffs = self.get_polynomial_coeffs(n, a, b)
             vals = _fekete.eval_polynomial_array(coeffs, x)
-            i += _fekete.int_f2(w, vals)
-        return i
+            r += _fekete.int_f2(w, vals)
+        return sqrt(r)
 
     def get_candidates_with_errors(self, f, elems=None):
         """
