@@ -18,7 +18,8 @@
 // Assumes that the element was not refined in space for the 
 // reference solution. 
 // FIXME: to be moved to the Element class
-double calc_elem_est_error_squared_p(int norm, Element *e, Element *e_ref);
+double calc_elem_est_error_squared_p(int norm, Element *e, Element *e_ref,
+        int sln=0);
 
 // Calculates the square in L2 or H1 norm of the difference between 
 // the coarse and fine mesh solution, for all solution components.
@@ -26,13 +27,14 @@ double calc_elem_est_error_squared_p(int norm, Element *e, Element *e_ref);
 // reference solution.
 // FIXME: to be moved to the Element class
 double calc_elem_est_error_squared_hp(int norm, Element *e, 
-                        Element *e_ref_left, Element *e_ref_right);
+                        Element *e_ref_left, Element *e_ref_right,
+                        int sln=0);
 
 // Calculates L2 or H1 norm of the difference between the coarse
 // and reference solutions in all active elements of 'mesh'. Total
 // error is returned.
 double calc_error_estimate(int norm, Mesh* mesh, Mesh* mesh_ref, 
-			   double *err_array);
+			   double *err_array, int sln=0);
 
 // Calculates L2 or H1 norm of the difference between the coarse
 // and reference solutions in all active elements of 'mesh'. Total

@@ -52,7 +52,7 @@ cdef extern from "hermes1d.h":
         Element *last_active_element()
 
     double calc_error_estimate(int norm, Mesh* mesh, Mesh* mesh_ref,
-                       double *err_array)
+                       double *err_array, int sln)
     double calc_solution_norm(int norm, Mesh* mesh)
 
     void adapt(int norm, int adapt_type, double threshold,

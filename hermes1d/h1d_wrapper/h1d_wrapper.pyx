@@ -268,10 +268,10 @@ class FESolution:
             e = I._next_active_element()
         return coeffs
 
-def calc_error_estimate(int norm, Mesh mesh, Mesh mesh_ref):
+def calc_error_estimate(int norm, Mesh mesh, Mesh mesh_ref, int sln=0):
     cdef ndarray[double] err_array = empty(mesh.get_n_active_elem())
     err_total = hermes1d.calc_error_estimate(norm, mesh.thisptr,
-            mesh_ref.thisptr, &(err_array[0]))
+            mesh_ref.thisptr, &(err_array[0]), sln)
     return err_total, err_array
 
 def calc_solution_norm(int norm, Mesh mesh):
