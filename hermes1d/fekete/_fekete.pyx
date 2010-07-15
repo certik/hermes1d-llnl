@@ -81,3 +81,13 @@ def get_polynomial(ndarray[double, mode="c"] x not None,
         y[i] = values[i]
     r = solve(A, y)
     return r
+
+@cython.boundscheck(False)
+def int_f2(ndarray[double, mode="c"] w not None,
+        ndarray[double, mode="c"] values not None):
+    cdef double r=0
+    cdef unsigned n = len(w)
+    cdef unsigned i
+    for i in range(n):
+        r += (values[i]**2)*w[i]
+    return r

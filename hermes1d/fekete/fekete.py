@@ -57,9 +57,15 @@ def generate_candidates(a, b, order):
             ])
     return cands
 
+__p_roots = {}
+def _p_roots(n):
+    if n not in __p_roots:
+        __p_roots[n] = p_roots(n)
+    return __p_roots[n]
+
 def get_gauss_points(a, b, n):
     J = (b-a)/2.0
-    x, w = p_roots(n)
+    x, w = _p_roots(n)
     x = real(x)
     x_phys = J*(x+1) + a
     w *= J
@@ -532,10 +538,7 @@ class Function(object):
             x, w = get_gauss_points(a, b, order+3)
             coeffs = self.get_polynomial_coeffs(n, a, b)
             vals = _fekete.eval_polynomial_array(coeffs, x)
-            r = 0
-            for i in range(len(x)):
-                r += (vals[i]**2)*w[i]
-            i += r
+            i += _fekete.int_f2(w, vals)
         return i
 
     def get_candidates_with_errors(self, f, elems=None):
