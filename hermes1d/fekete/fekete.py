@@ -391,7 +391,7 @@ class Function(object):
             # polynomials (no need to invert a matrix in order to get the
             # polynomial below). The results are however identical.
             coeffs = self.get_polynomial_coeffs(n, a, b)
-            return self.eval_polynomial(coeffs, x)
+            return _fekete.eval_polynomial(coeffs, x)
 
     def get_values_in_element(self, n, x):
         """
@@ -410,7 +410,7 @@ class Function(object):
         # polynomials (no need to invert a matrix in order to get the
         # polynomial below). The results are however identical.
         coeffs = self.get_polynomial_coeffs(n, a, b)
-        return self.eval_polynomial_array(coeffs, x)
+        return _fekete.eval_polynomial_array(coeffs, x)
 
     def get_polynomial_coeffs(self, n, a, b):
         if n not in self._poly_coeffs:
