@@ -25,9 +25,20 @@ def get_x_phys_orig(x_ref, a, b):
 def get_x_phys(double x_ref, double a, double b):
     return (a+b)/2. + x_ref*(b-a)/2.
 
-def eval_polynomial_array(coeffs, x):
+def eval_polynomial_array_orig(coeffs, x):
     r = zeros(len(x))
     n = len(coeffs)
     for i, a in enumerate(coeffs):
         r += a*x**(n-i-1)
+    return r
+
+@cython.boundscheck(False)
+def eval_polynomial_array(ndarray[double] coeffs not None, ndarray[double] x not None):
+    cdef unsigned n_coeffs = len(coeffs)
+    cdef unsigned n_x = len(x)
+    cdef ndarray[double] r=zeros(n_x)
+    cdef unsigned i, j
+    for j in range(n_x):
+        for i in range(n_coeffs):
+            r[j] += coeffs[i]*x[j]**(n_coeffs-i-1)
     return r

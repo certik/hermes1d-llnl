@@ -374,7 +374,9 @@ class Function(object):
         return r
 
     def eval_polynomial_array(self, coeffs, x):
+        # This is about 6x faster
         return _fekete.eval_polynomial_array(coeffs, x)
+        # than this:
         r = zeros(len(x))
         n = len(coeffs)
         for i, a in enumerate(coeffs):
