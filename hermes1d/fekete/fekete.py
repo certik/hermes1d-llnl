@@ -452,7 +452,8 @@ class Function(object):
 
     def __add__(self, o):
         if self._mesh == o._mesh:
-            values = array(self._values) + array(o._values)
+            values = [array(x)+array(y) for x, y in zip(self._values,
+                o._values)]
             return Function(values, self._mesh)
         else:
             union_mesh = self._mesh.union(o._mesh)

@@ -185,3 +185,40 @@ def test7():
     assert mesh3.restrict_to_interval(-3.5, 10) == Mesh1D((-3.5, 3, 10), (2, 1))
     assert mesh3.restrict_to_interval(3, 10) == Mesh1D((3, 10), (1,))
     assert mesh3.restrict_to_interval(3.5, 10) == Mesh1D((3.5, 10), (1,))
+
+def test8():
+    eps = 1e-12
+    func = lambda x: x**2
+    mesh1 = Mesh1D((-5, -4, 3, 10), (2, 5, 2))
+    mesh2 = Mesh1D((-5, -4, 3, 10), (2, 2, 2))
+    mesh3 = Mesh1D((-5, -4, 3, 10), (2, 2, 1))
+    mesh4 = Mesh1D((-5, 10), (2,))
+    mesh5 = Mesh1D((-5, 10), (3,))
+    mesh6 = Mesh1D((-5, 10), (1,))
+    f = Function(func, mesh1)
+    g = Function(func, mesh2)
+    h = Function(func, mesh3)
+    l = Function(func, mesh4)
+    zero = Function(lambda x: 0., Mesh1D((-5, 10), (1,)))
+    assert Function(lambda x: 0., mesh1) == zero
+    assert Function(lambda x: 0., mesh2) == zero
+    assert Function(lambda x: 0., mesh3) == zero
+    assert Function(lambda x: 0., mesh4) == zero
+    assert Function(lambda x: 0., mesh5) == zero
+    assert Function(lambda x: 0., mesh6) == zero
+
+    assert f - g == zero
+    assert g - f == zero
+    assert f - l == zero
+    assert g - l == zero
+    assert f - h != zero
+    assert h - f != zero
+    assert g - h != zero
+    assert h - g != zero
+
+    assert f - Function(lambda x: x**2, mesh1) == zero
+    assert f - Function(lambda x: x**3, mesh1) != zero
+    assert f - Function(lambda x: x**2, mesh2) == zero
+    assert f - Function(lambda x: x**2, mesh4) == zero
+    assert f - Function(lambda x: x**2, mesh5) == zero
+    assert f - Function(lambda x: x**2, mesh6) != zero
