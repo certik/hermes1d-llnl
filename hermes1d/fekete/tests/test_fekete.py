@@ -200,6 +200,7 @@ def test8():
     h = Function(func, mesh3)
     l = Function(func, mesh4)
     zero = Function(lambda x: 0., Mesh1D((-5, 10), (1,)))
+    assert zero.l2_norm() < eps
     assert Function(lambda x: 0., mesh1) == zero
     assert Function(lambda x: 0., mesh2) == zero
     assert Function(lambda x: 0., mesh3) == zero
@@ -208,13 +209,21 @@ def test8():
     assert Function(lambda x: 0., mesh6) == zero
 
     assert f - g == zero
+    assert (f-g).l2_norm() < eps
     assert g - f == zero
+    assert (g - f).l2_norm() < eps
     assert f - l == zero
+    assert (f - l).l2_norm() < eps
     assert g - l == zero
+    assert (g - l).l2_norm() < eps
     assert f - h != zero
+    assert (f - h).l2_norm() > eps
     assert h - f != zero
+    assert (h - f).l2_norm() > eps
     assert g - h != zero
+    assert (g - h).l2_norm() > eps
     assert h - g != zero
+    assert (h - g).l2_norm() > eps
 
     assert f - Function(lambda x: x**2, mesh1) == zero
     assert f - Function(lambda x: x**3, mesh1) != zero
@@ -222,3 +231,4 @@ def test8():
     assert f - Function(lambda x: x**2, mesh4) == zero
     assert f - Function(lambda x: x**2, mesh5) == zero
     assert f - Function(lambda x: x**2, mesh6) != zero
+
