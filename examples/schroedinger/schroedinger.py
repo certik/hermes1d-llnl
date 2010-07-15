@@ -19,7 +19,7 @@ from _forms import assemble_schroedinger
 from plot import plot_eigs, plot_file
 
 
-N_eig = 1
+N_eig = 4
 N_eig_plot = 4
 N_elem = 4                         # number of elements
 R = 150                            # right hand side of the domain
@@ -176,10 +176,16 @@ def main():
             eigs[0] = -eigs[0]
         if eigs_ref[0][0] < 0:
             eigs_ref[0] = -eigs_ref[0]
+        for i in range(1, N_eig):
+            if eigs[i][1] < 0:
+                eigs[i] = -eigs[i]
+            if eigs_ref[i][1] < 0:
+                eigs_ref[i] = -eigs_ref[i]
         #print eigs[0]
         #print eigs_ref[0]
-        mesh.copy_vector_to_mesh(eigs[0], 0)
-        mesh_ref.copy_vector_to_mesh(eigs_ref[0], 0)
+        for i in range(N_eig):
+            mesh.copy_vector_to_mesh(eigs[i], i)
+            mesh_ref.copy_vector_to_mesh(eigs_ref[i], i)
         #s_ref = FESolution(mesh_ref, eigs_ref[0]).to_discrete_function()
         #s = FESolution(mesh, eigs[0]).to_discrete_function()
         #pts, orders = mesh.get_mesh_data()
@@ -188,12 +194,19 @@ def main():
         #s.plot(False)
         #s_ref.plot()
         #stop
+        for i in range(N_eig):
+            err_est_total, err_est_array = calc_error_estimate(NORM,
+                    mesh, mesh_ref, i)
+            #print i, err_est_total, err_est_array
         err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
+        #print err_est_total, err_est_array
+        # TODO: calculate this for all solutions:
         ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
         err_est_rel = err_est_total/ref_sol_norm
         print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
         if err_est_rel < error_tol:
             break
+        # TODO: adapt using all the vectors:
         adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
     plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l,
         N_eig_plot+1+l)], l=l)
