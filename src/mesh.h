@@ -187,6 +187,12 @@ class Mesh {
 // coarse and reference mesh solutions on them, respectively. 
 // The coefficient vectors and numbers of degrees of freedom 
 // on both meshes are also updated. 
+// Refine coarse mesh elements whose id_array >= 0, and 
+// adjust the reference mesh accordingly.  
+// Returns updated coarse and reference meshes, with the last 
+// coarse and reference mesh solutions on them, respectively. 
+// The coefficient vectors and numbers of degrees of freedom 
+// on both meshes are also updated. 
 void adapt(int norm, int adapt_type, double threshold, 
            double *err_squared_array,
            Mesh* &mesh, Mesh* &mesh_ref);
