@@ -68,7 +68,7 @@ def get_gauss_points(a, b, n):
     x, w = _p_roots(n)
     x = real(x)
     x_phys = J*(x+1) + a
-    w *= J
+    w = w*J
     return x_phys, w
 
 class Mesh1D(object):
@@ -533,12 +533,17 @@ class Function(object):
         """
         Returns the L2 norm of the function.
         """
+        #print "l2_norm"
         r = 0
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
+            #print n, a, b, order
             x, w = get_gauss_points(a, b, order+3)
             coeffs = self.get_polynomial_coeffs(n, a, b)
             vals = _fekete.eval_polynomial_array(coeffs, x)
             r += _fekete.int_f2(w, vals)
+            #print x, w
+            #print vals
+            #print _fekete.int_f2(w, vals)
         return sqrt(r)
 
     def get_candidates_with_errors(self, f, elems=None):
