@@ -172,15 +172,16 @@ def main():
         eigs_ref = eigs_ref[:N_eig]
         eigs_ref = [eig for E, eig in eigs_ref]
         # TODO: project to mesh_ref, and mesh
-        if eigs[0][0] < 0:
-            eigs[0] = -eigs[0]
-        if eigs_ref[0][0] < 0:
-            eigs_ref[0] = -eigs_ref[0]
-        for i in range(1, N_eig):
-            if eigs[i][1] < 0:
-                eigs[i] = -eigs[i]
-            if eigs_ref[i][1] < 0:
+        print "Fixing +- in eigenvectors:"
+        for i in range(N_eig):
+            s = FESolution(mesh, eigs[i]).to_discrete_function()
+            s_ref = FESolution(mesh_ref, eigs_ref[i]).to_discrete_function()
+            n_ok = (s-s_ref).l2_norm()
+            n_flipped = (s+s_ref).l2_norm()
+            if n_ok > n_flipped:
+                print "  Multiplying %d-th ref. eigenvector by (-1)" % i
                 eigs_ref[i] = -eigs_ref[i]
+        print "    Done."
         #print eigs[0]
         #print eigs_ref[0]
         for i in range(N_eig):
@@ -197,7 +198,7 @@ def main():
         for i in range(N_eig):
             err_est_total, err_est_array = calc_error_estimate(NORM,
                     mesh, mesh_ref, i)
-            #print i, err_est_total, err_est_array
+            print i, err_est_total, err_est_array
         err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
         #print err_est_total, err_est_array
         # TODO: calculate this for all solutions:
@@ -208,6 +209,7 @@ def main():
             break
         # TODO: adapt using all the vectors:
         adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
+        #stop
     plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l,
         N_eig_plot+1+l)], l=l)
     #plot_eigs(mesh, eigs)
