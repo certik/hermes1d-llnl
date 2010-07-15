@@ -44,7 +44,7 @@ def eval_polynomial_array(ndarray[double] coeffs not None, ndarray[double] x not
             r[j] += coeffs[i]*x[j]**(n_coeffs-i-1)
     return r
 
-def get_polynomial(x, values, a, b):
+def get_polynomial_orig(x, values, a, b):
     """
     Returns the interpolating polynomial's coeffs.
 
@@ -60,3 +60,22 @@ def get_polynomial(x, values, a, b):
         y[i] = values[i]
     a = solve(A, y)
     return a
+
+def get_polynomial(ndarray[double] x not None, ndarray[double] values not None,
+        double a, double b):
+    """
+    Returns the interpolating polynomial's coeffs.
+
+    The len(values) specifies the order and we work in the element <a, b>
+    """
+    cdef unsigned n = len(values)
+    cdef ndarray[double, ndim=2] A = empty((n, n), dtype="double")
+    cdef ndarray[double] y = empty((n,), dtype="double")
+    assert len(x) == n
+    cdef unsigned i, j
+    for i in range(n):
+        for j in range(n):
+            A[i, j] = get_x_phys(x[i], a, b)**(n-j-1)
+        y[i] = values[i]
+    r = solve(A, y)
+    return r

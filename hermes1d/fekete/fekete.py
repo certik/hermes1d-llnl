@@ -413,8 +413,8 @@ class Function(object):
 
     def get_polynomial_coeffs(self, n, a, b):
         if n not in self._poly_coeffs:
-            vals = self._values[n]
-            x = points[len(vals)-1]
+            vals = array(self._values[n])
+            x = array(points[len(vals)-1])
             self._poly_coeffs[n] = _fekete.get_polynomial(x, vals, a, b)
         return self._poly_coeffs[n]
 
