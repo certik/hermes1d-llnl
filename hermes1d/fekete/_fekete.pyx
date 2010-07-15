@@ -17,3 +17,6 @@ def eval_polynomial2(ndarray[double_t] coeffs not None, double x):
     for i in range(n):
         r += coeffs[i]*x**(n-i-1)
     return r
+
+def get_x_phys(x_ref, a, b):
+    return (a+b)/2. + x_ref*(b-a)/2.

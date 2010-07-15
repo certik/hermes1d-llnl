@@ -16,9 +16,6 @@ from gauss_lobatto_points import points
 from hydrogen import R_nl_numeric
 import _fekete
 
-def get_x_phys(x_ref, a, b):
-    return (a+b)/2. + x_ref*(b-a)/2.;
-
 def generate_candidates(a, b, order):
     def cand(divisions, orders):
         if len(divisions) == 0:
@@ -26,7 +23,7 @@ def generate_candidates(a, b, order):
             return Mesh1D((a, b), (order + orders[0],))
         elif len(divisions) == 1:
             assert len(orders) == 2
-            return Mesh1D((a, get_x_phys(divisions[0], a, b), b),
+            return Mesh1D((a, _fekete.get_x_phys(divisions[0], a, b), b),
                     (order + orders[0], order + orders[1]))
         else:
             raise NotImplementedError()
@@ -85,7 +82,7 @@ class Mesh1D(object):
         odd = False
         for a, b, order in self.iter_elems():
             fekete_points = points[order]
-            fekete_points = [get_x_phys(x, a, b) for x in fekete_points]
+            fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
             if odd:
                 format = "y-"
             else:
@@ -330,7 +327,7 @@ class Function(object):
                 # fekete points), so the result is not the best
                 # approximation possible:
                 for p in fekete_points:
-                    p = get_x_phys(p, a, b)
+                    p = _fekete.get_x_phys(p, a, b)
                     val = obj(p)
                     elem_values.append(val)
                 self._values.append(elem_values)
@@ -352,7 +349,7 @@ class Function(object):
         assert len(x) == n
         for i in range(n):
             for j in range(n):
-                A[i, j] = get_x_phys(x[i], a, b)**(n-j-1)
+                A[i, j] = _fekete.get_x_phys(x[i], a, b)**(n-j-1)
             y[i] = values[i]
         a = solve(A, y)
         return a
@@ -433,7 +430,7 @@ class Function(object):
             fekete_points = points[order]
             vals = self._values[n]
             assert len(vals) == len(fekete_points)
-            fekete_points = [get_x_phys(x, a, b) for x in fekete_points]
+            fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
             x = arange(a, b, 0.1)
             y = [self(_x) for _x in x]
             if odd:
@@ -451,13 +448,13 @@ class Function(object):
         if isinstance(o, Function):
             for a, b, order in self._mesh.iter_elems():
                 fekete_points = points[order]
-                fekete_points = [get_x_phys(x, a, b) for x in fekete_points]
+                fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
                 for p in fekete_points:
                     if abs(self(p) - o(p)) > eps:
                         return False
             for a, b, order in o._mesh.iter_elems():
                 fekete_points = points[order]
-                fekete_points = [get_x_phys(x, a, b) for x in fekete_points]
+                fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
                 for p in fekete_points:
                     if abs(self(p) - o(p)) > eps:
                         return False
