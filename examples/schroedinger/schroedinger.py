@@ -28,7 +28,7 @@ l = 0                              # angular momentum quantum number
 error_tol = 1e-6                   # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
-ADAPT_TYPE = 2  # 0 ... hp, 1 ... h, 2 ... p
+ADAPT_TYPE = 0  # 0 ... hp, 1 ... h, 2 ... p
 THRESHOLD = 0.7
 #error_tol = 1e-2
 
