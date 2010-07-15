@@ -103,7 +103,7 @@ class Mesh1D(object):
             return n
 
     def get_element_by_id(self, id):
-        return list(self.iter_elems())[id]
+        return (self._points[id], self._points[id+1], self._orders[id])
 
     def get_node_id_by_coord(self, x):
         eps = 1e-10
