@@ -127,6 +127,18 @@ def plot_conv(conv_graph, exact=None, l=None):
     f.write("    }\n")
     savefig("conv_l_0.png")
 
+def flip_vectors(mesh, eigs, mesh_ref, eigs_ref):
+    for i in range(N_eig):
+        s = FESolution(mesh, eigs[i]).to_discrete_function()
+        s_ref = FESolution(mesh_ref, eigs_ref[i]).to_discrete_function()
+        n_ok = (s-s_ref).l2_norm()
+        n_flipped = (s+s_ref).l2_norm()
+        if n_ok > n_flipped:
+            print "  Multiplying %d-th ref. eigenvector by (-1)" % i
+            eigs_ref[i] = -eigs_ref[i]
+            n_flipped, n_ok = n_ok, n_flipped
+        print n_ok, n_flipped
+
 def main():
     #do_plot([23, 29, 41, 47], [0.1, 0.01, 0.001, 0.004], 1, 0)
     pts = arange(0, R, float(R)/(N_elem))
@@ -173,14 +185,7 @@ def main():
         eigs_ref = [eig for E, eig in eigs_ref]
         # TODO: project to mesh_ref, and mesh
         print "Fixing +- in eigenvectors:"
-        for i in range(N_eig):
-            s = FESolution(mesh, eigs[i]).to_discrete_function()
-            s_ref = FESolution(mesh_ref, eigs_ref[i]).to_discrete_function()
-            n_ok = (s-s_ref).l2_norm()
-            n_flipped = (s+s_ref).l2_norm()
-            if n_ok > n_flipped:
-                print "  Multiplying %d-th ref. eigenvector by (-1)" % i
-                eigs_ref[i] = -eigs_ref[i]
+        flip_vectors(mesh, eigs, mesh_ref, eigs_ref)
         print "    Done."
         #print eigs[0]
         #print eigs_ref[0]
