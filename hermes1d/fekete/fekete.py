@@ -365,7 +365,7 @@ class Function(object):
 
     def eval_polynomial(self, coeffs, x):
         # This is about 15x faster
-        return _fekete.eval_polynomial2(coeffs, x)
+        return _fekete.eval_polynomial(coeffs, x)
         # than this:
         r = 0
         n = len(coeffs)
