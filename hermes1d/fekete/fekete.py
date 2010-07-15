@@ -7,10 +7,11 @@ import logging
 import datetime
 import time
 
-from numpy import empty, arange, array, ndarray, zeros
+from numpy import empty, arange, array, ndarray, zeros, real
 from numpy.linalg import solve
 
 from scipy.integrate import quadrature, fixed_quad
+from scipy.special.orthogonal import p_roots
 
 from gauss_lobatto_points import points
 from hydrogen import R_nl_numeric
@@ -55,6 +56,14 @@ def generate_candidates(a, b, order):
             cand([0], [-2, -2]),
             ])
     return cands
+
+def get_gauss_points(a, b, n):
+    J = (b-a)/2.0
+    x, w = p_roots(n)
+    x = real(x)
+    x_phys = J*(x+1) + a
+    w *= J
+    return x_phys, w
 
 class Mesh1D(object):
 
@@ -519,19 +528,14 @@ class Function(object):
         Returns the L2 norm of the function.
         """
         i = 0
-        pts = self._mesh._points
-        orders = self._mesh._orders
-        elem_coeffs = [self.get_polynomial_coeffs(n, a, b) for n, (a, b, order) \
-                in enumerate(self._mesh.iter_elems())]
-        for n in range(len(orders)):
-            a = pts[n]
-            b = pts[n+1]
-            order = orders[n]
-            coeffs = elem_coeffs[n]
-            def f(x):
-                return _fekete.eval_polynomial_array(coeffs, x)**2
-            val, _ = fixed_quad(f, a, b, (), order+3)
-            i += val
+        for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
+            x, w = get_gauss_points(a, b, order+3)
+            coeffs = self.get_polynomial_coeffs(n, a, b)
+            vals = _fekete.eval_polynomial_array(coeffs, x)
+            r = 0
+            for i in range(len(x)):
+                r += (vals[i]**2)*w[i]
+            i += r
         return i
 
     def get_candidates_with_errors(self, f, elems=None):
