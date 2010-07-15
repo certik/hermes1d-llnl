@@ -374,6 +374,7 @@ class Function(object):
         return r
 
     def eval_polynomial_array(self, coeffs, x):
+        return _fekete.eval_polynomial_array(coeffs, x)
         r = zeros(len(x))
         n = len(coeffs)
         for i, a in enumerate(coeffs):
