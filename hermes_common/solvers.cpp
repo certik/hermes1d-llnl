@@ -74,7 +74,7 @@ bool CommonSolverCG::solve(Matrix* A, cplx *x)
 
 bool CommonSolverDenseLU::solve(Matrix* A, double *x)
 {
-    printf("DenseLU solver\n");
+    //printf("DenseLU solver\n");
 
     DenseMatrix *Aden = NULL;
 
