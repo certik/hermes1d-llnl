@@ -3,7 +3,7 @@
 import sys
 sys.path.insert(0, "../..")
 
-from numpy import arange
+from numpy import arange, empty
 from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
         xlabel, ylabel
 
@@ -200,13 +200,12 @@ def main():
         #s.plot(False)
         #s_ref.plot()
         #stop
+        err_est_array = empty((mesh.get_n_active_elem(), N_eig))
         for i in range(N_eig):
-            err_est_total, err_est_array = calc_error_estimate(NORM,
+            _, err_est_array[:, i] = calc_error_estimate(NORM,
                     mesh, mesh_ref, i)
-            print i, err_est_total, err_est_array
-        err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
-        #print err_est_total, err_est_array
         # TODO: calculate this for all solutions:
+        err_est_total, _ = calc_error_estimate(NORM, mesh, mesh_ref)
         ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
         err_est_rel = err_est_total/ref_sol_norm
         print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
@@ -214,7 +213,7 @@ def main():
             break
         # TODO: adapt using all the vectors:
         adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
-        #stop
+        stop
     plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l,
         N_eig_plot+1+l)], l=l)
     #plot_eigs(mesh, eigs)
