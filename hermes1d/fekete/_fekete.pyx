@@ -104,10 +104,15 @@ def init_gauss_points():
     print "    Done."
 init_gauss_points()
 
+@cython.boundscheck(False)
 def get_gauss_points(double a, double b, int n):
     cdef double J = (b-a)/2.0
-    cdef ndarray[double] x, w
+    cdef unsigned n_points, i
+    cdef ndarray[double, mode="c"] x, w
     x, w = _gauss_points_reference[n]
-    x_phys = J*(x+1) + a
-    w = w*J
-    return x_phys, w
+    n_points = len(x)
+    cdef ndarray[double, mode="c"] x_phys=empty(n_points), w_phys=empty(n_points)
+    for i in range(n_points):
+        x_phys[i] = J*(x[i]+1) + a
+        w_phys[i] = w[i]*J
+    return x_phys, w_phys
