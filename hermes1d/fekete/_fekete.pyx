@@ -118,6 +118,7 @@ def get_gauss_points(double a, double b, int n):
         w_phys[i] = w[i]*J
     return x_phys, w_phys
 
+@cython.boundscheck(False)
 def eval_poly(ndarray[double, mode="c"] x not None,
         ndarray[double, mode="c"] values not None, double a, double b):
     """
@@ -126,8 +127,9 @@ def eval_poly(ndarray[double, mode="c"] x not None,
     The polynomial is defined by 'values' in fekete points, on the interval
     (a, b).
     """
-    cdef n = len(x)
-    cdef n_fekete = len(values)
+    cdef unsigned n = len(x)
+    cdef unsigned n_fekete = len(values)
+    cdef unsigned i
     cdef ndarray[double, mode="c"] fekete_points = array(points[n_fekete-1])
     assert len(fekete_points) == n_fekete
     cdef ndarray[double, mode="c"] y = empty(n)
