@@ -434,9 +434,7 @@ class Function(object):
                 n += 1
             if order not in points:
                 raise ValueError("order '%d' not implememented" % order)
-            fekete_points = [_fekete.get_x_phys(p, a, b) for p in
-                    points[order]]
-            fekete_points = array(fekete_points)
+            fekete_points = _fekete.get_fekete_points_phys(order, a, b)
             elem_values = []
             # Note: this is not a projection (it only evaluates obj in
             # fekete points), so the result is not the best
