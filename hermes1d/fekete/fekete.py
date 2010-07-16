@@ -390,7 +390,7 @@ class Function(object):
             # This can be made faster by using Lagrange interpolation
             # polynomials (no need to invert a matrix in order to get the
             # polynomial below). The results are however identical.
-            coeffs = self.get_polynomial_coeffs(n, a, b)
+            coeffs = self.get_polynomial_coeffs(n, self._values[n], a, b)
             return _fekete.eval_polynomial(coeffs, x)
 
     def get_values_in_element(self, n, x):
@@ -409,12 +409,15 @@ class Function(object):
         # This can be made faster by using Lagrange interpolation
         # polynomials (no need to invert a matrix in order to get the
         # polynomial below). The results are however identical.
-        coeffs = self.get_polynomial_coeffs(n, a, b)
+        return self._get_values_in_element(n, x, self._values[n], a, b)
+
+    def _get_values_in_element(self, n, x, values, a, b):
+        coeffs = self.get_polynomial_coeffs(n, values, a, b)
         return _fekete.eval_polynomial_array(coeffs, x)
 
-    def get_polynomial_coeffs(self, n, a, b):
+    def get_polynomial_coeffs(self, n, values, a, b):
         if n not in self._poly_coeffs:
-            vals = array(self._values[n])
+            vals = array(values)
             x = array(points[len(vals)-1])
             self._poly_coeffs[n] = _fekete.get_polynomial(x, vals, a, b)
         return self._poly_coeffs[n]
@@ -518,17 +521,11 @@ class Function(object):
         """
         Returns the L2 norm of the function.
         """
-        #print "l2_norm"
         r = 0
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
-            #print n, a, b, order
             x, w = _fekete.get_gauss_points(a, b, order+3)
-            coeffs = self.get_polynomial_coeffs(n, a, b)
-            vals = _fekete.eval_polynomial_array(coeffs, x)
+            vals = self._get_values_in_element(n, x, self._values[n], a, b)
             r += _fekete.int_f2(w, vals)
-            #print x, w
-            #print vals
-            #print _fekete.int_f2(w, vals)
         return sqrt(r)
 
     def get_candidates_with_errors(self, f, elems=None):
