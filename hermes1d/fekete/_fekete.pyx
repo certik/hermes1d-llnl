@@ -128,3 +128,16 @@ def eval_poly(n, x, values, a, b):
     fekete_points = array(points[len(values)-1])
     cdef ndarray[double, mode="c"] coeffs = get_polynomial(fekete_points, values, a, b)
     return eval_polynomial_array(coeffs, x)
+
+cdef double lagrange_interpolating_polynomial(double *pos, double *val, int degree,
+     double x):
+    cdef double weight
+    cdef double y = 0
+    for i in range(degree):
+        weight = 1
+        for j in range(degree):
+            # The i-th term has to be skipped
+            if j != i:
+                weight *= (x - pos[j]) / (pos[i] - pos[j])
+        y += weight * val[i]
+    return y
