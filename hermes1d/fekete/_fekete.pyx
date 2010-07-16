@@ -1,8 +1,9 @@
 cimport cython
 
 from numpy cimport ndarray
-from numpy import zeros, empty
+from numpy import zeros, empty, real
 from numpy.linalg import solve
+from scipy.special.orthogonal import p_roots
 
 def eval_polynomial_orig(coeffs, x):
     r = 0
@@ -91,3 +92,18 @@ def int_f2(ndarray[double, mode="c"] w not None,
     for i in range(n):
         r += (values[i]**2)*w[i]
     return r
+
+__p_roots = {}
+def _p_roots(n):
+    if n not in __p_roots:
+        x, w = p_roots(n)
+        __p_roots[n] = (real(x), w)
+    return __p_roots[n]
+
+def get_gauss_points(double a, double b, int n):
+    cdef double J = (b-a)/2.0
+    cdef ndarray[double] x, w
+    x, w = _p_roots(n)
+    x_phys = J*(x+1) + a
+    w = w*J
+    return x_phys, w

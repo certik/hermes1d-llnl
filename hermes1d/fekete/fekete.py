@@ -11,7 +11,6 @@ from numpy import empty, arange, array, ndarray, zeros, real
 from numpy.linalg import solve
 
 from scipy.integrate import quadrature, fixed_quad
-from scipy.special.orthogonal import p_roots
 
 from gauss_lobatto_points import points
 from hydrogen import R_nl_numeric
@@ -56,20 +55,6 @@ def generate_candidates(a, b, order):
             cand([0], [-2, -2]),
             ])
     return cands
-
-__p_roots = {}
-def _p_roots(n):
-    if n not in __p_roots:
-        __p_roots[n] = p_roots(n)
-    return __p_roots[n]
-
-def get_gauss_points(a, b, n):
-    J = (b-a)/2.0
-    x, w = _p_roots(n)
-    x = real(x)
-    x_phys = J*(x+1) + a
-    w = w*J
-    return x_phys, w
 
 class Mesh1D(object):
 
@@ -537,7 +522,7 @@ class Function(object):
         r = 0
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
             #print n, a, b, order
-            x, w = get_gauss_points(a, b, order+3)
+            x, w = _fekete.get_gauss_points(a, b, order+3)
             coeffs = self.get_polynomial_coeffs(n, a, b)
             vals = _fekete.eval_polynomial_array(coeffs, x)
             r += _fekete.int_f2(w, vals)
