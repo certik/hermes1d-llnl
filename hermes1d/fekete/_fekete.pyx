@@ -93,17 +93,21 @@ def int_f2(ndarray[double, mode="c"] w not None,
         r += (values[i]**2)*w[i]
     return r
 
-__p_roots = {}
-def _p_roots(n):
-    if n not in __p_roots:
+# gauss points+weights on the reference domain
+cdef dict _gauss_points_reference = {}
+
+def init_gauss_points():
+    print "Precalculating gauss points..."
+    for n in range(1, 50):
         x, w = p_roots(n)
-        __p_roots[n] = (real(x), w)
-    return __p_roots[n]
+        _gauss_points_reference[n] = (real(x), w)
+    print "    Done."
+init_gauss_points()
 
 def get_gauss_points(double a, double b, int n):
     cdef double J = (b-a)/2.0
     cdef ndarray[double] x, w
-    x, w = _p_roots(n)
+    x, w = _gauss_points_reference[n]
     x_phys = J*(x+1) + a
     w = w*J
     return x_phys, w
