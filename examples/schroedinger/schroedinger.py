@@ -3,7 +3,7 @@
 import sys
 sys.path.insert(0, "../..")
 
-from numpy import arange, empty
+from numpy import arange, empty, zeros
 from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
         xlabel, ylabel
 
@@ -189,9 +189,15 @@ def main():
         print "    Done."
         #print eigs[0]
         #print eigs_ref[0]
-        for i in range(N_eig):
-            mesh.copy_vector_to_mesh(eigs[i], i)
-            mesh_ref.copy_vector_to_mesh(eigs_ref[i], i)
+        sol = zeros(len(eigs[0]), dtype="double")
+        sol_ref = zeros(len(eigs_ref[0]), dtype="double")
+        for i in [3]:
+            e = (eigs[i]).copy()
+            e /= FESolution(mesh, e).to_discrete_function().l2_norm()
+            sol += e
+            e = (eigs_ref[i]).copy()
+            e /= FESolution(mesh_ref, e).to_discrete_function().l2_norm()
+            sol_ref += e
         #s_ref = FESolution(mesh_ref, eigs_ref[0]).to_discrete_function()
         #s = FESolution(mesh, eigs[0]).to_discrete_function()
         #pts, orders = mesh.get_mesh_data()
@@ -200,12 +206,14 @@ def main():
         #s.plot(False)
         #s_ref.plot()
         #stop
-        err_est_array = empty((mesh.get_n_active_elem(), N_eig))
-        for i in range(N_eig):
-            _, err_est_array[:, i] = calc_error_estimate(NORM,
-                    mesh, mesh_ref, i)
+        #err_est_array = empty((mesh.get_n_active_elem(), N_eig))
+        #for i in range(N_eig):
+        #    _, err_est_array[:, i] = calc_error_estimate(NORM,
+        #            mesh, mesh_ref, i)
         # TODO: calculate this for all solutions:
-        err_est_total, _ = calc_error_estimate(NORM, mesh, mesh_ref)
+        mesh.copy_vector_to_mesh(sol, 0)
+        mesh_ref.copy_vector_to_mesh(sol_ref, 0)
+        err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
         ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
         err_est_rel = err_est_total/ref_sol_norm
         print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
@@ -213,7 +221,7 @@ def main():
             break
         # TODO: adapt using all the vectors:
         adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
-        stop
+        #stop
     plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l,
         N_eig_plot+1+l)], l=l)
     #plot_eigs(mesh, eigs)
