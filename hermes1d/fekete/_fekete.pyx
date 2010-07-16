@@ -95,21 +95,24 @@ def int_f2(ndarray[double, mode="c"] w not None,
     return r
 
 # gauss points+weights on the reference domain
-cdef dict _gauss_points_reference = {}
+cdef list _gauss_points_reference = None
 
-def init_gauss_points():
+def init_gauss_points(N=50):
     print "Precalculating gauss points..."
-    for n in range(1, 50):
+    global _gauss_points_reference
+    _gauss_points_reference = range(N)
+    for n in range(1, N):
         x, w = p_roots(n)
         _gauss_points_reference[n] = (real(x), w)
     print "    Done."
-init_gauss_points()
 
 @cython.boundscheck(False)
 def get_gauss_points_phys(double a, double b, int n):
     cdef double J = (b-a)/2.0
     cdef unsigned n_points, i
     cdef ndarray[double, mode="c"] x, w
+    if _gauss_points_reference is None:
+        init_gauss_points()
     x, w = _gauss_points_reference[n]
     n_points = len(x)
     cdef ndarray[double, mode="c"] x_phys=empty(n_points), w_phys=empty(n_points)
