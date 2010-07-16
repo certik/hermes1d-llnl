@@ -131,6 +131,9 @@ def eval_poly(ndarray[double, mode="c"] x not None,
     cdef unsigned n_fekete = len(values)
     cdef unsigned i
     cdef ndarray[double, mode="c"] fekete_points = array(points[n_fekete-1])
+    cdef double J = (b-a)/2.
+    for i in range(n_fekete):
+        fekete_points[i] = J*(fekete_points[i]+1) + a
     assert len(fekete_points) == n_fekete
     cdef ndarray[double, mode="c"] y = empty(n)
     for i in range(n):
