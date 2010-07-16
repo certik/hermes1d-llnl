@@ -24,6 +24,6 @@ f_ref = Function(lambda x: exp(-x)*(x*x+1), m_ref)
 print f
 print f_ref
 print "loop"
-for i in range(10):
+for i in range(100):
     l2 = p(f, f_ref)
 print l2

@@ -16,6 +16,8 @@ from gauss_lobatto_points import points
 from hydrogen import R_nl_numeric
 import _fekete
 
+_logger_Function = logging.getLogger("hermes1d.Function")
+
 def generate_candidates(a, b, order):
     def cand(divisions, orders):
         if len(divisions) == 0:
@@ -334,7 +336,7 @@ class Function(object):
 
         self._poly_coeffs = {}
 
-        self.logger = logging.getLogger("hermes1d.Function")
+        self.logger = _logger_Function
 
     def get_polynomial(self, x, values, a, b):
         """
