@@ -332,7 +332,7 @@ class Function(object):
                     p = _fekete.get_x_phys(p, a, b)
                     val = obj(p)
                     elem_values.append(val)
-                self._values.append(elem_values)
+                self._values.append(array(elem_values))
 
         self._poly_coeffs = {}
 
@@ -389,7 +389,7 @@ class Function(object):
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
             if b < x:
                 continue
-            y = _fekete.eval_poly(array([float(x)]), array(self._values[n]),
+            y = _fekete.eval_poly(array([float(x)]), self._values[n],
                     a, b)[0]
             return y
 
@@ -406,7 +406,7 @@ class Function(object):
         a, b, order = self._mesh.get_element_by_id(n)
         assert (a<=x).all()
         assert (x<=b).all()
-        return _fekete.eval_poly(x, array(self._values[n]), a, b)
+        return _fekete.eval_poly(x, self._values[n], a, b)
 
     def get_polynomial_coeffs(self, n, values, a, b):
         if n not in self._poly_coeffs:
@@ -501,7 +501,7 @@ class Function(object):
         return self + (-o)
 
     def __neg__(self):
-        values = [-array(x) for x in self._values]
+        values = [-x for x in self._values]
         return Function(values, self._mesh)
 
 
@@ -515,7 +515,7 @@ class Function(object):
         r = 0
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
             x, w = _fekete.get_gauss_points(a, b, order+3)
-            vals = _fekete.eval_poly(x, array(self._values[n]), a, b)
+            vals = _fekete.eval_poly(x, self._values[n], a, b)
             r += _fekete.int_f2(w, vals)
         return sqrt(r)
 
