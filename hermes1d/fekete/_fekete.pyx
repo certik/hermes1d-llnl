@@ -36,7 +36,7 @@ def eval_polynomial_array_orig(coeffs, x):
     return r
 
 @cython.boundscheck(False)
-def eval_polynomial_array(ndarray[double, mode="c"] coeffs not None, ndarray[double, mode="c"] x not None):
+cpdef eval_polynomial_array(ndarray[double, mode="c"] coeffs, ndarray[double, mode="c"] x):
     cdef unsigned n_coeffs = len(coeffs)
     cdef unsigned n_x = len(x)
     cdef ndarray[double, mode="c"] r=zeros(n_x)
@@ -64,8 +64,8 @@ def get_polynomial_orig(x, values, a, b):
     return a
 
 @cython.boundscheck(False)
-def get_polynomial(ndarray[double, mode="c"] x not None,
-        ndarray[double, mode="c"] values not None,
+cpdef ndarray[double, mode="c"] get_polynomial(ndarray[double, mode="c"] x,
+        ndarray[double, mode="c"] values,
         double a, double b):
     """
     Returns the interpolating polynomial's coeffs.
@@ -126,5 +126,5 @@ def eval_poly(n, x, values, a, b):
     (a, b).
     """
     fekete_points = array(points[len(values)-1])
-    coeffs = get_polynomial(fekete_points, values, a, b)
+    cdef ndarray[double, mode="c"] coeffs = get_polynomial(fekete_points, values, a, b)
     return eval_polynomial_array(coeffs, x)
