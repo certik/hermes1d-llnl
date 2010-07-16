@@ -527,6 +527,7 @@ class Function(object):
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
             x, w = _fekete.get_gauss_points(a, b, order+3)
             vals = self._get_values_in_element(n, x, self._values[n], a, b)
+            #vals = _fekete.eval_poly(x, array(self._values[n]), a, b)
             r += _fekete.int_f2(w, vals)
         return sqrt(r)
 

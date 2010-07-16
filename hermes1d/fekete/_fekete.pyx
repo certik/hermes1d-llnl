@@ -136,8 +136,8 @@ def eval_poly(ndarray[double, mode="c"] x not None,
                 &(values[0]), n_fekete, x[i])
     return y
 
-cdef double lagrange_interpolating_polynomial(double *pos, double *val, int degree,
-     double x):
+cdef double lagrange_interpolating_polynomial(double *pos, double *val,
+        int degree, double x):
     cdef double weight
     cdef double y = 0
     for i in range(degree):
