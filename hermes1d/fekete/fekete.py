@@ -7,7 +7,7 @@ import logging
 import datetime
 import time
 
-from numpy import empty, arange, array, ndarray, zeros
+from numpy import empty, arange, array, ndarray, zeros, real
 from numpy.linalg import solve
 
 from scipy.integrate import quadrature, fixed_quad
@@ -16,9 +16,6 @@ from gauss_lobatto_points import points
 from hydrogen import R_nl_numeric
 import _fekete
 
-def get_x_phys(x_ref, a, b):
-    return (a+b)/2. + x_ref*(b-a)/2.;
-
 def generate_candidates(a, b, order):
     def cand(divisions, orders):
         if len(divisions) == 0:
@@ -26,7 +23,7 @@ def generate_candidates(a, b, order):
             return Mesh1D((a, b), (order + orders[0],))
         elif len(divisions) == 1:
             assert len(orders) == 2
-            return Mesh1D((a, get_x_phys(divisions[0], a, b), b),
+            return Mesh1D((a, _fekete.get_x_phys(divisions[0], a, b), b),
                     (order + orders[0], order + orders[1]))
         else:
             raise NotImplementedError()
@@ -85,7 +82,7 @@ class Mesh1D(object):
         odd = False
         for a, b, order in self.iter_elems():
             fekete_points = points[order]
-            fekete_points = [get_x_phys(x, a, b) for x in fekete_points]
+            fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
             if odd:
                 format = "y-"
             else:
@@ -106,7 +103,7 @@ class Mesh1D(object):
             return n
 
     def get_element_by_id(self, id):
-        return list(self.iter_elems())[id]
+        return (self._points[id], self._points[id+1], self._orders[id])
 
     def get_node_id_by_coord(self, x):
         eps = 1e-10
@@ -290,6 +287,22 @@ class Mesh1D(object):
         graph.append((g.dofs(), errors))
         return g_mesh, errors
 
+    def refine_all_elements(self):
+        pts = []
+        orders = []
+        for a, b, order in self.iter_elems():
+            mid = (a+b)/2.
+            pts.append(a)
+            pts.append(mid)
+            orders.append(order)
+            orders.append(order)
+            last = b
+        pts.append(last)
+        return Mesh1D(pts, orders)
+
+    def increase_order(self):
+        return Mesh1D(self._points, array(self._orders)+1)
+
 class Function(object):
     """
     Represents a function on a mesh.
@@ -314,7 +327,7 @@ class Function(object):
                 # fekete points), so the result is not the best
                 # approximation possible:
                 for p in fekete_points:
-                    p = get_x_phys(p, a, b)
+                    p = _fekete.get_x_phys(p, a, b)
                     val = obj(p)
                     elem_values.append(val)
                 self._values.append(elem_values)
@@ -323,20 +336,20 @@ class Function(object):
 
         self.logger = logging.getLogger("hermes1d.Function")
 
-    def get_polynomial(self, values, a, b):
+    def get_polynomial(self, x, values, a, b):
         """
         Returns the interpolating polynomial's coeffs.
 
         The len(values) specifies the order and we work in the element <a, b>
         """
+        # Note: the version in _fekete is 2.6x faster
         n = len(values)
         A = empty((n, n), dtype="double")
         y = empty((n,), dtype="double")
-        x = points[n-1]
         assert len(x) == n
         for i in range(n):
             for j in range(n):
-                A[i, j] = get_x_phys(x[i], a, b)**(n-j-1)
+                A[i, j] = _fekete.get_x_phys(x[i], a, b)**(n-j-1)
             y[i] = values[i]
         a = solve(A, y)
         return a
@@ -352,7 +365,7 @@ class Function(object):
 
     def eval_polynomial(self, coeffs, x):
         # This is about 15x faster
-        return _fekete.eval_polynomial2(coeffs, x)
+        return _fekete.eval_polynomial(coeffs, x)
         # than this:
         r = 0
         n = len(coeffs)
@@ -361,6 +374,9 @@ class Function(object):
         return r
 
     def eval_polynomial_array(self, coeffs, x):
+        # This is about 6x faster
+        return _fekete.eval_polynomial_array(coeffs, x)
+        # than this:
         r = zeros(len(x))
         n = len(coeffs)
         for i, a in enumerate(coeffs):
@@ -374,8 +390,8 @@ class Function(object):
             # This can be made faster by using Lagrange interpolation
             # polynomials (no need to invert a matrix in order to get the
             # polynomial below). The results are however identical.
-            coeffs = self.get_polynomial_coeffs(n, a, b)
-            return self.eval_polynomial(coeffs, x)
+            coeffs = self.get_polynomial_coeffs(n, self._values[n], a, b)
+            return _fekete.eval_polynomial(coeffs, x)
 
     def get_values_in_element(self, n, x):
         """
@@ -393,17 +409,50 @@ class Function(object):
         # This can be made faster by using Lagrange interpolation
         # polynomials (no need to invert a matrix in order to get the
         # polynomial below). The results are however identical.
-        coeffs = self.get_polynomial_coeffs(n, a, b)
-        return self.eval_polynomial_array(coeffs, x)
+        return self._get_values_in_element(n, x, self._values[n], a, b)
 
-    def get_polynomial_coeffs(self, n, a, b):
+    def _get_values_in_element(self, n, x, values, a, b):
+        # This doesn't use caching, so it's slower:
+        #return _fekete.eval_poly(n, x, array(values), a, b)
+        coeffs = self.get_polynomial_coeffs(n, values, a, b)
+        return _fekete.eval_polynomial_array(coeffs, x)
+
+    def get_polynomial_coeffs(self, n, values, a, b):
         if n not in self._poly_coeffs:
-            self._poly_coeffs[n] = self.get_polynomial(self._values[n], a, b)
+            vals = array(values)
+            x = array(points[len(vals)-1])
+            self._poly_coeffs[n] = _fekete.get_polynomial(x, vals, a, b)
         return self._poly_coeffs[n]
 
     def project_onto(self, mesh):
         # This is not a true projection, only some approximation:
+        if mesh == self._mesh:
+            return self
         return Function(self, mesh)
+
+    def project_onto_union(self, mesh):
+        """
+        The same as project_onto, only "mesh" is a subset of self._mesh.
+        """
+        if mesh == self._mesh:
+            return self
+        values = []
+        n = 0
+        for a, b, order in mesh.iter_elems():
+            if a >= self._mesh._points[n+1]:
+                n += 1
+            if order not in points:
+                raise ValueError("order '%d' not implememented" % order)
+            fekete_points = [_fekete.get_x_phys(p, a, b) for p in
+                    points[order]]
+            fekete_points = array(fekete_points)
+            elem_values = []
+            # Note: this is not a projection (it only evaluates obj in
+            # fekete points), so the result is not the best
+            # approximation possible:
+            elem_values = self.get_values_in_element(n, fekete_points)
+            values.append(elem_values)
+        return Function(values, mesh)
 
     def plot(self, call_show=True):
         try:
@@ -415,7 +464,7 @@ class Function(object):
             fekete_points = points[order]
             vals = self._values[n]
             assert len(vals) == len(fekete_points)
-            fekete_points = [get_x_phys(x, a, b) for x in fekete_points]
+            fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
             x = arange(a, b, 0.1)
             y = [self(_x) for _x in x]
             if odd:
@@ -433,13 +482,13 @@ class Function(object):
         if isinstance(o, Function):
             for a, b, order in self._mesh.iter_elems():
                 fekete_points = points[order]
-                fekete_points = [get_x_phys(x, a, b) for x in fekete_points]
+                fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
                 for p in fekete_points:
                     if abs(self(p) - o(p)) > eps:
                         return False
             for a, b, order in o._mesh.iter_elems():
                 fekete_points = points[order]
-                fekete_points = [get_x_phys(x, a, b) for x in fekete_points]
+                fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
                 for p in fekete_points:
                     if abs(self(p) - o(p)) > eps:
                         return False
@@ -452,11 +501,12 @@ class Function(object):
 
     def __add__(self, o):
         if self._mesh == o._mesh:
-            values = array(self._values) + array(o._values)
+            values = [array(x)+array(y) for x, y in zip(self._values,
+                o._values)]
             return Function(values, self._mesh)
         else:
             union_mesh = self._mesh.union(o._mesh)
-            return self.project_onto(union_mesh) + o.project_onto(union_mesh)
+            return self.project_onto_union(union_mesh) + o.project_onto_union(union_mesh)
 
     def __sub__(self, o):
         return self + (-o)
@@ -473,15 +523,12 @@ class Function(object):
         """
         Returns the L2 norm of the function.
         """
-        #self.logger.debug("l2_norm:")
-        i = 0
+        r = 0
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
-            def f(x):
-                return self.get_values_in_element(n, x)**2
-            val, _ = fixed_quad(f, a, b, (), order+3)
-            i += val
-        #self.logger.debug("    done.")
-        return i
+            x, w = _fekete.get_gauss_points(a, b, order+3)
+            vals = self._get_values_in_element(n, x, self._values[n], a, b)
+            r += _fekete.int_f2(w, vals)
+        return sqrt(r)
 
     def get_candidates_with_errors(self, f, elems=None):
         """
