@@ -251,3 +251,10 @@ def test_l2():
     mesh1 = Mesh1D((0, pi/4, pi/2, 3*pi/4, pi), (20, 20, 20, 20))
     f = Function(func, mesh1)
     assert abs(f.l2_norm()-sqrt(pi/2)) < eps
+
+def test_power():
+    eps = 1e-12
+    func = lambda x: x
+    mesh1 = Mesh1D((0, 1), (1,))
+    f = Function(func, mesh1)
+    assert abs(f.l2_norm() - sqrt(1./3)) < eps
