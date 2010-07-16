@@ -118,6 +118,14 @@ def get_gauss_points(double a, double b, int n):
         w_phys[i] = w[i]*J
     return x_phys, w_phys
 
+cpdef ndarray[double, mode="c"] get_fekete_points_phys(int order, double a,
+        double b):
+    cdef ndarray[double, mode="c"] fekete_points = array(points[order])
+    cdef double J = (b-a)/2.
+    for i in range(order+1):
+        fekete_points[i] = J*(fekete_points[i]+1) + a
+    return fekete_points
+
 @cython.boundscheck(False)
 def eval_poly(ndarray[double, mode="c"] x not None,
         ndarray[double, mode="c"] values not None, double a, double b):
@@ -130,10 +138,8 @@ def eval_poly(ndarray[double, mode="c"] x not None,
     cdef unsigned n = len(x)
     cdef unsigned n_fekete = len(values)
     cdef unsigned i
-    cdef ndarray[double, mode="c"] fekete_points = array(points[n_fekete-1])
-    cdef double J = (b-a)/2.
-    for i in range(n_fekete):
-        fekete_points[i] = J*(fekete_points[i]+1) + a
+    cdef ndarray[double, mode="c"] fekete_points = \
+            get_fekete_points_phys(n_fekete-1, a, b)
     assert len(fekete_points) == n_fekete
     cdef ndarray[double, mode="c"] y = empty(n)
     for i in range(n):
