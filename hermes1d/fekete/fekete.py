@@ -406,16 +406,7 @@ class Function(object):
         a, b, order = self._mesh.get_element_by_id(n)
         assert (a<=x).all()
         assert (x<=b).all()
-        # This can be made faster by using Lagrange interpolation
-        # polynomials (no need to invert a matrix in order to get the
-        # polynomial below). The results are however identical.
-        return self._get_values_in_element(n, x, self._values[n], a, b)
-
-    def _get_values_in_element(self, n, x, values, a, b):
-        # This doesn't use caching, so it's slower:
-        #return _fekete.eval_poly(n, x, array(values), a, b)
-        coeffs = self.get_polynomial_coeffs(n, values, a, b)
-        return _fekete.eval_polynomial_array(coeffs, x)
+        return _fekete.eval_poly(x, array(self._values[n]), a, b)
 
     def get_polynomial_coeffs(self, n, values, a, b):
         if n not in self._poly_coeffs:
@@ -526,8 +517,7 @@ class Function(object):
         r = 0
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
             x, w = _fekete.get_gauss_points(a, b, order+3)
-            vals = self._get_values_in_element(n, x, self._values[n], a, b)
-            #vals = _fekete.eval_poly(x, array(self._values[n]), a, b)
+            vals = _fekete.eval_poly(x, array(self._values[n]), a, b)
             r += _fekete.int_f2(w, vals)
         return sqrt(r)
 
