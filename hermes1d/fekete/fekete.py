@@ -387,11 +387,9 @@ class Function(object):
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
             if b < x:
                 continue
-            # This can be made faster by using Lagrange interpolation
-            # polynomials (no need to invert a matrix in order to get the
-            # polynomial below). The results are however identical.
-            coeffs = self.get_polynomial_coeffs(n, self._values[n], a, b)
-            return _fekete.eval_polynomial(coeffs, x)
+            y = _fekete.eval_poly(array([float(x)]), array(self._values[n]),
+                    a, b)[0]
+            return y
 
     def get_values_in_element(self, n, x):
         """
