@@ -118,16 +118,23 @@ def get_gauss_points(double a, double b, int n):
         w_phys[i] = w[i]*J
     return x_phys, w_phys
 
-def eval_poly(n, x, values, a, b):
+def eval_poly(ndarray[double, mode="c"] x not None,
+        ndarray[double, mode="c"] values not None, double a, double b):
     """
     Evaluates polynomial at points 'x'.
 
     The polynomial is defined by 'values' in fekete points, on the interval
     (a, b).
     """
-    fekete_points = array(points[len(values)-1])
-    cdef ndarray[double, mode="c"] coeffs = get_polynomial(fekete_points, values, a, b)
-    return eval_polynomial_array(coeffs, x)
+    cdef n = len(x)
+    cdef n_fekete = len(values)
+    cdef ndarray[double, mode="c"] fekete_points = array(points[n_fekete-1])
+    assert len(fekete_points) == n_fekete
+    cdef ndarray[double, mode="c"] y = empty(n)
+    for i in range(n):
+        y[i] = lagrange_interpolating_polynomial(&(fekete_points[0]),
+                &(values[0]), n_fekete, x[i])
+    return y
 
 cdef double lagrange_interpolating_polynomial(double *pos, double *val, int degree,
      double x):
