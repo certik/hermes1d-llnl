@@ -1,9 +1,10 @@
 cimport cython
 
 from numpy cimport ndarray
-from numpy import zeros, empty, real
+from numpy import zeros, empty, real, array
 from numpy.linalg import solve
 from scipy.special.orthogonal import p_roots
+from gauss_lobatto_points import points
 
 def eval_polynomial_orig(coeffs, x):
     r = 0
@@ -116,3 +117,14 @@ def get_gauss_points(double a, double b, int n):
         x_phys[i] = J*(x[i]+1) + a
         w_phys[i] = w[i]*J
     return x_phys, w_phys
+
+def eval_poly(n, x, values, a, b):
+    """
+    Evaluates polynomial at points 'x'.
+
+    The polynomial is defined by 'values' in fekete points, on the interval
+    (a, b).
+    """
+    fekete_points = array(points[len(values)-1])
+    coeffs = get_polynomial(fekete_points, values, a, b)
+    return eval_polynomial_array(coeffs, x)

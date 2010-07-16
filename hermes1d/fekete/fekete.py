@@ -412,6 +412,7 @@ class Function(object):
         return self._get_values_in_element(n, x, self._values[n], a, b)
 
     def _get_values_in_element(self, n, x, values, a, b):
+        return _fekete.eval_poly(n, x, array(values), a, b)
         coeffs = self.get_polynomial_coeffs(n, values, a, b)
         return _fekete.eval_polynomial_array(coeffs, x)
 
