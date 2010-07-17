@@ -504,6 +504,11 @@ class Function(object):
         values = [-x for x in self._values]
         return Function(values, self._mesh)
 
+    def __pow__(self, o):
+        if isinstance(o, (int, long)):
+            return self
+        else:
+            return NotImplemented
 
     def get_mesh_adapt(self, max_order=12):
         return self._mesh

@@ -256,5 +256,7 @@ def test_power():
     eps = 1e-12
     func = lambda x: x
     mesh1 = Mesh1D((0, 1), (1,))
+    mesh2 = Mesh1D((0, 1), (2,))
     f = Function(func, mesh1)
     assert abs(f.l2_norm() - sqrt(1./3)) < eps
+    assert f**2 == Function(lambda x: x**2, mesh2)
