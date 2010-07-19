@@ -1,7 +1,7 @@
 cimport cython
 
 from numpy cimport ndarray
-from numpy import zeros, empty, real, array
+from numpy import zeros, empty, real, array, pi, arange, cos
 from numpy.linalg import solve
 from scipy.special.orthogonal import p_roots
 from gauss_lobatto_points import points
@@ -149,6 +149,37 @@ cpdef ndarray[double, mode="c"] get_fekete_points_phys(int order, double a,
     for i in range(order+1):
         fekete_points[i] = J*(fekete_points[i]+1) + a
     return fekete_points
+
+cpdef ndarray[double, mode="c"] get_chebyshev_points_phys(int order, double a,
+        double b):
+    """
+    Returns the array of Chebyshev points in physical domain.
+
+    'order' ... is the polynomial order of the element
+    (a, b)  ... physical interval where we want the Chebyshev points
+
+    There are "order+1" Chebyshev points.
+
+    Examples::
+
+    >>> from hermes1d.fekete._fekete import get_chebyshev_points_phys
+    >>> get_chebyshev_points_phys(1, 5, 6)
+    array([ 5.,  6.])
+    >>> get_chebyshev_points_phys(2, 5, 6)
+    array([ 5. ,  5.5,  6. ])
+    >>> get_chebyshev_points_phys(3, 5, 6)
+    array([ 5.  ,  5.25,  5.75,  6.  ])
+    >>> get_chebyshev_points_phys(4, 5, 6)
+    array([ 5.        ,  5.14644661,  5.5       ,  5.85355339,  6.        ])
+
+    """
+    cdef unsigned N = order+1
+    k = arange(N)
+    cdef ndarray[double, mode="c"] points = -cos(pi*k/(N-1))
+    cdef double J = (b-a)/2.
+    for i in range(N):
+        points[i] = J*(points[i]+1) + a
+    return points
 
 @cython.boundscheck(False)
 def eval_poly(ndarray[double, mode="c"] x not None,
