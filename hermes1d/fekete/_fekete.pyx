@@ -144,6 +144,8 @@ cpdef ndarray[double, mode="c"] get_fekete_points_phys(int order, double a,
     array([ 5.        ,  5.17267316,  5.5       ,  5.82732684,  6.        ])
 
     """
+    if order not in points:
+        return get_chebyshev_points_phys(order, a, b)
     cdef ndarray[double, mode="c"] fekete_points = array(points[order])
     cdef double J = (b-a)/2.
     for i in range(order+1):
