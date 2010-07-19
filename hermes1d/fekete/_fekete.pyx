@@ -123,6 +123,27 @@ def get_gauss_points_phys(double a, double b, int n):
 
 cpdef ndarray[double, mode="c"] get_fekete_points_phys(int order, double a,
         double b):
+    """
+    Returns the array of fekete points in physical domain.
+
+    'order' ... is the polynomial order of the element
+    (a, b)  ... physical interval where we want the fekete points
+
+    There are "order+1" fekete points.
+
+    Examples::
+
+    >>> from hermes1d.fekete._fekete import get_fekete_points_phys
+    >>> get_fekete_points_phys(1, 5, 6)
+    array([ 5.,  6.])
+    >>> get_fekete_points_phys(2, 5, 6)
+    array([ 5. ,  5.5,  6. ])
+    >>> get_fekete_points_phys(3, 5, 6)
+    array([ 5.       ,  5.2763932,  5.7236068,  6.       ])
+    >>> get_fekete_points_phys(4, 5, 6)
+    array([ 5.        ,  5.17267316,  5.5       ,  5.82732684,  6.        ])
+
+    """
     cdef ndarray[double, mode="c"] fekete_points = array(points[order])
     cdef double J = (b-a)/2.
     for i in range(order+1):
