@@ -180,7 +180,6 @@ class Mesh1D(object):
         return Mesh1D(points, orders)
 
     def union(self, o):
-        eps = 1e-12
         p1 = self._points
         p2 = o._points
         p = list(p1)
@@ -188,7 +187,7 @@ class Mesh1D(object):
         p.sort()
         points = [p[0]]
         for point in p[1:]:
-            if abs(points[-1] - point) < eps:
+            if feq(points[-1], point):
                 continue
             points.append(point)
         # points now contains the sorted list of union points
@@ -477,7 +476,6 @@ class Function(object):
             show()
 
     def __eq__(self, o):
-        eps = 1e-8
         if isinstance(o, Function):
             for a, b, order in self._mesh.iter_elems():
                 fekete_points = points[order]
