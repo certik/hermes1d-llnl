@@ -20,6 +20,8 @@ _logger_Function = logging.getLogger("hermes1d.Function")
 
 @vectorize(0, 1)
 def feq(a, b, max_relative_error=1e-12, max_absolute_error=1e-12):
+    a = float(a)
+    b = float(b)
     # if the numbers are close enough (absolutely), then they are equal
     if abs(a-b) < max_absolute_error:
         return True
