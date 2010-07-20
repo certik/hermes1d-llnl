@@ -506,7 +506,17 @@ class Function(object):
 
     def __pow__(self, o):
         if isinstance(o, (int, long)):
-            return self
+            pts = self._mesh._points
+            orders = empty(len(self._mesh._orders), dtype="int")
+            values = []
+            for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
+                order = 2*order
+                x = _fekete.get_fekete_points_phys(order, a, b)
+                vals = _fekete.eval_poly(x, self._values[n], a, b)**o
+                values.append(vals)
+                orders[n] = order
+            mesh = Mesh1D(pts, orders)
+            return Function(values, mesh)
         else:
             return NotImplemented
 
