@@ -467,7 +467,7 @@ class Function(object):
             show()
 
     def __eq__(self, o):
-        eps = 1e-12
+        eps = 1e-11
         if isinstance(o, Function):
             for a, b, order in self._mesh.iter_elems():
                 fekete_points = points[order]

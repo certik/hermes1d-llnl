@@ -272,3 +272,12 @@ def test_power():
     assert f**2 != Function(lambda x: x**2, mesh1)
     assert f**2 == Function(lambda x: x**2, mesh2)
     assert f**2 == Function(lambda x: x**2, mesh3)
+
+    func = lambda x: x**3+x
+    mesh1 = Mesh1D((5, 6), (3,))
+    mesh2 = Mesh1D((5, 6), (5,))
+    mesh3 = Mesh1D((5, 6), (6,))
+    f = Function(func, mesh1)
+    assert f**2 != Function(lambda x: x**6+2*x**4+x**2, mesh1)
+    assert f**2 != Function(lambda x: x**6+2*x**4+x**2, mesh2)
+    assert f**2 == Function(lambda x: x**6+2*x**4+x**2, mesh3)
