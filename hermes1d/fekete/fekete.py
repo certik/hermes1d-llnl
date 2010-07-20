@@ -472,14 +472,12 @@ class Function(object):
     def __eq__(self, o):
         if isinstance(o, Function):
             for a, b, order in self._mesh.iter_elems():
-                fekete_points = points[order]
-                fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
+                fekete_points = _fekete.get_fekete_points_phys(order, a, b)
                 for p in fekete_points:
                     if not feq(self(p), o(p)):
                         return False
             for a, b, order in o._mesh.iter_elems():
-                fekete_points = points[order]
-                fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
+                fekete_points = _fekete.get_fekete_points_phys(order, a, b)
                 for p in fekete_points:
                     if not feq(self(p), o(p)):
                         return False
