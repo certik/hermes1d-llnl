@@ -467,7 +467,7 @@ class Function(object):
             show()
 
     def __eq__(self, o):
-        eps = 1e-11
+        eps = 1e-8
         if isinstance(o, Function):
             for a, b, order in self._mesh.iter_elems():
                 fekete_points = points[order]
@@ -510,7 +510,7 @@ class Function(object):
             orders = empty(len(self._mesh._orders), dtype="int")
             values = []
             for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
-                order = 2*order
+                order = o*order
                 x = _fekete.get_fekete_points_phys(order, a, b)
                 vals = _fekete.eval_poly(x, self._values[n], a, b)**o
                 values.append(vals)
