@@ -12,7 +12,6 @@ from numpy.linalg import solve
 from scipy.integrate import quadrature, fixed_quad
 from sympy import vectorize
 
-from gauss_lobatto_points import points
 from hydrogen import R_nl_numeric
 import _fekete
 
@@ -435,8 +434,6 @@ class Function(object):
         for a, b, order in mesh.iter_elems():
             if a >= self._mesh._points[n+1]:
                 n += 1
-            if order not in points:
-                raise ValueError("order '%d' not implememented" % order)
             fekete_points = _fekete.get_fekete_points_phys(order, a, b)
             elem_values = []
             # Note: this is not a projection (it only evaluates obj in
