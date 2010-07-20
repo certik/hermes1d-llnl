@@ -119,9 +119,8 @@ class Mesh1D(object):
         return (self._points[id], self._points[id+1], self._orders[id])
 
     def get_node_id_by_coord(self, x):
-        eps = 1e-10
         for i, node in enumerate(self._points):
-            if abs(node-x) < eps:
+            if feq(node, x):
                 return i
         raise ValueError("Node not found")
 
@@ -140,11 +139,10 @@ class Mesh1D(object):
 
         # first element:
         a, b, order = self.get_element_by_id(n1)
-        eps = 1e-12
-        if abs(b-A) < eps:
+        if feq(b, A):
             pass
         else:
-            if abs(a-A) < eps:
+            if feq(a, A):
                 pass
             elif a < A:
                 a = A
@@ -161,18 +159,17 @@ class Mesh1D(object):
 
         # last element:
         a, b, order = self.get_element_by_id(n2)
-        eps = 1e-12
-        if abs(a-A) < eps:
+        if feq(a, A):
             pass
         elif a < A:
             a = A
-        if abs(b-B) < eps:
+        if feq(b, B):
             pass
         elif B < b:
             b = B
         else:
             raise NotImplementedError()
-        if len(points) == 0 or not (abs(points[-1] - a) < eps):
+        if len(points) == 0 or not feq(points[-1], a):
             points.append(a)
             orders.append(order)
         points.append(b)
