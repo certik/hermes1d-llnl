@@ -330,17 +330,11 @@ class Function(object):
         else:
             self._values = []
             for a, b, order in mesh.iter_elems():
-                if order not in points:
-                    raise ValueError("order '%d' not implememented" % order)
-                fekete_points = points[order]
-                elem_values = []
+                fekete_points = _fekete.get_fekete_points_phys(order, a, b)
                 # Note: this is not a projection (it only evaluates obj in
                 # fekete points), so the result is not the best
                 # approximation possible:
-                for p in fekete_points:
-                    p = _fekete.get_x_phys(p, a, b)
-                    val = obj(p)
-                    elem_values.append(val)
+                elem_values = [obj(p) for p in fekete_points]
                 self._values.append(array(elem_values))
 
         self._poly_coeffs = {}
