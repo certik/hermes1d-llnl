@@ -9,8 +9,8 @@ import time
 
 from numpy import empty, arange, array, ndarray, zeros, real
 from numpy.linalg import solve
-
 from scipy.integrate import quadrature, fixed_quad
+from sympy import vectorize
 
 from gauss_lobatto_points import points
 from hydrogen import R_nl_numeric
@@ -18,6 +18,7 @@ import _fekete
 
 _logger_Function = logging.getLogger("hermes1d.Function")
 
+@vectorize(0, 1)
 def feq(a, b, max_relative_error=1e-12, max_absolute_error=1e-12):
     # if the numbers are close enough (absolutely), then they are equal
     if abs(a-b) < max_absolute_error:
@@ -201,11 +202,10 @@ class Mesh1D(object):
         return Mesh1D(points, orders)
 
     def __eq__(self, o):
-        eps = 1e-12
         if isinstance(o, Mesh1D):
             if self._orders == o._orders:
                 d = array(self._points) - array(o._points)
-                if (abs(d) < eps).all():
+                if array(feq(d, 0.0)).all():
                     return True
         return False
 
