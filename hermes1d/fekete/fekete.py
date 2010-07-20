@@ -18,6 +18,17 @@ import _fekete
 
 _logger_Function = logging.getLogger("hermes1d.Function")
 
+def feq(a, b, max_relative_error=1e-12, max_absolute_error=1e-12):
+    # if the numbers are close enough (absolutely), then they are equal
+    if abs(a-b) < max_absolute_error:
+        return True
+    # if not, they can still be equal if their relative error is small
+    if abs(b) > abs(a):
+        relative_error = abs((a-b)/b)
+    else:
+        relative_error = abs((a-b)/a)
+    return relative_error <= max_relative_error
+
 def generate_candidates(a, b, order):
     def cand(divisions, orders):
         if len(divisions) == 0:
@@ -473,13 +484,13 @@ class Function(object):
                 fekete_points = points[order]
                 fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
                 for p in fekete_points:
-                    if abs(self(p) - o(p)) > eps:
+                    if not feq(self(p), o(p)):
                         return False
             for a, b, order in o._mesh.iter_elems():
                 fekete_points = points[order]
                 fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
                 for p in fekete_points:
-                    if abs(self(p) - o(p)) > eps:
+                    if not feq(self(p), o(p)):
                         return False
             return True
         else:
