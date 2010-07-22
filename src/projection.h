@@ -7,6 +7,8 @@
 #define _PROJECTION_H_
 
 #include "common.h"
+#include "mesh.h"
+#include "matrix.h"
 
 double L2_projection_biform(int num, double *x, double *weights,
                 double *u, double *dudx, double *v, double *dvdx,
@@ -30,5 +32,10 @@ double H1_projection_liform(int num, double *x, double *weights,
                 double du_prevdx[MAX_SLN_NUM][MAX_EQN_NUM][MAX_QUAD_PTS_NUM],
                 double *v, double *dvdx, void *user_data);
 
+#define H1D_L2_ortho_global 0
+#define H1D_H1_ortho_global 1
+
+void assemble_projection_matrix_rhs(Mesh *mesh, Matrix *A, double *rhs,
+        int projection_type=H1D_L2_ortho_global);
 
 #endif
