@@ -7,7 +7,7 @@ from numpy import empty
 from numpy cimport ndarray
 
 from hermes_common._hermes_common cimport c2numpy_double, delete, PY_NEW, \
-    numpy2c_double_inplace, numpy2c_int_inplace
+    numpy2c_double_inplace, numpy2c_int_inplace, Matrix
 
 cimport hermes1d
 
@@ -281,3 +281,15 @@ def adapt(norm, adapt_type, threshold,
         ndarray[double, mode="c"] err_squared_array, Mesh mesh, Mesh mesh_ref):
     hermes1d.adapt(norm, adapt_type, threshold, &err_squared_array[0],
             mesh.thisptr, mesh_ref.thisptr)
+
+def assemble_projection_matrix_rhs(Mesh mesh, Matrix A,
+    ndarray[double, mode="c"] rhs, projection_type=None):
+    cdef int prj_type
+    if projection_type == "L2":
+        prj_type = hermes1d.H1D_L2_ortho_global
+    elif projection_type == "H1":
+        prj_type = hermes1d.H1D_H1_ortho_global
+    else:
+        raise ValueError("Unknown projection type")
+    hermes1d.assemble_projection_matrix_rhs(mesh.thisptr, A.thisptr,
+        &(rhs[0]), prj_type)

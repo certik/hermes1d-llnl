@@ -3,6 +3,8 @@
 # file for the exact terms).
 # Email: hermes1d@googlegroups.com, home page: http://hpfem.org/
 
+from hermes_common._hermes_common cimport c_Matrix
+
 cdef extern from "hermes1d.h":
 
     ctypedef double double4[4]
@@ -58,3 +60,8 @@ cdef extern from "hermes1d.h":
     void adapt(int norm, int adapt_type, double threshold,
                double *err_squared_array,
                Mesh* &mesh, Mesh* &mesh_ref)
+
+    int H1D_L2_ortho_global
+    int H1D_H1_ortho_global
+    void assemble_projection_matrix_rhs(Mesh *mesh, c_Matrix *A, double *rhs,
+            int projection_type) except +
