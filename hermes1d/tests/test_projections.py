@@ -20,6 +20,7 @@ def test_l2_h1_proj_run():
     assemble_projection_matrix_rhs(m, A, rhs, projection_type="L2")
     x = solve(A.to_scipy_coo().todense(), rhs)
     sol_l2 = FESolution(m, x).to_discrete_function()
+    A = CooMatrix(n_dof)
     assemble_projection_matrix_rhs(m, A, rhs, projection_type="H1")
     x = solve(A.to_scipy_coo().todense(), rhs)
     sol_h1 = FESolution(m, x).to_discrete_function()
