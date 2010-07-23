@@ -115,6 +115,7 @@ class Mesh1D(object):
             if b < x:
                 continue
             return n
+        raise Exception("Element at the point '%f' not found" % x)
 
     def get_element_by_id(self, id):
         return (self._points[id], self._points[id+1], self._orders[id])
