@@ -96,8 +96,7 @@ class Mesh1D(object):
             from pylab import plot, show
         odd = False
         for a, b, order in self.iter_elems():
-            fekete_points = points[order]
-            fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
+            fekete_points = _fekete.get_fekete_points_phys(order, a, b)
             if odd:
                 format = "y-"
             else:
@@ -450,10 +449,9 @@ class Function(object):
             from pylab import plot, show
         odd = False
         for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
-            fekete_points = points[order]
+            fekete_points = _fekete.get_fekete_points_phys(order, a, b)
             vals = self._values[n]
             assert len(vals) == len(fekete_points)
-            fekete_points = [_fekete.get_x_phys(x, a, b) for x in fekete_points]
             x = arange(a, b, 0.1)
             y = [self(_x) for _x in x]
             if odd:
