@@ -33,16 +33,17 @@ double H1_projection_biform(int num, double *x, double *weights,
     return val;
 }
 
+// If dx == NULL, don't return the derivative
+typedef double(*ExactFunction)(double x, double *dx);
 
-double _f(double x)
+double __f(double x, double *dx)
 {
+    if (dx != NULL)
+        *dx = cos(x);
     return sin(x);
 }
 
-double _dfdx(double x)
-{
-    return cos(x);
-}
+ExactFunction _f = __f;
 
 double L2_projection_liform(int num, double *x, double *weights, 
                 double u_prev[MAX_SLN_NUM][MAX_EQN_NUM][MAX_QUAD_PTS_NUM], 
@@ -52,7 +53,7 @@ double L2_projection_liform(int num, double *x, double *weights,
     double val = 0;
     for (int i=0; i<num; i++) {
         // Value of the projected function at gauss points:
-        double f = _f(x[i]);
+        double f = _f(x[i], NULL);
         val += weights[i] * (f * v[i]);
     }
     return val;
@@ -66,8 +67,8 @@ double H1_projection_liform(int num, double *x, double *weights,
     double val = 0;
     for (int i=0; i<num; i++) {
         // Value of the projected function at gauss points:
-        double f = _f(x[i]);
-        double dfdx = _dfdx(x[i]);
+        double dfdx;
+        double f = _f(x[i], &dfdx);
         val += weights[i] * (f * v[i] + dfdx * dvdx[i]);
     }
     return val;
