@@ -31,3 +31,8 @@ def test_mesh3():
     pts, p = m.get_mesh_data()
     assert (abs(pts - array([-1, -0.5, 0, 0.5, 1])) < eps).all()
     assert (abs(p - array([2, 2, 2, 2])) < eps).all()
+
+    m = Mesh([-1, -0.5, 0, 0.5, 1], [2, 2, 3, 2])
+    pts, p = m.get_mesh_data()
+    assert (abs(pts - array([-1, -0.5, 0, 0.5, 1])) < eps).all()
+    assert (abs(p - array([2, 2, 3, 2])) < eps).all()
