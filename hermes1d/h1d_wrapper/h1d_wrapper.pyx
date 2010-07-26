@@ -3,6 +3,8 @@
 # file for the exact terms).
 # Email: hermes1d@googlegroups.com, home page: http://hpfem.org/
 
+from math cimport sin, cos
+
 from numpy import empty
 from numpy cimport ndarray
 
@@ -282,7 +284,6 @@ def adapt(norm, adapt_type, threshold,
     hermes1d.adapt(norm, adapt_type, threshold, &err_squared_array[0],
             mesh.thisptr, mesh_ref.thisptr)
 
-from math import sin, cos
 cdef void fn(int n, double x[], double f[], double dfdx[]):
     for i in range(n):
         f[i] = sin(x[i])
