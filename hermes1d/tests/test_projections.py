@@ -105,9 +105,9 @@ def test_l2_h1_proj3():
     assemble_projection_matrix_rhs(m, A, rhs, f, projection_type="L2")
     x = solve(A.to_scipy_coo().todense(), rhs)
     sol_l2 = FESolution(m, x).to_discrete_function()
-    #A = CooMatrix(n_dof)
-    #assemble_projection_matrix_rhs(m, A, rhs, f, projection_type="H1")
-    #x = solve(A.to_scipy_coo().todense(), rhs)
-    #sol_h1 = FESolution(m, x).to_discrete_function()
+    A = CooMatrix(n_dof)
+    assemble_projection_matrix_rhs(m, A, rhs, f, projection_type="H1")
+    x = solve(A.to_scipy_coo().todense(), rhs)
+    sol_h1 = FESolution(m, x).to_discrete_function()
     assert sol_l2 == f
-    #assert (sol_h1 - f_exact).l2_norm() < 0.07
+    assert sol_h1 == f

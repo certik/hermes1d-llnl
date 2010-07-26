@@ -91,6 +91,9 @@ class Mesh1D(object):
     def __str__(self):
         return "<%s, orders: %s>" % (self._points, self._orders)
 
+    def get_mesh_data(self):
+        return self._points, self._orders
+
     def plot(self, call_show=True):
         try:
             from jsplot import plot, show
@@ -339,6 +342,7 @@ class Function(h1d_wrapper.Function):
                 self._values.append(array(elem_values))
 
         self._poly_coeffs = {}
+        self._fe_sol = None
 
         self.logger = _logger_Function
 
@@ -399,6 +403,23 @@ class Function(h1d_wrapper.Function):
 
     def eval_f(self, x):
         return self(x)
+
+    def eval_dfdx(self, x):
+        from hermes1d.h1d_wrapper.h1d_wrapper import \
+                (assemble_projection_matrix_rhs, Mesh, FESolution)
+        from hermes_common._hermes_common import CooMatrix
+
+        if self._fe_sol is None:
+            pts, orders = self._mesh.get_mesh_data()
+            m = Mesh(pts, orders)
+            n_dof = m.assign_dofs()
+            A = CooMatrix(n_dof)
+            rhs = empty(n_dof)
+            assemble_projection_matrix_rhs(m, A, rhs, self,
+                    projection_type="L2")
+            coeffs = solve(A.to_scipy_coo().todense(), rhs)
+            self._fe_sol = FESolution(m, coeffs)
+        return self._fe_sol.deriv(x)
 
     def get_values_in_element(self, n, x):
         """
