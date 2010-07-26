@@ -3,15 +3,16 @@
 # file for the exact terms).
 # Email: hermes1d@googlegroups.com, home page: http://hpfem.org/
 
-from math cimport sin, cos
+from math cimport sin, cos, sqrt
 
-from numpy import empty
+from numpy import empty, array
 from numpy cimport ndarray
 
 from hermes_common._hermes_common cimport c2numpy_double, delete, PY_NEW, \
     numpy2c_double_inplace, numpy2c_int_inplace, Matrix
 
 cimport hermes1d
+from hermes1d.fekete._fekete cimport get_gauss_points_phys, int_f2
 
 cdef class Element:
     cdef hermes1d.Element *thisptr
@@ -46,7 +47,6 @@ cdef api object c2py_Element(hermes1d.Element *h):
 cdef class Mesh:
 
     def __init__(self, *args):
-        from numpy import array
         cdef double a, b
         cdef int n_elem, p_init, eq_num, n
         cdef double *pts_array
@@ -100,7 +100,6 @@ cdef class Mesh:
         """
         Returns the list of node coordinates and element orders.
         """
-        from numpy import array
         pts = []
         p = []
         I = Iterator(self)
@@ -254,6 +253,24 @@ class FESolution:
             if e.x1 <= x and x <= e.x2:
                 return e.get_solution_deriv(x, comp)
             e = I._next_active_element()
+
+    def l2_norm(self, int comp=0):
+        """
+        Returns the L2 norm of the solution.
+        """
+        self._mesh.copy_vector_to_mesh(self._coefs, comp)
+
+        pts = []
+        p = []
+        I = Iterator(self._mesh)
+        cdef hermes1d.Element *e = I._next_active_element()
+        l2_norm_squared = 0
+        while e != NULL:
+            x, w = get_gauss_points_phys(e.x1, e.x2, e.p+1)
+            vals = array([e.get_solution_value(_x, comp) for _x in x])
+            l2_norm_squared += int_f2(w, vals)
+            e = I._next_active_element()
+        return sqrt(l2_norm_squared)
 
     def to_discrete_function(self, int comp=0):
         """

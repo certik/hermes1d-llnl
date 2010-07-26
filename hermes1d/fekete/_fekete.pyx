@@ -85,8 +85,8 @@ cpdef ndarray[double, mode="c"] get_polynomial(ndarray[double, mode="c"] x,
     return r
 
 @cython.boundscheck(False)
-def int_f2(ndarray[double, mode="c"] w not None,
-        ndarray[double, mode="c"] values not None):
+cpdef double int_f2(ndarray[double, mode="c"] w,
+        ndarray[double, mode="c"] values):
     cdef double r=0
     cdef unsigned n = len(w)
     cdef unsigned i
@@ -107,7 +107,7 @@ def init_gauss_points(N=50):
     print "    Done."
 
 @cython.boundscheck(False)
-def get_gauss_points_phys(double a, double b, int n):
+cpdef get_gauss_points_phys(double a, double b, int n):
     cdef double J = (b-a)/2.0
     cdef unsigned n_points, i
     cdef ndarray[double, mode="c"] x, w
