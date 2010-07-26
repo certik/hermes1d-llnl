@@ -38,6 +38,7 @@ public:
          double val_phys[MAX_EQN_NUM][MAX_PLOT_PTS_NUM], 
 			   double der_phys[MAX_EQN_NUM][MAX_PLOT_PTS_NUM], int sln=0);
     double get_solution_value(double x_phys, int c);
+    double get_solution_deriv(double x_phys, int c);
     void get_coeffs(int sln, int comp, double coeffs[]);
     void get_solution_point(double x_phys, 
 			    double val[MAX_EQN_NUM], double der[MAX_EQN_NUM], int sln=0);

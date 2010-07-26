@@ -240,6 +240,21 @@ class FESolution:
                 return e.get_solution_value(x, comp)
             e = I._next_active_element()
 
+    def deriv(self, x, int comp=0):
+        """
+        Returns the derivative of the solution at a point 'x'.
+        """
+        self._mesh.copy_vector_to_mesh(self._coefs, comp)
+
+        pts = []
+        p = []
+        I = Iterator(self._mesh)
+        cdef hermes1d.Element *e = I._next_active_element()
+        while e != NULL:
+            if e.x1 <= x and x <= e.x2:
+                return e.get_solution_deriv(x, comp)
+            e = I._next_active_element()
+
     def to_discrete_function(self, int comp=0):
         """
         Returns a Function instance, that uses Fekete points to represent the
