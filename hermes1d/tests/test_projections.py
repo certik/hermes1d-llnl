@@ -88,3 +88,26 @@ def test_l2_h1_proj2():
     sol_h1 = FESolution(m, x).to_discrete_function()
     assert (sol_l2 - f_exact).l2_norm() < 0.002
     assert (sol_h1 - f_exact).l2_norm() < 0.002
+
+def test_l2_h1_proj3():
+    """
+    Tests conversion to FE basis.
+    """
+    pts = arange(0, 2*pi, 0.1)
+    orders = [2]*(len(pts)-1)
+    m = Mesh(pts, orders)
+
+    f = Function(lambda x: sin(x), Mesh1D(pts, orders))
+
+    n_dof = m.assign_dofs()
+    A = CooMatrix(n_dof)
+    rhs = empty(n_dof)
+    assemble_projection_matrix_rhs(m, A, rhs, f, projection_type="L2")
+    x = solve(A.to_scipy_coo().todense(), rhs)
+    sol_l2 = FESolution(m, x).to_discrete_function()
+    #A = CooMatrix(n_dof)
+    #assemble_projection_matrix_rhs(m, A, rhs, f, projection_type="H1")
+    #x = solve(A.to_scipy_coo().todense(), rhs)
+    #sol_h1 = FESolution(m, x).to_discrete_function()
+    assert sol_l2 == f
+    #assert (sol_h1 - f_exact).l2_norm() < 0.07

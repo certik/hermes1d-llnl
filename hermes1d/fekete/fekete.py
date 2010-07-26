@@ -397,6 +397,9 @@ class Function(h1d_wrapper.Function):
                     a, b)[0]
             return y
 
+    def eval_f(self, x):
+        return self(x)
+
     def get_values_in_element(self, n, x):
         """
         Return the values in points 'x' in the element 'n'.
