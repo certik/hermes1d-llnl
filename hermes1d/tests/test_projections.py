@@ -1,10 +1,21 @@
-from numpy import empty, pi, arange, array, sin
+from numpy import empty, pi, arange, array, sin, cos
 from numpy.linalg import solve
 
 from hermes1d.h1d_wrapper.h1d_wrapper import (assemble_projection_matrix_rhs,
-        Mesh, FESolution)
+        Mesh, FESolution, Function as Function2)
 from hermes1d.fekete.fekete import Function, Mesh1D
 from hermes_common._hermes_common import CooMatrix
+
+class FunctionSin(Function2):
+
+    def eval_f(self, x):
+        return sin(x)
+
+    def eval_dfdx(self, x):
+        return cos(x)
+
+f_sin = FunctionSin()
+
 
 def test_l2_h1_proj_run():
     """
@@ -18,11 +29,11 @@ def test_l2_h1_proj_run():
     n_dof = m.assign_dofs()
     A = CooMatrix(n_dof)
     rhs = empty(n_dof)
-    assemble_projection_matrix_rhs(m, A, rhs, projection_type="L2")
+    assemble_projection_matrix_rhs(m, A, rhs, f_sin, projection_type="L2")
     x = solve(A.to_scipy_coo().todense(), rhs)
     sol_l2 = FESolution(m, x).to_discrete_function()
     A = CooMatrix(n_dof)
-    assemble_projection_matrix_rhs(m, A, rhs, projection_type="H1")
+    assemble_projection_matrix_rhs(m, A, rhs, f_sin, projection_type="H1")
     x = solve(A.to_scipy_coo().todense(), rhs)
     sol_h1 = FESolution(m, x).to_discrete_function()
     sol_l2.plot(False)
@@ -43,11 +54,11 @@ def test_l2_h1_proj1():
     n_dof = m.assign_dofs()
     A = CooMatrix(n_dof)
     rhs = empty(n_dof)
-    assemble_projection_matrix_rhs(m, A, rhs, projection_type="L2")
+    assemble_projection_matrix_rhs(m, A, rhs, f_sin, projection_type="L2")
     x = solve(A.to_scipy_coo().todense(), rhs)
     sol_l2 = FESolution(m, x).to_discrete_function()
     A = CooMatrix(n_dof)
-    assemble_projection_matrix_rhs(m, A, rhs, projection_type="H1")
+    assemble_projection_matrix_rhs(m, A, rhs, f_sin, projection_type="H1")
     x = solve(A.to_scipy_coo().todense(), rhs)
     sol_h1 = FESolution(m, x).to_discrete_function()
     assert (sol_l2 - f_exact).l2_norm() < 0.07
@@ -68,11 +79,11 @@ def test_l2_h1_proj2():
     n_dof = m.assign_dofs()
     A = CooMatrix(n_dof)
     rhs = empty(n_dof)
-    assemble_projection_matrix_rhs(m, A, rhs, projection_type="L2")
+    assemble_projection_matrix_rhs(m, A, rhs, f_sin, projection_type="L2")
     x = solve(A.to_scipy_coo().todense(), rhs)
     sol_l2 = FESolution(m, x).to_discrete_function()
     A = CooMatrix(n_dof)
-    assemble_projection_matrix_rhs(m, A, rhs, projection_type="H1")
+    assemble_projection_matrix_rhs(m, A, rhs, f_sin, projection_type="H1")
     x = solve(A.to_scipy_coo().todense(), rhs)
     sol_h1 = FESolution(m, x).to_discrete_function()
     assert (sol_l2 - f_exact).l2_norm() < 0.002

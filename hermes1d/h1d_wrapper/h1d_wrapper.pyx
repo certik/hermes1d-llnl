@@ -284,14 +284,30 @@ def adapt(norm, adapt_type, threshold,
     hermes1d.adapt(norm, adapt_type, threshold, &err_squared_array[0],
             mesh.thisptr, mesh_ref.thisptr)
 
-cdef void fn(int n, double x[], double f[], double dfdx[]):
+
+cdef void fn_sin(int n, double x[], double f[], double dfdx[]):
     for i in range(n):
         f[i] = sin(x[i])
         if dfdx != NULL:
             dfdx[i] = cos(x[i])
 
+cdef class Function:
+
+    cpdef double eval_f(self, double x):
+        pass
+
+    cpdef double eval_dfdx(self, double x):
+        pass
+
+cdef Function _A=None
+cdef void fn(int n, double x[], double f[], double dfdx[]):
+    for i in range(n):
+        f[i] = _A.eval_f(x[i])
+        if dfdx != NULL:
+            dfdx[i] = _A.eval_dfdx(x[i])
+
 def assemble_projection_matrix_rhs(Mesh mesh, Matrix A,
-    ndarray[double, mode="c"] rhs, projection_type=None):
+    ndarray[double, mode="c"] rhs, f, projection_type=None):
     cdef int prj_type
     if projection_type == "L2":
         prj_type = hermes1d.H1D_L2_ortho_global
@@ -299,5 +315,7 @@ def assemble_projection_matrix_rhs(Mesh mesh, Matrix A,
         prj_type = hermes1d.H1D_H1_ortho_global
     else:
         raise ValueError("Unknown projection type")
+    global _A
+    _A = f
     hermes1d.assemble_projection_matrix_rhs(mesh.thisptr, A.thisptr,
         &(rhs[0]), &fn, prj_type)
