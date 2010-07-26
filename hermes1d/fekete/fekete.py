@@ -547,16 +547,30 @@ class Function(h1d_wrapper.Function):
     def get_mesh_adapt(self, max_order=12):
         return self._mesh
 
-    def l2_norm(self):
+    def l2_norm(self, method="Fekete"):
         """
-        Returns the L2 norm of the function.
+        Calculates the L2 norm of the function.
+
+        method == "Fekete" or "FE": Use Legendre interpolation, or first
+            project to a FE basis and then calculate the L2 norm
         """
-        r = 0
-        for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
-            x, w = _fekete.get_gauss_points_phys(a, b, order+1)
-            vals = _fekete.eval_poly(x, self._values[n], a, b)
-            r += _fekete.int_f2(w, vals)
-        return sqrt(r)
+        if method=="Fekete":
+            r = 0
+            for n, (a, b, order) in enumerate(self._mesh.iter_elems()):
+                x, w = _fekete.get_gauss_points_phys(a, b, order+1)
+                vals = _fekete.eval_poly(x, self._values[n], a, b)
+                r += _fekete.int_f2(w, vals)
+            return sqrt(r)
+        elif method=="FE":
+            self.calculate_FE_coeffs()
+            return self._fe_sol.l2_norm()
+
+    def h1_norm(self):
+        """
+        Calculates the H1 norm of the function.
+        """
+        self.calculate_FE_coeffs()
+        return self._fe_sol.h1_norm()
 
     def get_candidates_with_errors(self, f, elems=None):
         """

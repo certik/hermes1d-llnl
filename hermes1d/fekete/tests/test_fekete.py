@@ -243,14 +243,19 @@ def test_l2():
     f = Function(func, mesh1)
     g = Function(func, mesh2)
     h = Function(func, mesh3)
-    assert abs(f.l2_norm()-sqrt(pi/2)) < eps
-    assert abs(g.l2_norm()-sqrt(pi/2)) < eps
-    assert abs(h.l2_norm()-sqrt(pi/4)) < eps
+    assert abs(f.l2_norm(method="Fekete")-sqrt(pi/2)) < eps
+    assert abs(g.l2_norm(method="Fekete")-sqrt(pi/2)) < eps
+    assert abs(h.l2_norm(method="Fekete")-sqrt(pi/4)) < eps
+
+    #assert abs(f.l2_norm(method="FE")-sqrt(pi/2)) < eps
+    #assert abs(g.l2_norm(method="FE")-sqrt(pi/2)) < eps
+    #assert abs(h.l2_norm(method="FE")-sqrt(pi/4)) < eps
 
     func = lambda x: cos(x)
     mesh1 = Mesh1D((0, pi/4, pi/2, 3*pi/4, pi), (20, 20, 20, 20))
     f = Function(func, mesh1)
-    assert abs(f.l2_norm()-sqrt(pi/2)) < eps
+    assert abs(f.l2_norm(method="Fekete")-sqrt(pi/2)) < eps
+    #assert abs(f.l2_norm(method="FE")-sqrt(pi/2)) < eps
 
 def test_power():
     eps = 1e-12
