@@ -12,6 +12,8 @@ from numpy.linalg import solve
 from scipy.integrate import quadrature, fixed_quad
 from sympy import vectorize
 
+from hermes1d.h1d_wrapper import h1d_wrapper
+
 from hydrogen import R_nl_numeric
 import _fekete
 
@@ -313,7 +315,7 @@ class Mesh1D(object):
     def increase_order(self):
         return Mesh1D(self._points, array(self._orders)+1)
 
-class Function(object):
+class Function(h1d_wrapper.Function):
     """
     Represents a function on a mesh.
 
