@@ -33,28 +33,64 @@ double H1_projection_biform(int num, double *x, double *weights,
     return val;
 }
 
-// If dx == NULL, don't return the derivative
-typedef double(*ExactFunction)(double x, double *dx);
+/*
+    Returns the values of the function in f[] and derivatives in dfdx[].
 
-double __f(double x, double *dx)
+    For all physical 'x' in x[]. If dfdx == NULL, don't return the derivative.
+
+    This function is completely general and must work for any number of points
+    'n'. Typically, this function is being called on each element, in which
+    case the x[] are Gauss integratin points::
+
+        ExactFunction f = <initialize it>;
+        double x[10] = <initialize Gauss points>;
+        double val[10], dfdx[10];
+        f(10, x, val, dfdx);
+
+    If you want to get just a value and derivative at a point, call it like::
+
+        ExactFunction f = <initialize it>;
+        double x = 3.15;
+        double val, dfdx;
+        f(1, &x, &val, &dfdx);
+
+    or if you only need the value::
+
+        ExactFunction f = <initialize it>;
+        double x = 3.15;
+        double val;
+        f(1, &x, &val, NULL);
+*/
+typedef void(*ExactFunction)(int n, double x[], double f[], double dfdx[]);
+
+void f_sin(int n, double x[], double f[], double dfdx[])
 {
-    if (dx != NULL)
-        *dx = cos(x);
-    return sin(x);
+    for (int i=0; i<n; i++) {
+        f[i] = sin(x[i]);
+        if (dfdx != NULL)
+            dfdx[i] = cos(x[i]);
+    }
 }
 
-ExactFunction _f = __f;
+void f_unimplemented(int n, double x[], double f[], double dfdx[])
+{
+    error("Internal error: you need to implement _f");
+}
+
+
+ExactFunction _f = f_sin;
 
 double L2_projection_liform(int num, double *x, double *weights, 
                 double u_prev[MAX_SLN_NUM][MAX_EQN_NUM][MAX_QUAD_PTS_NUM], 
                 double du_prevdx[MAX_SLN_NUM][MAX_EQN_NUM][MAX_QUAD_PTS_NUM],  
                 double *v, double *dvdx, void *user_data)
 {
+    // Value of the projected function at gauss points:
+    double f[num];
+    _f(num, x, f, NULL);
     double val = 0;
     for (int i=0; i<num; i++) {
-        // Value of the projected function at gauss points:
-        double f = _f(x[i], NULL);
-        val += weights[i] * (f * v[i]);
+        val += weights[i] * (f[i] * v[i]);
     }
     return val;
 }
@@ -64,12 +100,12 @@ double H1_projection_liform(int num, double *x, double *weights,
                 double du_prevdx[MAX_SLN_NUM][MAX_EQN_NUM][MAX_QUAD_PTS_NUM],  
                 double *v, double *dvdx, void *user_data)
 {
+    // Value of the projected function at gauss points:
+    double f[num], dfdx[num];
+    _f(num, x, f, dfdx);
     double val = 0;
     for (int i=0; i<num; i++) {
-        // Value of the projected function at gauss points:
-        double dfdx;
-        double f = _f(x[i], &dfdx);
-        val += weights[i] * (f * v[i] + dfdx * dvdx[i]);
+        val += weights[i] * (f[i] * v[i] + dfdx[i] * dvdx[i]);
     }
     return val;
 }
