@@ -405,11 +405,14 @@ class Function(h1d_wrapper.Function):
         return self(x)
 
     def eval_dfdx(self, x):
-        from hermes1d.h1d_wrapper.h1d_wrapper import \
-                (assemble_projection_matrix_rhs, Mesh, FESolution)
-        from hermes_common._hermes_common import CooMatrix
+        self.calculate_FE_coeffs()
+        return self._fe_sol.deriv(x)
 
+    def calculate_FE_coeffs(self):
         if self._fe_sol is None:
+            from hermes1d.h1d_wrapper.h1d_wrapper import \
+                    (assemble_projection_matrix_rhs, Mesh, FESolution)
+            from hermes_common._hermes_common import CooMatrix
             pts, orders = self._mesh.get_mesh_data()
             m = Mesh(pts, orders)
             n_dof = m.assign_dofs()
@@ -419,7 +422,6 @@ class Function(h1d_wrapper.Function):
                     projection_type="L2")
             coeffs = solve(A.to_scipy_coo().todense(), rhs)
             self._fe_sol = FESolution(m, coeffs)
-        return self._fe_sol.deriv(x)
 
     def get_values_in_element(self, n, x):
         """
