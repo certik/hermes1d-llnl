@@ -282,6 +282,13 @@ def adapt(norm, adapt_type, threshold,
     hermes1d.adapt(norm, adapt_type, threshold, &err_squared_array[0],
             mesh.thisptr, mesh_ref.thisptr)
 
+from math import sin, cos
+cdef void fn(int n, double x[], double f[], double dfdx[]):
+    for i in range(n):
+        f[i] = sin(x[i])
+        if dfdx != NULL:
+            dfdx[i] = cos(x[i])
+
 def assemble_projection_matrix_rhs(Mesh mesh, Matrix A,
     ndarray[double, mode="c"] rhs, projection_type=None):
     cdef int prj_type
@@ -292,4 +299,4 @@ def assemble_projection_matrix_rhs(Mesh mesh, Matrix A,
     else:
         raise ValueError("Unknown projection type")
     hermes1d.assemble_projection_matrix_rhs(mesh.thisptr, A.thisptr,
-        &(rhs[0]), prj_type)
+        &(rhs[0]), &fn, prj_type)

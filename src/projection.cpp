@@ -33,36 +33,6 @@ double H1_projection_biform(int num, double *x, double *weights,
     return val;
 }
 
-/*
-    Returns the values of the function in f[] and derivatives in dfdx[].
-
-    For all physical 'x' in x[]. If dfdx == NULL, don't return the derivative.
-
-    This function is completely general and must work for any number of points
-    'n'. Typically, this function is being called on each element, in which
-    case the x[] are Gauss integratin points::
-
-        ExactFunction f = <initialize it>;
-        double x[10] = <initialize Gauss points>;
-        double val[10], dfdx[10];
-        f(10, x, val, dfdx);
-
-    If you want to get just a value and derivative at a point, call it like::
-
-        ExactFunction f = <initialize it>;
-        double x = 3.15;
-        double val, dfdx;
-        f(1, &x, &val, &dfdx);
-
-    or if you only need the value::
-
-        ExactFunction f = <initialize it>;
-        double x = 3.15;
-        double val;
-        f(1, &x, &val, NULL);
-*/
-typedef void(*ExactFunction)(int n, double x[], double f[], double dfdx[]);
-
 void f_sin(int n, double x[], double f[], double dfdx[])
 {
     for (int i=0; i<n; i++) {
@@ -78,7 +48,7 @@ void f_unimplemented(int n, double x[], double f[], double dfdx[])
 }
 
 
-ExactFunction _f = f_sin;
+ExactFunction _f = f_unimplemented;
 
 double L2_projection_liform(int num, double *x, double *weights, 
                 double u_prev[MAX_SLN_NUM][MAX_EQN_NUM][MAX_QUAD_PTS_NUM], 
@@ -111,7 +81,7 @@ double H1_projection_liform(int num, double *x, double *weights,
 }
 
 void assemble_projection_matrix_rhs(Mesh *mesh, Matrix *A, double *rhs,
-        int projection_type)
+        ExactFunction fn, int projection_type)
 {
     DiscreteProblem *dp1 = new DiscreteProblem();
     if (projection_type == H1D_L2_ortho_global) {
@@ -122,6 +92,8 @@ void assemble_projection_matrix_rhs(Mesh *mesh, Matrix *A, double *rhs,
         dp1->add_vector_form(0, H1_projection_liform);
     } else
         throw std::runtime_error("Unknown projection type");
+
+    _f = fn;
     int N_dof = mesh->assign_dofs();
     printf("Assembling projection linear system. ndofs: %d\n", N_dof);
     dp1->assemble_matrix_and_vector(mesh, A, rhs);
