@@ -459,7 +459,7 @@ class Function(h1d_wrapper.Function):
             from hermes1d.h1d_wrapper.h1d_wrapper import \
                     (assemble_projection_matrix_rhs, Mesh, FESolution)
             from hermes_common._hermes_common import CooMatrix
-            pts, orders = self._mesh.get_mesh_data()
+            pts, orders = mesh.get_mesh_data()
             m = Mesh(pts, orders)
             n_dof = m.assign_dofs()
             A = CooMatrix(n_dof)
