@@ -152,7 +152,7 @@ def test_l2_h1_proj4():
 
 def test_l2_h1_proj5():
     """
-    Tests conversion to FE basis.
+    Tests exact projections.
 
     The exact results were generated using:
 
@@ -174,3 +174,22 @@ def test_l2_h1_proj5():
     m = Mesh1D(pts, orders)
     f_proj_l2 = Function(f_exact_l2, m)
     assert (f.project_onto(m, proj_type="L2") - f_proj_l2).l2_norm() < 1e-3
+
+def test_l2_h1_proj6():
+    """
+    Tests exact projections.
+
+    Slightly more complicated example.
+    """
+    f_exact = lambda x: sin(x)*exp(x)
+    f_exact_l2 = lambda x: -e*cos(1)/4 + e*sin(1)/4 + exp(-1)*sin(1)/4 + 3*x*(e*sin(1)/2 - exp(-1)*sin(1)/2 - cos(1)*exp(-1))/2 + cos(1)*exp(-1)/4
+    pts = [-1, -0.5, 0, 0.5, 1]
+    orders = [20]*(len(pts)-1)
+    m = Mesh1D(pts, orders)
+    f = Function(f_exact, m)
+
+    pts = [-1, 1]
+    orders = [1]*(len(pts)-1)
+    m = Mesh1D(pts, orders)
+    f_proj_l2 = Function(f_exact_l2, m)
+    assert (f.project_onto(m, proj_type="L2") - f_proj_l2).l2_norm() < 0.03
