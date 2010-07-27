@@ -445,11 +445,31 @@ class Function(h1d_wrapper.Function):
             self._poly_coeffs[n] = _fekete.get_polynomial(x, vals, a, b)
         return self._poly_coeffs[n]
 
-    def project_onto(self, mesh):
-        # This is not a true projection, only some approximation:
+    def project_onto(self, mesh, proj_type="Fekete"):
+        """
+        Projects 'self' onto the 'mesh' using the 'proj_type' projection.
+
+        proj_type == "Fekete"/"L2"/"H1"
+        """
         if mesh == self._mesh:
             return self
-        return Function(self, mesh)
+        if proj_type == "Fekete":
+            return Function(self, mesh)
+        elif proj_type in ["L2", "H1"]:
+            from hermes1d.h1d_wrapper.h1d_wrapper import \
+                    (assemble_projection_matrix_rhs, Mesh, FESolution)
+            from hermes_common._hermes_common import CooMatrix
+            pts, orders = self._mesh.get_mesh_data()
+            m = Mesh(pts, orders)
+            n_dof = m.assign_dofs()
+            A = CooMatrix(n_dof)
+            rhs = empty(n_dof)
+            assemble_projection_matrix_rhs(m, A, rhs, self,
+                    projection_type=proj_type)
+            coeffs = solve(A.to_scipy_coo().todense(), rhs)
+            return FESolution(m, coeffs).to_discrete_function()
+        else:
+            raise ValueError("Unknown projection type")
 
     def project_onto_union(self, mesh):
         """

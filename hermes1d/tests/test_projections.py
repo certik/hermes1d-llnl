@@ -111,3 +111,28 @@ def test_l2_h1_proj3():
     sol_h1 = FESolution(m, x).to_discrete_function()
     assert sol_l2 == f
     assert sol_h1 == f
+
+def test_l2_h1_proj4():
+    """
+    Tests conversion to FE basis.
+    """
+    pts = arange(0, 2*pi, 0.4)
+    orders = [2]*(len(pts)-1)
+    m = Mesh1D(pts, orders)
+
+    f = Function(lambda x: sin(x), m)
+    assert f.project_onto(m, proj_type="Fekete") == f
+    assert f.project_onto(m, proj_type="L2") == f
+    assert f.project_onto(m, proj_type="H1") == f
+
+    orders = [3]*(len(pts)-1)
+    m = Mesh1D(pts, orders)
+    assert f.project_onto(m, proj_type="Fekete") == f
+    assert f.project_onto(m, proj_type="L2") == f
+    assert f.project_onto(m, proj_type="H1") == f
+
+    orders = [4]*(len(pts)-1)
+    m = Mesh1D(pts, orders)
+    assert f.project_onto(m, proj_type="Fekete") == f
+    assert f.project_onto(m, proj_type="L2") == f
+    assert f.project_onto(m, proj_type="H1") == f
