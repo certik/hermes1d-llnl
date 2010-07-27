@@ -1,3 +1,4 @@
+from math import exp, e
 from numpy import empty, pi, arange, array, sin, cos
 from numpy.linalg import solve
 
@@ -148,3 +149,30 @@ def test_l2_h1_proj4():
     sol_h1 = f_exact.project_onto(m, proj_type="H1")
     assert (sol_l2 - f_exact).l2_norm() < 0.07
     assert (sol_h1 - f_exact).l2_norm() < 0.07
+
+def test_l2_h1_proj5():
+    """
+    Tests conversion to FE basis.
+
+    The exact results were generated using:
+
+    from sympy import sin, cos, integrate, var, pi, exp, log, E, S
+    var("x")
+    f = exp(x)
+    S(1)/2 * integrate(f, (x, -1, 1)) + S(3)/2*x*integrate(x*f, (x, -1, 1))
+
+    """
+    f_exact = lambda x: exp(x)
+    f_exact_l2 = lambda x: e/2 - exp(-1)/2 + 3*x*exp(1)
+    pts = [-1, -0.5, 0, 0.5, 1]
+    orders = [20]*(len(pts)-1)
+    m = Mesh1D(pts, orders)
+    f = Function(f_exact, m)
+
+    pts = [-1, 1]
+    orders = [1]*(len(pts)-1)
+    m = Mesh1D(pts, orders)
+    f_proj_l2 = Function(f_exact_l2, m)
+    # This fails so far:
+    #print (f.project_onto(m, proj_type="L2") - f_proj_l2).l2_norm()
+    #assert f.project_onto(m, proj_type="L2") == f_proj_l2
