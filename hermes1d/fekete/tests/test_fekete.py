@@ -1,4 +1,4 @@
-from math import sin, cos, log, pi, sqrt
+from math import sin, cos, log, pi, sqrt, e, log, exp
 
 from hermes1d.fekete.fekete import Mesh1D, Function
 
@@ -234,7 +234,7 @@ def test8():
     assert f - Function(lambda x: x**2, mesh5) == zero
     assert f - Function(lambda x: x**2, mesh6) != zero
 
-def test_l2():
+def test_l2_h1_1():
     eps = 1e-12
     eps_low = 1e-10
     func = lambda x: sin(x)
@@ -263,6 +263,17 @@ def test_l2():
     assert abs(f.l2_norm(method="FE")-sqrt(pi/2)) < eps
 
     assert abs(f.h1_norm()-sqrt(pi)) < eps
+
+def test_l2_h1_2():
+    eps = 1e-9
+    func = lambda x: log(x)
+    mesh1 = Mesh1D((1, 1.5, 2, 2.5, e), (20, 20, 20, 20))
+    f = Function(func, mesh1)
+    l2_norm_exact = sqrt(e-2)
+    h1_norm_exact = sqrt(e-1-exp(-1))
+    assert abs(f.l2_norm(method="Fekete")-l2_norm_exact) < eps
+    assert abs(f.l2_norm(method="FE")-l2_norm_exact) < eps
+    assert abs(f.h1_norm()-h1_norm_exact) < eps
 
 def test_power():
     eps = 1e-12
