@@ -174,10 +174,19 @@ def test_l2_h1_proj5():
     pts = [-1, 1]
     orders = [1]*(len(pts)-1)
     m = Mesh1D(pts, orders)
-    f_proj_l2 = Function(f_exact_l2, m)
-    f_proj_h1 = Function(f_exact_h1, m)
-    assert (f.project_onto(m, proj_type="L2") - f_proj_l2).l2_norm() < 1e-3
-    assert (f.project_onto(m, proj_type="H1") - f_proj_h1).l2_norm() < 0.03
+    f_proj_l2_exact = Function(f_exact_l2, m)
+    f_proj_l2 = f.project_onto(m, proj_type="L2")
+    f_proj_h1_exact = Function(f_exact_h1, m)
+    f_proj_h1 = f.project_onto(m, proj_type="H1")
+    eps_l2 = 1e-3
+    eps_h1 = 0.03
+    assert (f_proj_l2 - f_proj_l2_exact).l2_norm() < eps_l2
+    assert (f_proj_h1 - f_proj_h1_exact).l2_norm() < eps_h1
+
+    # Make sure that if we exchange the L2 and H1 solutions, then the test
+    # fails:
+    assert (f_proj_l2 - f_proj_h1_exact).l2_norm() > max(eps_l2, eps_h1)
+    assert (f_proj_h1 - f_proj_l2_exact).l2_norm() > max(eps_l2, eps_h1)
 
 def test_l2_h1_proj6():
     """
