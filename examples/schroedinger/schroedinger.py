@@ -128,16 +128,31 @@ def plot_conv(conv_graph, exact=None, l=None):
     savefig("conv_l_0.png")
 
 def flip_vectors(mesh, eigs, mesh_ref, eigs_ref):
+    x_c = 1e-3
     for i in range(N_eig):
         s = FESolution(mesh, eigs[i]).to_discrete_function()
         s_ref = FESolution(mesh_ref, eigs_ref[i]).to_discrete_function()
-        n_ok = (s-s_ref).l2_norm()
-        n_flipped = (s+s_ref).l2_norm()
-        if n_ok > n_flipped:
+        if s(x_c) < 0:
+            print "  Multiplying %d-th coarse eigenvector by (-1)" % i
+            eigs[i] = -eigs[i]
+        if s_ref(x_c) < 0:
             print "  Multiplying %d-th ref. eigenvector by (-1)" % i
             eigs_ref[i] = -eigs_ref[i]
-            n_flipped, n_ok = n_ok, n_flipped
-        print n_ok, n_flipped
+
+        # Test it:
+        s = FESolution(mesh, eigs[i]).to_discrete_function()
+        s_ref = FESolution(mesh_ref, eigs_ref[i]).to_discrete_function()
+        same_norm = (s-s_ref).l2_norm()
+        flipped_norm = (s+s_ref).l2_norm()
+        print same_norm, flipped_norm
+        if same_norm > flipped_norm:
+            c = min(same_norm, flipped_norm) / max(same_norm, flipped_norm)
+            print "Warning: the flip is wrong, c=", c
+            # If "c" is almost one, then the vectors can't really be aligned
+            # anyway:
+            assert c > 0.95
+            #s.plot(False)
+            #s_ref.plot()
 
 def main():
     #do_plot([23, 29, 41, 47], [0.1, 0.01, 0.001, 0.004], 1, 0)
