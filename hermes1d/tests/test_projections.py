@@ -136,3 +136,15 @@ def test_l2_h1_proj4():
     assert f.project_onto(m, proj_type="Fekete") == f
     assert f.project_onto(m, proj_type="L2") == f
     assert f.project_onto(m, proj_type="H1") == f
+
+    pts = arange(0, 2*pi, 3)
+    orders = [2]*(len(pts)-1)
+    m = Mesh1D(pts, orders)
+    pts = array(list(arange(0, pts[-1], 0.1)) + [pts[-1]])
+    orders = [6]*(len(pts)-1)
+    f_exact = Function(lambda x: sin(x), Mesh1D(pts, orders))
+
+    sol_l2 = f_exact.project_onto(m, proj_type="L2")
+    sol_h1 = f_exact.project_onto(m, proj_type="H1")
+    assert (sol_l2 - f_exact).l2_norm() < 0.07
+    assert (sol_h1 - f_exact).l2_norm() < 0.07
