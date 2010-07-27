@@ -164,6 +164,8 @@ def test_l2_h1_proj5():
     """
     f_exact = lambda x: exp(x)
     f_exact_l2 = lambda x: e/2 - exp(-1)/2 + 3*x*exp(-1)
+    # TODO: The constant term here has to be checked:
+    f_exact_h1 = lambda x: +3*e/8 + 3*exp(-1)/8 + 3*x*(e + exp(-1))/8
     pts = [-1, -0.5, 0, 0.5, 1]
     orders = [20]*(len(pts)-1)
     m = Mesh1D(pts, orders)
@@ -173,7 +175,9 @@ def test_l2_h1_proj5():
     orders = [1]*(len(pts)-1)
     m = Mesh1D(pts, orders)
     f_proj_l2 = Function(f_exact_l2, m)
+    f_proj_h1 = Function(f_exact_h1, m)
     assert (f.project_onto(m, proj_type="L2") - f_proj_l2).l2_norm() < 1e-3
+    assert (f.project_onto(m, proj_type="H1") - f_proj_h1).l2_norm() < 0.03
 
 def test_l2_h1_proj6():
     """
