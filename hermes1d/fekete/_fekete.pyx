@@ -94,6 +94,18 @@ cpdef double int_f2(ndarray[double, mode="c"] w,
         r += (values[i]**2)*w[i]
     return r
 
+@cython.boundscheck(False)
+cpdef double int_f2_f2(ndarray[double, mode="c"] w,
+        ndarray[double, mode="c"] values1,
+        ndarray[double, mode="c"] values2,
+        ):
+    cdef double r=0
+    cdef unsigned n = len(w)
+    cdef unsigned i
+    for i in range(n):
+        r += (values1[i]**2 + values2[i]**2)*w[i]
+    return r
+
 # gauss points+weights on the reference domain
 cdef list _gauss_points_reference = None
 

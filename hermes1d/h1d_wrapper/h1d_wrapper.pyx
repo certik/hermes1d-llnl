@@ -12,7 +12,8 @@ from hermes_common._hermes_common cimport c2numpy_double, delete, PY_NEW, \
     numpy2c_double_inplace, numpy2c_int_inplace, Matrix
 
 cimport hermes1d
-from hermes1d.fekete._fekete cimport get_gauss_points_phys, int_f2
+from hermes1d.fekete._fekete cimport get_gauss_points_phys, int_f2, \
+        int_f2_f2
 
 cdef class Element:
     cdef hermes1d.Element *thisptr
@@ -271,6 +272,25 @@ class FESolution:
             l2_norm_squared += int_f2(w, vals)
             e = I._next_active_element()
         return sqrt(l2_norm_squared)
+
+    def h1_norm(self, int comp=0):
+        """
+        Returns the H1 norm of the solution.
+        """
+        self._mesh.copy_vector_to_mesh(self._coefs, comp)
+
+        pts = []
+        p = []
+        I = Iterator(self._mesh)
+        cdef hermes1d.Element *e = I._next_active_element()
+        h1_norm_squared = 0
+        while e != NULL:
+            x, w = get_gauss_points_phys(e.x1, e.x2, e.p+1)
+            vals = array([e.get_solution_value(_x, comp) for _x in x])
+            derivs = array([e.get_solution_deriv(_x, comp) for _x in x])
+            h1_norm_squared += int_f2_f2(w, vals, derivs)
+            e = I._next_active_element()
+        return sqrt(h1_norm_squared)
 
     def to_discrete_function(self, int comp=0):
         """
