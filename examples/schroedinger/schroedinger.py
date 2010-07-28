@@ -206,7 +206,7 @@ def main():
         #print eigs_ref[0]
         sol = zeros(len(eigs[0]), dtype="double")
         sol_ref = zeros(len(eigs_ref[0]), dtype="double")
-        for i in [3]:
+        for i in [0]:
             e = (eigs[i]).copy()
             coarse_h1_norm = FESolution(mesh, e).h1_norm()
             e /= coarse_h1_norm
