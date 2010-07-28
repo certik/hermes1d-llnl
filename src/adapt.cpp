@@ -23,6 +23,10 @@ int PRINT_CANDIDATES = 0;
 // debug - prints element errors as they come to adapt()
 int PRINT_ELEM_ERRORS = 0;
 
+// If 1, it will accept candidates, that decrease the number of DOFs. Sometimes
+// a better convergence curve is obtain if we don't allow it.
+int ALLOW_TO_DECREASE_DOFS = 0;
+
 double calc_elem_est_error_squared_p(int norm, Element *e, Element *e_ref,
         int sln) 
 {
@@ -1614,8 +1618,10 @@ int select_hp_refinement(Element *e, Element *e_ref, Element *e_ref2,
           printf("               dof_cand = %d, err_orig = %g, err_cand = %g (accepting)\n", 
                  dof_cand, err_orig, err_cand);
         }
-        //return i;
-        crit = 1e10;  // forget this candidate
+        if (ALLOW_TO_DECREASE_DOFS)
+            return i;
+        else
+            crit = 1e10;  // forget this candidate
       }
       else {
         if (PRINT_CANDIDATES) {
