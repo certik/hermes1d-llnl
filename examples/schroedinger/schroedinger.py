@@ -208,11 +208,18 @@ def main():
         sol_ref = zeros(len(eigs_ref[0]), dtype="double")
         for i in [3]:
             e = (eigs[i]).copy()
-            e /= FESolution(mesh, e).to_discrete_function().l2_norm()
+            coarse_l2_norm = FESolution(mesh, e).to_discrete_function(). \
+                    l2_norm()
+            e /= coarse_l2_norm
             sol += e
             e = (eigs_ref[i]).copy()
-            e /= FESolution(mesh_ref, e).to_discrete_function().l2_norm()
+            reference_l2_norm = FESolution(mesh_ref, e). \
+                    to_discrete_function().l2_norm()
+            e /= reference_l2_norm
             sol_ref += e
+            print "L2 norms:"
+            print "coarse    (%d):" % i, coarse_l2_norm
+            print "reference (%d):" % i, reference_l2_norm
         #s_ref = FESolution(mesh_ref, eigs_ref[0]).to_discrete_function()
         #s = FESolution(mesh, eigs[0]).to_discrete_function()
         #pts, orders = mesh.get_mesh_data()
