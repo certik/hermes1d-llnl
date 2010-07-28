@@ -218,8 +218,13 @@ def main():
             print "H1 norms:"
             print "coarse    (%d):" % i, coarse_h1_norm
             print "reference (%d):" % i, reference_h1_norm
-        #s_ref = FESolution(mesh_ref, eigs_ref[0]).to_discrete_function()
-        #s = FESolution(mesh, eigs[0]).to_discrete_function()
+        s = FESolution(mesh, sol).to_discrete_function()
+        s_ref = FESolution(mesh_ref, sol_ref).to_discrete_function()
+        error = s_ref - s
+        print "H1 norm of the error:", error.h1_norm()
+        #error.plot()
+        #from jsplot import clf
+        #clf()
         #pts, orders = mesh.get_mesh_data()
         #m = Mesh1D(pts, orders)
         #s = Function(s_ref, m)
