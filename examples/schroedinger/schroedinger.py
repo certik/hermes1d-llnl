@@ -150,7 +150,7 @@ def flip_vectors(mesh, eigs, mesh_ref, eigs_ref):
             print "Warning: the flip is wrong, c=", c
             # If "c" is almost one, then the vectors can't really be aligned
             # anyway:
-            assert c > 0.95
+            assert c > 0.9
             #s.plot(False)
             #s_ref.plot()
 
