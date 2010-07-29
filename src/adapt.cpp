@@ -1614,7 +1614,8 @@ int select_hp_refinement(Element *e, Element *e_ref, Element *e_ref2,
           printf("               dof_cand = %d, err_orig = %g, err_cand = %g (accepting)\n", 
                  dof_cand, err_orig, err_cand);
         }
-        return i;
+        //return i;
+        crit = 1e10;  // forget this candidate
       }
       else {
         if (PRINT_CANDIDATES) {
