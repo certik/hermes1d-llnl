@@ -3,10 +3,10 @@ from math import log
 from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
         xlabel, ylabel
 
-def do_plot(x, y, n, l, color="k"):
+def do_plot(x, y, n, l, color="k", label=""):
     n_r = n - l - 1
     styles = {0: "-s", 1: "--o", 2: ":^", 3: "-.v"}
-    plot(x, y, color + styles[n_r], label="$R_{%d%d}$" % (n, l))
+    plot(x, y, color + styles[n_r], label="$R_{%d%d}$%s" % (n, l, label))
 
     grid(True)
     ax = gca()
@@ -16,23 +16,19 @@ def do_plot(x, y, n, l, color="k"):
     title("l=%d" % l)
     legend()
 
-def conv_graph(R_x, R_y, l):
-    filename = "conv_dof_l_%d.png" % l
-    print "Creating %s" % filename
-    figure()
-    for n in range(l+1, l+5):
-        do_plot(R_x[l], R_y[(n, l)], n, l)
-    savefig(filename)
-
-def conv_graph2(R_x, R_y, R2_x, R2_y, l, name="", eigs=4):
+def conv_graph(graphs, l, name="", eigs=4):
     if name != "":
         name = name + "_"
     filename = "conv_dof_%sl_%d.png" % (name, l)
     print "Creating %s" % filename
     figure()
+    colors = ["k", "b", "y"]
     for n in range(l+1, l+1+eigs):
-        do_plot(R_x[l], R_y[(n, l)], n, l, "b")
-        do_plot(R2_x[l], R2_y[(n, l)], n, l)
+        i = 0
+        for m, label in graphs:
+            do_plot(m.R_x[l], m.R_y[(n, l)], n, l, colors[i],
+                    label=" (%s)" % label)
+            i += 1
     savefig(filename)
 
 class Convert(object):
