@@ -22,7 +22,7 @@ def conv_graph(graphs, l, name="", eigs=4):
     filename = "conv_dof_%sl_%d.png" % (name, l)
     print "Creating %s" % filename
     figure()
-    colors = ["k", "b", "y"]
+    colors = ["k", "b", "y", "g"]
     for n in range(l+1, l+1+eigs):
         i = 0
         for m, label in graphs:
