@@ -24,13 +24,13 @@ def conv_graph(R_x, R_y, l):
         do_plot(R_x[l], R_y[(n, l)], n, l)
     savefig(filename)
 
-def conv_graph2(R_x, R_y, R2_x, R2_y, l, name=""):
+def conv_graph2(R_x, R_y, R2_x, R2_y, l, name="", eigs=4):
     if name != "":
         name = name + "_"
     filename = "conv_dof_%sl_%d.png" % (name, l)
     print "Creating %s" % filename
     figure()
-    for n in range(l+1, l+5):
+    for n in range(l+1, l+1+eigs):
         do_plot(R_x[l], R_y[(n, l)], n, l, "b")
         do_plot(R2_x[l], R2_y[(n, l)], n, l)
     savefig(filename)
