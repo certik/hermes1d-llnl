@@ -156,13 +156,13 @@ def flip_vectors(mesh, eigs, mesh_ref, eigs_ref):
 
 def main():
     #do_plot([23, 29, 41, 47], [0.1, 0.01, 0.001, 0.004], 1, 0)
-    pts = arange(0, R, float(R)/(N_elem))
-    pts = list(pts) + [R]
-    #par = 20.
-    #a, b, = 0., 100.
-    #Ne = N_elem
-    #r = par**(1./(Ne-1))
-    #pts = [(r**i-1)/(r**Ne-1)*(b-a)+a for i in range(Ne+1)]
+    #pts = arange(0, R, float(R)/(N_elem))
+    #pts = list(pts) + [R]
+    par = 20.
+    a, b, = 0., 100.
+    Ne = N_elem
+    r = par**(1./(Ne-1))
+    pts = [(r**i-1)/(r**Ne-1)*(b-a)+a for i in range(Ne+1)]
     #pts = list(pts) + [10000]
     orders = [P_init]*(len(pts)-1)
     #pts = (0, 4.6875, 9.375, 18.75, 23.4375, 28.125, 32.8125, 35.15625, 37.5,
@@ -173,7 +173,7 @@ def main():
     #orders = (10, 8, 9, 4, 4, 4, 2, 2, 3, 2, 2, 1, 2, 2, 1, 2)
     mesh = Mesh(pts, orders)
     conv_graph = []
-    for i in range(100000):
+    for i in range(10000):
         print "-"*80
         print "adaptivity iteration:", i
         if eqn_type == "rR":
@@ -246,20 +246,42 @@ def main():
         # TODO: calculate this for all solutions:
         meshes = []
         mesh_orig = mesh.copy()
+        mesh_orig.assign_dofs()
+        errors = []
         for sol, sol_ref in zip(sols, sols_ref):
+            #print "-"*80
+            mesh = mesh_orig.copy()
+            mesh.assign_dofs()
+            mesh_ref = mesh.reference_refinement()
+            mesh_ref.assign_dofs()
+            #print "ndof:",mesh.get_n_dof()
+            #print "ndof ref:",mesh_ref.get_n_dof()
             mesh.copy_vector_to_mesh(sol, 0)
             mesh_ref.copy_vector_to_mesh(sol_ref, 0)
             err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
             ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
             err_est_rel = err_est_total/ref_sol_norm
             print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
-            if err_est_rel < error_tol:
-                break
+            errors.append(err_est_rel)
             # TODO: adapt using all the vectors:
             adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
-            meshes.append(mesh.copy())
-            mesh = mesh_orig
-        stop
+            meshes.append(mesh)
+        err = max(errors)
+        if err < error_tol:
+            break
+        pts, orders = mesh_orig.get_mesh_data()
+        mesh = Mesh1D(pts, orders)
+        print mesh
+        print "-"*80
+        for m in meshes:
+            pts, orders = m.get_mesh_data()
+            m = Mesh1D(pts, orders)
+            print m
+            mesh = mesh.union(m)
+        print "-"*80
+        print mesh
+        pts, orders = mesh.get_mesh_data()
+        mesh = Mesh(pts, orders)
     plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l,
         N_eig_plot+1+l)], l=l)
     #plot_eigs(mesh, eigs)
