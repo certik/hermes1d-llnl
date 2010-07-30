@@ -148,6 +148,10 @@ cdef class Mesh:
         mesh_ref._reference_refinement(start_elem_id, num_to_ref)
         return mesh_ref
 
+    def copy(self):
+        pts, orders = self.get_mesh_data()
+        return Mesh(pts, orders)
+
 
 cdef api object c2py_Mesh(hermes1d.Mesh *h):
     cdef Mesh n

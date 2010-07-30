@@ -209,25 +209,27 @@ def main():
         print "    Done."
         #print eigs[0]
         #print eigs_ref[0]
-        sol = zeros(len(eigs[0]), dtype="double")
-        sol_ref = zeros(len(eigs_ref[0]), dtype="double")
-        #for i in [0, 1, 2, 3]:
-        for i in [0]:
+        #sol = zeros(len(eigs[0]), dtype="double")
+        #sol_ref = zeros(len(eigs_ref[0]), dtype="double")
+        sols = []
+        sols_ref = []
+        for i in [0, 1, 2, 3]:
+        #for i in [0]:
             e = (eigs[i]).copy()
             coarse_h1_norm = FESolution(mesh, e).h1_norm()
             e /= coarse_h1_norm
-            sol += e
+            sols.append(e)
             e = (eigs_ref[i]).copy()
             reference_h1_norm = FESolution(mesh_ref, e).h1_norm()
             e /= reference_h1_norm
-            sol_ref += e
+            sols_ref.append(e)
             print "H1 norms:"
             print "coarse    (%d):" % i, coarse_h1_norm
             print "reference (%d):" % i, reference_h1_norm
-        s = FESolution(mesh, sol).to_discrete_function()
-        s_ref = FESolution(mesh_ref, sol_ref).to_discrete_function()
-        error = s_ref - s
-        print "H1 norm of the error:", error.h1_norm()
+        #s = FESolution(mesh, sol).to_discrete_function()
+        #_ref = FESolution(mesh_ref, sol_ref).to_discrete_function()
+        #rror = s_ref - s
+        #rint "H1 norm of the error:", error.h1_norm()
         #error.plot()
         #from jsplot import clf
         #clf()
@@ -242,17 +244,22 @@ def main():
         #    _, err_est_array[:, i] = calc_error_estimate(NORM,
         #            mesh, mesh_ref, i)
         # TODO: calculate this for all solutions:
-        mesh.copy_vector_to_mesh(sol, 0)
-        mesh_ref.copy_vector_to_mesh(sol_ref, 0)
-        err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
-        ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
-        err_est_rel = err_est_total/ref_sol_norm
-        print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
-        if err_est_rel < error_tol:
-            break
-        # TODO: adapt using all the vectors:
-        adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
-        #stop
+        meshes = []
+        mesh_orig = mesh.copy()
+        for sol, sol_ref in zip(sols, sols_ref):
+            mesh.copy_vector_to_mesh(sol, 0)
+            mesh_ref.copy_vector_to_mesh(sol_ref, 0)
+            err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
+            ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
+            err_est_rel = err_est_total/ref_sol_norm
+            print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
+            if err_est_rel < error_tol:
+                break
+            # TODO: adapt using all the vectors:
+            adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
+            meshes.append(mesh.copy())
+            mesh = mesh_orig
+        stop
     plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l,
         N_eig_plot+1+l)], l=l)
     #plot_eigs(mesh, eigs)
