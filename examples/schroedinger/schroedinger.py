@@ -23,7 +23,7 @@ N_eig = 4
 N_eig_plot = 4
 N_elem = 4                         # number of elements
 R = 150                            # right hand side of the domain
-P_init = 6                         # initial polynomal degree
+P_init = 1                         # initial polynomal degree
 l = 0                              # angular momentum quantum number
 error_tol = 1e-8                   # error tolerance
 eqn_type="R"                      # either R or rR
@@ -184,6 +184,10 @@ def adapt_mesh(mesh, eigs, adapt_type="hp"):
         m = refine_mesh_romanowski(mesh, eigs)
         pts, orders = m.get_mesh_data()
         return Mesh(pts, orders)
+    elif adapt_type == "uniform-p":
+        pts, orders = mesh.get_mesh_data()
+        orders = array(orders) + 1
+        return Mesh(pts, orders)
     elif adapt_type == "hp":
         mesh_ref = mesh.reference_refinement()
         print "Fine mesh created (%d DOF)." % mesh_ref.get_n_dof()
@@ -274,7 +278,7 @@ def main():
                 print "Maximum error in energies:", err
                 break
         old_energies = energies
-        mesh = adapt_mesh(mesh, eigs, adapt_type="hp")
+        mesh = adapt_mesh(mesh, eigs, adapt_type="uniform-p")
     plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l,
         N_eig_plot+1+l)], l=l)
     #plot_eigs(mesh, eigs)
