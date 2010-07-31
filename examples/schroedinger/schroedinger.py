@@ -3,7 +3,7 @@
 import sys
 sys.path.insert(0, "../..")
 
-from numpy import arange, empty, zeros
+from numpy import arange, empty, zeros, array
 from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
         xlabel, ylabel
 
@@ -170,7 +170,7 @@ def solve_schroedinger(mesh, l=0, eqn_type=eqn_type, eig_num=4):
     assert len(eigs) == eig_num
     energies = [E for E, eig in eigs]
     eigs = [eig for E, eig in eigs]
-    return N_dof, energies, eigs
+    return N_dof, array(energies), eigs
 
 def adapt_mesh(mesh, eigs, adapt_type="hp"):
     """
@@ -254,7 +254,8 @@ def main():
     #orders = (10, 8, 9, 4, 4, 4, 2, 2, 3, 2, 2, 1, 2, 2, 1, 2)
     mesh = Mesh(pts, orders)
     conv_graph = []
-    for i in range(10):
+    old_energies = None
+    for i in range(10000):
         print "-"*80
         print "adaptivity iteration:", i
         if eqn_type == "rR":
@@ -267,6 +268,12 @@ def main():
         N_dof, energies, eigs = solve_schroedinger(mesh, l=l,
                 eqn_type=eqn_type, eig_num=4)
         conv_graph.append((N_dof, energies))
+        if old_energies is not None:
+            err = max(abs(old_energies - energies))
+            if err < error_tol:
+                print "Maximum error in energies:", err
+                break
+        old_energies = energies
         mesh = adapt_mesh(mesh, eigs, adapt_type="hp")
     plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l,
         N_eig_plot+1+l)], l=l)
