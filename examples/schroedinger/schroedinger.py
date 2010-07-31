@@ -28,7 +28,6 @@ l = 0                              # angular momentum quantum number
 error_tol = 1e-8                   # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
-ADAPT_TYPE = 2  # 0 ... hp, 1 ... h, 2 ... p
 THRESHOLD = 0.7
 #error_tol = 1e-2
 
@@ -188,7 +187,7 @@ def adapt_mesh(mesh, eigs, adapt_type="hp"):
         pts, orders = mesh.get_mesh_data()
         orders = array(orders) + 1
         return Mesh(pts, orders)
-    elif adapt_type == "hp":
+    elif adapt_type in ["h", "p", "hp"]:
         mesh_ref = mesh.reference_refinement()
         print "Fine mesh created (%d DOF)." % mesh_ref.get_n_dof()
         N_dof, energies, eigs_ref = solve_schroedinger(mesh_ref, l=l,
@@ -226,6 +225,15 @@ def adapt_mesh(mesh, eigs, adapt_type="hp"):
             print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
             errors.append(err_est_rel)
             # TODO: adapt using all the vectors:
+            # 0 ... hp, 1 ... h, 2 ... p
+            if adapt_type == "hp":
+                ADAPT_TYPE = 0
+            elif adapt_type == "h":
+                ADAPT_TYPE = 1
+            elif adapt_type == "p":
+                ADAPT_TYPE = 2
+            else:
+                raise ValueError("Unkown adapt_type")
             adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
             meshes.append(mesh)
         pts, orders = mesh_orig.get_mesh_data()
@@ -237,6 +245,8 @@ def adapt_mesh(mesh, eigs, adapt_type="hp"):
         pts, orders = mesh.get_mesh_data()
         mesh = Mesh(pts, orders)
         return mesh
+    else:
+        raise ValueError("Unknown adapt_type")
 
 
 def main():
@@ -278,7 +288,7 @@ def main():
                 print "Maximum error in energies:", err
                 break
         old_energies = energies
-        mesh = adapt_mesh(mesh, eigs, adapt_type="uniform-p")
+        mesh = adapt_mesh(mesh, eigs, adapt_type="p")
     plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l,
         N_eig_plot+1+l)], l=l)
     #plot_eigs(mesh, eigs)
