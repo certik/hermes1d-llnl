@@ -23,12 +23,12 @@ N_eig = 4
 N_eig_plot = 4
 N_elem = 4                         # number of elements
 R = 150                            # right hand side of the domain
-P_init = 1                         # initial polynomal degree
+P_init = 6                         # initial polynomal degree
 l = 0                              # angular momentum quantum number
 error_tol = 1e-8                   # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
-ADAPT_TYPE = 0  # 0 ... hp, 1 ... h, 2 ... p
+ADAPT_TYPE = 2  # 0 ... hp, 1 ... h, 2 ... p
 THRESHOLD = 0.7
 #error_tol = 1e-2
 
@@ -66,7 +66,7 @@ def refine_mesh_romanowski(mesh, solutions):
     els2refine = list(set(els2refine))
     print "Will refine the elements:", els2refine
     mesh = refine_mesh(mesh, els2refine)
-    return mesh, errors
+    return mesh
 
 def refine_mesh_h1_adapt(mesh, solutions):
     """
@@ -129,7 +129,7 @@ def plot_conv(conv_graph, exact=None, l=None):
 
 def flip_vectors(mesh, eigs, mesh_ref, eigs_ref):
     x_c = 1e-3
-    for i in range(N_eig):
+    for i in range(len(eigs)):
         s = FESolution(mesh, eigs[i]).to_discrete_function()
         s_ref = FESolution(mesh_ref, eigs_ref[i]).to_discrete_function()
         if s(x_c) < 0:
@@ -154,6 +154,87 @@ def flip_vectors(mesh, eigs, mesh_ref, eigs_ref):
             #s.plot(False)
             #s_ref.plot()
 
+def solve_schroedinger(mesh, l=0, eqn_type=eqn_type, eig_num=4):
+    """
+    Solves the Schroedinger equation on the given mesh.
+
+    Returns the energies and eigenfunctions.
+    """
+    # TODO: return the eigenfunctions as FESolutions
+    N_dof = mesh.assign_dofs()
+    A = CooMatrix(N_dof)
+    B = CooMatrix(N_dof)
+    assemble_schroedinger(mesh, A, B, l=l, eqn_type=eqn_type)
+    eigs = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())
+    eigs = eigs[:eig_num]
+    assert len(eigs) == eig_num
+    energies = [E for E, eig in eigs]
+    eigs = [eig for E, eig in eigs]
+    return N_dof, energies, eigs
+
+def adapt_mesh(mesh, eigs, adapt_type="hp"):
+    """
+    Adapts the mesh using the adaptivity type 'adapt_type'.
+
+    Returns a new instance of the H1D mesh.
+
+    adapt_type .... one of: h, hp, p, uniform-p, romanowski
+    """
+    if adapt_type == "romanowski":
+        m = refine_mesh_romanowski(mesh, eigs)
+        pts, orders = m.get_mesh_data()
+        return Mesh(pts, orders)
+    elif adapt_type == "hp":
+        mesh_ref = mesh.reference_refinement()
+        print "Fine mesh created (%d DOF)." % mesh_ref.get_n_dof()
+        N_dof, energies, eigs_ref = solve_schroedinger(mesh_ref, l=l,
+                eqn_type=eqn_type, eig_num=len(eigs))
+        flip_vectors(mesh, eigs, mesh_ref, eigs_ref)
+        print "    Done."
+        sols = []
+        sols_ref = []
+        for i in range(len(eigs)):
+            e = (eigs[i]).copy()
+            coarse_h1_norm = FESolution(mesh, e).h1_norm()
+            e /= coarse_h1_norm
+            sols.append(e)
+            e = (eigs_ref[i]).copy()
+            reference_h1_norm = FESolution(mesh_ref, e).h1_norm()
+            e /= reference_h1_norm
+            sols_ref.append(e)
+            print "H1 norms:"
+            print "coarse    (%d):" % i, coarse_h1_norm
+            print "reference (%d):" % i, reference_h1_norm
+        meshes = []
+        mesh_orig = mesh.copy()
+        mesh_orig.assign_dofs()
+        errors = []
+        for sol, sol_ref in zip(sols, sols_ref):
+            mesh = mesh_orig.copy()
+            mesh.assign_dofs()
+            mesh_ref = mesh.reference_refinement()
+            mesh_ref.assign_dofs()
+            mesh.copy_vector_to_mesh(sol, 0)
+            mesh_ref.copy_vector_to_mesh(sol_ref, 0)
+            err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
+            ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
+            err_est_rel = err_est_total/ref_sol_norm
+            print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
+            errors.append(err_est_rel)
+            # TODO: adapt using all the vectors:
+            adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
+            meshes.append(mesh)
+        pts, orders = mesh_orig.get_mesh_data()
+        mesh = Mesh1D(pts, orders)
+        for m in meshes:
+            pts, orders = m.get_mesh_data()
+            m = Mesh1D(pts, orders)
+            mesh = mesh.union(m)
+        pts, orders = mesh.get_mesh_data()
+        mesh = Mesh(pts, orders)
+        return mesh
+
+
 def main():
     #do_plot([23, 29, 41, 47], [0.1, 0.01, 0.001, 0.004], 1, 0)
     #pts = arange(0, R, float(R)/(N_elem))
@@ -173,115 +254,20 @@ def main():
     #orders = (10, 8, 9, 4, 4, 4, 2, 2, 3, 2, 2, 1, 2, 2, 1, 2)
     mesh = Mesh(pts, orders)
     conv_graph = []
-    for i in range(10000):
+    for i in range(10):
         print "-"*80
         print "adaptivity iteration:", i
         if eqn_type == "rR":
             mesh.set_bc_left_dirichlet(0, 0)
             mesh.set_bc_right_dirichlet(0, 0)
-        N_dof = mesh.assign_dofs()
         pts, orders = mesh.get_mesh_data()
         print "Current mesh:"
         print pts
         print orders
-        A = CooMatrix(N_dof)
-        B = CooMatrix(N_dof)
-        assemble_schroedinger(mesh, A, B, l=l, eqn_type=eqn_type)
-        #eigs = solve_eig_numpy(A.to_scipy_coo(), B.to_scipy_coo())
-        eigs = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())
-        energies = [E for E, eig in eigs[:N_eig_plot]]
-        eigs = eigs[:N_eig]
-        assert len(eigs) == N_eig
-        eigs = [eig for E, eig in eigs]
+        N_dof, energies, eigs = solve_schroedinger(mesh, l=l,
+                eqn_type=eqn_type, eig_num=4)
         conv_graph.append((N_dof, energies))
-        print
-        #mesh, errors = refine_mesh_romanowski(mesh, eigs)
-        mesh_ref = mesh.reference_refinement()
-        print "Fine mesh created (%d DOF)." % mesh_ref.get_n_dof()
-        A = CooMatrix(N_dof); B = CooMatrix(N_dof)
-        assemble_schroedinger(mesh_ref, A, B, l=l, eqn_type=eqn_type)
-        eigs_ref = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())
-        eigs_ref = eigs_ref[:N_eig]
-        eigs_ref = [eig for E, eig in eigs_ref]
-        # TODO: project to mesh_ref, and mesh
-        print "Fixing +- in eigenvectors:"
-        flip_vectors(mesh, eigs, mesh_ref, eigs_ref)
-        print "    Done."
-        #print eigs[0]
-        #print eigs_ref[0]
-        #sol = zeros(len(eigs[0]), dtype="double")
-        #sol_ref = zeros(len(eigs_ref[0]), dtype="double")
-        sols = []
-        sols_ref = []
-        for i in [0, 1, 2, 3]:
-        #for i in [0]:
-            e = (eigs[i]).copy()
-            coarse_h1_norm = FESolution(mesh, e).h1_norm()
-            e /= coarse_h1_norm
-            sols.append(e)
-            e = (eigs_ref[i]).copy()
-            reference_h1_norm = FESolution(mesh_ref, e).h1_norm()
-            e /= reference_h1_norm
-            sols_ref.append(e)
-            print "H1 norms:"
-            print "coarse    (%d):" % i, coarse_h1_norm
-            print "reference (%d):" % i, reference_h1_norm
-        #s = FESolution(mesh, sol).to_discrete_function()
-        #_ref = FESolution(mesh_ref, sol_ref).to_discrete_function()
-        #rror = s_ref - s
-        #rint "H1 norm of the error:", error.h1_norm()
-        #error.plot()
-        #from jsplot import clf
-        #clf()
-        #pts, orders = mesh.get_mesh_data()
-        #m = Mesh1D(pts, orders)
-        #s = Function(s_ref, m)
-        #s.plot(False)
-        #s_ref.plot()
-        #stop
-        #err_est_array = empty((mesh.get_n_active_elem(), N_eig))
-        #for i in range(N_eig):
-        #    _, err_est_array[:, i] = calc_error_estimate(NORM,
-        #            mesh, mesh_ref, i)
-        # TODO: calculate this for all solutions:
-        meshes = []
-        mesh_orig = mesh.copy()
-        mesh_orig.assign_dofs()
-        errors = []
-        for sol, sol_ref in zip(sols, sols_ref):
-            #print "-"*80
-            mesh = mesh_orig.copy()
-            mesh.assign_dofs()
-            mesh_ref = mesh.reference_refinement()
-            mesh_ref.assign_dofs()
-            #print "ndof:",mesh.get_n_dof()
-            #print "ndof ref:",mesh_ref.get_n_dof()
-            mesh.copy_vector_to_mesh(sol, 0)
-            mesh_ref.copy_vector_to_mesh(sol_ref, 0)
-            err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
-            ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
-            err_est_rel = err_est_total/ref_sol_norm
-            print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
-            errors.append(err_est_rel)
-            # TODO: adapt using all the vectors:
-            adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
-            meshes.append(mesh)
-        err = max(errors)
-        if err < error_tol:
-            break
-        pts, orders = mesh_orig.get_mesh_data()
-        mesh = Mesh1D(pts, orders)
-        print mesh
-        print "-"*80
-        for m in meshes:
-            pts, orders = m.get_mesh_data()
-            m = Mesh1D(pts, orders)
-            print m
-            mesh = mesh.union(m)
-        print "-"*80
-        print mesh
-        pts, orders = mesh.get_mesh_data()
-        mesh = Mesh(pts, orders)
+        mesh = adapt_mesh(mesh, eigs, adapt_type="hp")
     plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l,
         N_eig_plot+1+l)], l=l)
     #plot_eigs(mesh, eigs)
