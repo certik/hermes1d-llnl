@@ -21,7 +21,7 @@ from plot import plot_eigs, plot_file
 
 N_elem = 50                         # number of elements
 R = 150                            # right hand side of the domain
-P_init = 4                         # initial polynomal degree
+P_init = 3                         # initial polynomal degree
 error_tol = 1e-8                   # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
@@ -299,7 +299,7 @@ def main():
         old_energies = energies
     #    exact_energies = array(exact_energies)
     #    print energies - exact_energies
-        mesh = adapt_mesh(mesh, eigs, l=l, Z=Z, adapt_type="p")
+        mesh = adapt_mesh(mesh, eigs, l=l, Z=Z, adapt_type="hp")
     plot_conv(conv_graph, exact=exact_energies, l=l)
     #plot_eigs(mesh, eigs)
 
