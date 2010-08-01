@@ -1,7 +1,9 @@
+#! /usr/bin/env python
+
 from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
         xlabel, ylabel
 
-import data
+import silver_pfem
 
 def do_plot(x, y, n, l, color="k"):
     n_r = n - l - 1
@@ -19,5 +21,5 @@ n_eig = 50
 l = 0
 for i in range(n_eig):
     n = l+1+i
-    do_plot(data.R_x[l], data.R_y[n, l], n, l)
+    do_plot(silver_pfem.R_x[l], silver_pfem.R_y[n, l], n, l)
 savefig("conv_l_0.png")
