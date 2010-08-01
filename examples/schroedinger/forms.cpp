@@ -1,6 +1,7 @@
 #include "forms.h"
 
 static double l = 0;
+static double Z = 1;
 
 double lhs_R(int num, double *x, double *weights,
                 double *u, double *dudx, double *v, double *dvdx,
@@ -14,7 +15,7 @@ double lhs_R(int num, double *x, double *weights,
         double r = x[i];
         // specify r^2*V:
         // Hydrogen:
-        double rrV = -r; // r^2 * (-1/r) = -r
+        double rrV = -Z*r; // r^2 * (-1/r) = -r
         // Harmonic oscillator:
         //double rrV = r*r*r*r; // r^2 * (r^2) = r^4
         coeff = 0.5*r*r*dudx[i]*dvdx[i] + (rrV + 0.5 * (l + 1)*l) *u[i]*v[i];
@@ -53,7 +54,7 @@ double lhs_rR(int num, double *x, double *weights,
         // Hydrogen:
         if (fabs(r) < 1e-12)
             throw std::runtime_error("Internal error: r is too small");
-        double V = -1/r;
+        double V = -Z/r;
         // Harmonic oscillator:
         //double V = r*r;
         coeff = 0.5*dudx[i]*dvdx[i] + (V + (l + 1)*l/(2*r*r)) *u[i]*v[i];
@@ -83,11 +84,12 @@ static int _equation_type = -1;
 /*
    Assembles the discrete problem A*x = E*B*x
 */
-void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B, int _l,
+void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B, int _l, int _Z,
         int equation_type)
 {
 
     l = _l;
+    Z = _Z;
     if (_equation_type == -1) {
         // Initialize the problem
         dp1 = new DiscreteProblem();

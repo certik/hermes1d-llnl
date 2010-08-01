@@ -5,4 +5,4 @@ cdef extern from "forms.h":
     int c_eqn_type_R "eqn_type_R"
     int c_eqn_type_rR "eqn_type_rR"
     void c_assemble_schroedinger "assemble_schroedinger"(Mesh *mesh,
-            c_Matrix *A, c_Matrix *B, int l, int equation_type) except +
+            c_Matrix *A, c_Matrix *B, int l, int Z, int equation_type) except +

@@ -18,7 +18,7 @@ double rhs(int num, double *x, double *weights,
 #define eqn_type_R  0
 #define eqn_type_rR 1
 
-void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B, int _l,
+void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B, int _l, int Z,
         int equation_type=eqn_type_R);
 
 #endif

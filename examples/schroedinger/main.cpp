@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
   CooMatrix *mat1 = new CooMatrix(N_dof);
   CooMatrix *mat2 = new CooMatrix(N_dof);
   int l=0;
-  assemble_schroedinger(mesh, mat1, mat2, l);
+  assemble_schroedinger(mesh, mat1, mat2, l, 1);
 
 
   Python p;
