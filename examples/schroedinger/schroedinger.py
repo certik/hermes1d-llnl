@@ -21,7 +21,7 @@ from plot import plot_eigs, plot_file
 
 N_elem = 50                         # number of elements
 R = 150                            # right hand side of the domain
-P_init = 8                         # initial polynomal degree
+P_init = 4                         # initial polynomal degree
 l = 0                              # angular momentum quantum number
 error_tol = 1e-8                   # error tolerance
 eqn_type="R"                      # either R or rR
@@ -284,11 +284,16 @@ def main():
         N_dof, energies, eigs = solve_schroedinger(mesh, l=l, Z=Z,
                 eqn_type=eqn_type, eig_num=50)
         conv_graph.append((N_dof, energies))
-        if old_energies is not None:
-            err = max(abs(old_energies - energies))
-            if err < error_tol:
-                print "Maximum error in energies:", err
-                break
+        # This doesn't work well:
+        #if old_energies is not None:
+        #    err = max(abs(old_energies - energies))
+        #    if err < error_tol:
+        #        print "Maximum error in energies:", err
+        #        break
+        err = max(energies - exact_energies)
+        print "Maximum error in energies:", err
+        if err < error_tol:
+            break
         old_energies = energies
     #    exact_energies = array(exact_energies)
     #    print energies - exact_energies
