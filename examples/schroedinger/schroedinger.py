@@ -20,10 +20,10 @@ from plot import plot_eigs, plot_file
 
 
 N_eig = 4
-N_eig_plot = 4
-N_elem = 4                         # number of elements
+N_eig_plot = 15
+N_elem = 50                         # number of elements
 R = 150                            # right hand side of the domain
-P_init = 1                         # initial polynomal degree
+P_init = 11                         # initial polynomal degree
 l = 0                              # angular momentum quantum number
 error_tol = 1e-8                   # error tolerance
 eqn_type="R"                      # either R or rR
@@ -153,7 +153,7 @@ def flip_vectors(mesh, eigs, mesh_ref, eigs_ref):
             #s.plot(False)
             #s_ref.plot()
 
-def solve_schroedinger(mesh, l=0, eqn_type=eqn_type, eig_num=4):
+def solve_schroedinger(mesh, l=0, Z=1, eqn_type=eqn_type, eig_num=4):
     """
     Solves the Schroedinger equation on the given mesh.
 
@@ -163,7 +163,7 @@ def solve_schroedinger(mesh, l=0, eqn_type=eqn_type, eig_num=4):
     N_dof = mesh.assign_dofs()
     A = CooMatrix(N_dof)
     B = CooMatrix(N_dof)
-    assemble_schroedinger(mesh, A, B, l=l, eqn_type=eqn_type)
+    assemble_schroedinger(mesh, A, B, l=l, Z=Z, eqn_type=eqn_type)
     eigs = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())
     eigs = eigs[:eig_num]
     assert len(eigs) == eig_num
@@ -253,8 +253,8 @@ def main():
     #do_plot([23, 29, 41, 47], [0.1, 0.01, 0.001, 0.004], 1, 0)
     #pts = arange(0, R, float(R)/(N_elem))
     #pts = list(pts) + [R]
-    par = 20.
-    a, b, = 0., 100.
+    par = 100.
+    a, b, = 0., 150.
     Ne = N_elem
     r = par**(1./(Ne-1))
     pts = [(r**i-1)/(r**Ne-1)*(b-a)+a for i in range(Ne+1)]
@@ -269,7 +269,7 @@ def main():
     mesh = Mesh(pts, orders)
     conv_graph = []
     old_energies = None
-    for i in range(10000):
+    for i in range(1):
         print "-"*80
         print "adaptivity iteration:", i
         if eqn_type == "rR":
@@ -279,8 +279,9 @@ def main():
         print "Current mesh:"
         print pts
         print orders
-        N_dof, energies, eigs = solve_schroedinger(mesh, l=l,
-                eqn_type=eqn_type, eig_num=4)
+        Z = 47
+        N_dof, energies, eigs = solve_schroedinger(mesh, l=l, Z=Z,
+                eqn_type=eqn_type, eig_num=50)
         conv_graph.append((N_dof, energies))
         if old_energies is not None:
             err = max(abs(old_energies - energies))
@@ -288,9 +289,12 @@ def main():
                 print "Maximum error in energies:", err
                 break
         old_energies = energies
-        mesh = adapt_mesh(mesh, eigs, adapt_type="p")
-    plot_conv(conv_graph, exact=[-1./(2*n**2) for n in range(1+l,
-        N_eig_plot+1+l)], l=l)
+        exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,50+1+l)]
+        exact_energies = array(exact_energies)
+        print energies - exact_energies
+        mesh = adapt_mesh(mesh, eigs, adapt_type="uniform-p")
+    #plot_conv(conv_graph, exact=[-1.*Z**2/(2*n**2) for n in range(1+l,
+    #    N_eig_plot+1+l)], l=l)
     #plot_eigs(mesh, eigs)
 
 if __name__ == "__main__":
