@@ -128,12 +128,12 @@ def plot_conv(conv_graph, exact=None, l=None):
 def flip_vectors(mesh, eigs, mesh_ref, eigs_ref, test_it=False):
     x_c = 1e-3
     for i in range(len(eigs)):
-        s = FESolution(mesh, eigs[i]).to_discrete_function()
-        s_ref = FESolution(mesh_ref, eigs_ref[i]).to_discrete_function()
-        if s(x_c) < 0:
+        s = FESolution(mesh, eigs[i])
+        s_ref = FESolution(mesh_ref, eigs_ref[i])
+        if s.value(x_c) < 0:
             print "  Multiplying %d-th coarse eigenvector by (-1)" % i
             eigs[i] = -eigs[i]
-        if s_ref(x_c) < 0:
+        if s_ref.value(x_c) < 0:
             print "  Multiplying %d-th ref. eigenvector by (-1)" % i
             eigs_ref[i] = -eigs_ref[i]
 
