@@ -21,7 +21,7 @@ from plot import plot_eigs, plot_file
 
 N_elem = 50                         # number of elements
 R = 150                            # right hand side of the domain
-P_init = 1                         # initial polynomal degree
+P_init = 8                         # initial polynomal degree
 l = 0                              # angular momentum quantum number
 error_tol = 1e-8                   # error tolerance
 eqn_type="R"                      # either R or rR
@@ -125,7 +125,7 @@ def plot_conv(conv_graph, exact=None, l=None):
     f.write("    }\n")
     #savefig("conv_l_0.png")
 
-def flip_vectors(mesh, eigs, mesh_ref, eigs_ref):
+def flip_vectors(mesh, eigs, mesh_ref, eigs_ref, test_it=False):
     x_c = 1e-3
     for i in range(len(eigs)):
         s = FESolution(mesh, eigs[i]).to_discrete_function()
@@ -137,20 +137,21 @@ def flip_vectors(mesh, eigs, mesh_ref, eigs_ref):
             print "  Multiplying %d-th ref. eigenvector by (-1)" % i
             eigs_ref[i] = -eigs_ref[i]
 
-        # Test it:
-        s = FESolution(mesh, eigs[i]).to_discrete_function()
-        s_ref = FESolution(mesh_ref, eigs_ref[i]).to_discrete_function()
-        same_norm = (s-s_ref).l2_norm()
-        flipped_norm = (s+s_ref).l2_norm()
-        print same_norm, flipped_norm
-        if same_norm > flipped_norm:
-            c = min(same_norm, flipped_norm) / max(same_norm, flipped_norm)
-            print "Warning: the flip is wrong, c=", c
-            # If "c" is almost one, then the vectors can't really be aligned
-            # anyway:
-            assert c > 0.9
-            #s.plot(False)
-            #s_ref.plot()
+        if test_it:
+            # Test it:
+            s = FESolution(mesh, eigs[i]).to_discrete_function()
+            s_ref = FESolution(mesh_ref, eigs_ref[i]).to_discrete_function()
+            same_norm = (s-s_ref).l2_norm()
+            flipped_norm = (s+s_ref).l2_norm()
+            print same_norm, flipped_norm
+            if same_norm > flipped_norm:
+                c = min(same_norm, flipped_norm) / max(same_norm, flipped_norm)
+                print "Warning: the flip is wrong, c=", c
+                # If "c" is almost one, then the vectors can't really be
+                # aligned anyway:
+                assert c > 0.9
+                #s.plot(False)
+                #s_ref.plot()
 
 def solve_schroedinger(mesh, l=0, Z=1, eqn_type=eqn_type, eig_num=4):
     """
@@ -291,7 +292,7 @@ def main():
         old_energies = energies
     #    exact_energies = array(exact_energies)
     #    print energies - exact_energies
-        mesh = adapt_mesh(mesh, eigs, adapt_type="uniform-p")
+        mesh = adapt_mesh(mesh, eigs, adapt_type="p")
     plot_conv(conv_graph, exact=exact_energies, l=l)
     #plot_eigs(mesh, eigs)
 
