@@ -131,10 +131,10 @@ def flip_vectors(mesh, eigs, mesh_ref, eigs_ref, test_it=False):
         s = FESolution(mesh, eigs[i])
         s_ref = FESolution(mesh_ref, eigs_ref[i])
         if s.value(x_c) < 0:
-            print "  Multiplying %d-th coarse eigenvector by (-1)" % i
+            #print "  Multiplying %d-th coarse eigenvector by (-1)" % i
             eigs[i] = -eigs[i]
         if s_ref.value(x_c) < 0:
-            print "  Multiplying %d-th ref. eigenvector by (-1)" % i
+            #print "  Multiplying %d-th ref. eigenvector by (-1)" % i
             eigs_ref[i] = -eigs_ref[i]
 
         if test_it:
@@ -196,6 +196,7 @@ def adapt_mesh(mesh, eigs, adapt_type="hp"):
         print "    Done."
         sols = []
         sols_ref = []
+        print "Normalizing solutions..."
         for i in range(len(eigs)):
             e = (eigs[i]).copy()
             coarse_h1_norm = FESolution(mesh, e).h1_norm()
@@ -205,9 +206,10 @@ def adapt_mesh(mesh, eigs, adapt_type="hp"):
             reference_h1_norm = FESolution(mesh_ref, e).h1_norm()
             e /= reference_h1_norm
             sols_ref.append(e)
-            print "H1 norms:"
-            print "coarse    (%d):" % i, coarse_h1_norm
-            print "reference (%d):" % i, reference_h1_norm
+            #print "H1 norms:"
+            #print "coarse    (%d):" % i, coarse_h1_norm
+            #print "reference (%d):" % i, reference_h1_norm
+        print "    Done."
         meshes = []
         mesh_orig = mesh.copy()
         mesh_orig.assign_dofs()
