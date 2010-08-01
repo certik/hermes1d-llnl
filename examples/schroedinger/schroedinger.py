@@ -22,7 +22,6 @@ from plot import plot_eigs, plot_file
 N_elem = 50                         # number of elements
 R = 150                            # right hand side of the domain
 P_init = 4                         # initial polynomal degree
-l = 0                              # angular momentum quantum number
 error_tol = 1e-8                   # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
@@ -171,7 +170,7 @@ def solve_schroedinger(mesh, l=0, Z=1, eqn_type=eqn_type, eig_num=4):
     eigs = [eig for E, eig in eigs]
     return N_dof, array(energies), eigs
 
-def adapt_mesh(mesh, eigs, adapt_type="hp"):
+def adapt_mesh(mesh, eigs, l=0, Z=1, adapt_type="hp"):
     """
     Adapts the mesh using the adaptivity type 'adapt_type'.
 
@@ -190,7 +189,7 @@ def adapt_mesh(mesh, eigs, adapt_type="hp"):
     elif adapt_type in ["h", "p", "hp"]:
         mesh_ref = mesh.reference_refinement()
         print "Fine mesh created (%d DOF)." % mesh_ref.get_n_dof()
-        N_dof, energies, eigs_ref = solve_schroedinger(mesh_ref, l=l,
+        N_dof, energies, eigs_ref = solve_schroedinger(mesh_ref, l=l, Z=Z,
                 eqn_type=eqn_type, eig_num=len(eigs))
         flip_vectors(mesh, eigs, mesh_ref, eigs_ref)
         print "    Done."
@@ -270,6 +269,7 @@ def main():
     #orders = (10, 8, 9, 4, 4, 4, 2, 2, 3, 2, 2, 1, 2, 2, 1, 2)
     mesh = Mesh(pts, orders)
     conv_graph = []
+    l=0
     Z = 47
     exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,50+1+l)]
     old_energies = None
@@ -299,7 +299,7 @@ def main():
         old_energies = energies
     #    exact_energies = array(exact_energies)
     #    print energies - exact_energies
-        mesh = adapt_mesh(mesh, eigs, adapt_type="p")
+        mesh = adapt_mesh(mesh, eigs, l=l, Z=Z, adapt_type="p")
     plot_conv(conv_graph, exact=exact_energies, l=l)
     #plot_eigs(mesh, eigs)
 
