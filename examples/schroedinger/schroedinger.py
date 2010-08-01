@@ -19,11 +19,9 @@ from _forms import assemble_schroedinger
 from plot import plot_eigs, plot_file
 
 
-N_eig = 4
-N_eig_plot = 15
 N_elem = 50                         # number of elements
 R = 150                            # right hand side of the domain
-P_init = 11                         # initial polynomal degree
+P_init = 1                         # initial polynomal degree
 l = 0                              # angular momentum quantum number
 error_tol = 1e-8                   # error tolerance
 eqn_type="R"                      # either R or rR
@@ -108,23 +106,24 @@ def do_plot(x, y, n, l):
 def plot_conv(conv_graph, exact=None, l=None):
     assert exact is not None
     assert l is not None
+    n_eig = len(conv_graph[0][1])
     x = []
-    y = [[] for n in range(N_eig_plot)]
+    y = [[] for n in range(n_eig)]
     for dofs, energies in conv_graph:
         x.append(dofs)
-        for i in range(N_eig_plot):
+        for i in range(n_eig):
             y[i].append(energies[i]-exact[i])
     f = open("data.py", "w")
     f.write("R_x = {\n")
     f.write("        %d: %s,\n" % (l, x))
     f.write("    }\n")
     f.write("R_y = {\n")
-    for i in range(N_eig_plot):
+    for i in range(n_eig):
         n = l+1+i
         f.write("        (%d, %d): %s,\n" % (n, l, y[i]))
-        do_plot(x, y[i], n, l)
+        #do_plot(x, y[i], n, l)
     f.write("    }\n")
-    savefig("conv_l_0.png")
+    #savefig("conv_l_0.png")
 
 def flip_vectors(mesh, eigs, mesh_ref, eigs_ref):
     x_c = 1e-3
@@ -268,8 +267,10 @@ def main():
     #orders = (10, 8, 9, 4, 4, 4, 2, 2, 3, 2, 2, 1, 2, 2, 1, 2)
     mesh = Mesh(pts, orders)
     conv_graph = []
+    Z = 47
+    exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,50+1+l)]
     old_energies = None
-    for i in range(1):
+    for i in range(1000000):
         print "-"*80
         print "adaptivity iteration:", i
         if eqn_type == "rR":
@@ -279,7 +280,6 @@ def main():
         print "Current mesh:"
         print pts
         print orders
-        Z = 47
         N_dof, energies, eigs = solve_schroedinger(mesh, l=l, Z=Z,
                 eqn_type=eqn_type, eig_num=50)
         conv_graph.append((N_dof, energies))
@@ -289,12 +289,10 @@ def main():
                 print "Maximum error in energies:", err
                 break
         old_energies = energies
-        exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,50+1+l)]
-        exact_energies = array(exact_energies)
-        print energies - exact_energies
+    #    exact_energies = array(exact_energies)
+    #    print energies - exact_energies
         mesh = adapt_mesh(mesh, eigs, adapt_type="uniform-p")
-    #plot_conv(conv_graph, exact=[-1.*Z**2/(2*n**2) for n in range(1+l,
-    #    N_eig_plot+1+l)], l=l)
+    plot_conv(conv_graph, exact=exact_energies, l=l)
     #plot_eigs(mesh, eigs)
 
 if __name__ == "__main__":
