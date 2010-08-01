@@ -5,6 +5,7 @@ from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
 
 import silver_uniformpfem
 import silver_pfem
+import silver_hpfem
 
 def do_plot(x, y, n, l, color="k"):
     n_r = n - l - 1
@@ -24,4 +25,5 @@ for i in range(n_eig):
     n = l+1+i
     do_plot(silver_uniformpfem.R_x[l], silver_uniformpfem.R_y[n, l], n, l)
     do_plot(silver_pfem.R_x[l], silver_pfem.R_y[n, l], n, l, "b")
+    do_plot(silver_hpfem.R_x[l], silver_hpfem.R_y[n, l], n, l, "g")
 savefig("conv_l_0.png")
