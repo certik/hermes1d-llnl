@@ -12,7 +12,7 @@ from hermes1d.solvers.eigen import solve_eig_numpy, solve_eig_pysparse, \
         solve_eig_scipy
 from hermes1d.h1d_wrapper.h1d_wrapper import FESolution, calc_error_estimate, \
         calc_solution_norm, adapt
-from hermes1d.fekete.fekete import Function, Mesh1D
+from hermes1d.fekete.fekete import Function, Mesh1D, sqrt_sum_squares
 from hermes_common._hermes_common import CooMatrix
 
 from _forms import assemble_schroedinger
@@ -208,43 +208,53 @@ def adapt_mesh(mesh, eigs, l=0, Z=1, adapt_type="hp"):
             #print "H1 norms:"
             #print "coarse    (%d):" % i, coarse_h1_norm
             #print "reference (%d):" % i, reference_h1_norm
+        sols = [FESolution(mesh, s).to_discrete_function() for s in sols]
+        sols_ref = [FESolution(mesh_ref, s).to_discrete_function() for s in sols_ref]
+        sol = sqrt_sum_squares(sols)
+        sol_ref = sqrt_sum_squares(sols_ref)
+        sol.calculate_FE_coeffs()
+        sol_ref.calculate_FE_coeffs()
+        sol = sol._fe_sol._coefs
+        sol_ref = sol_ref._fe_sol._coefs
         print "    Done."
-        meshes = []
-        mesh_orig = mesh.copy()
-        mesh_orig.assign_dofs()
+        #meshes = []
+        #mesh_orig = mesh.copy()
+        #mesh_orig.assign_dofs()
         errors = []
-        for sol, sol_ref in zip(sols, sols_ref):
-            mesh = mesh_orig.copy()
-            mesh.assign_dofs()
-            mesh_ref = mesh.reference_refinement()
-            mesh_ref.assign_dofs()
-            mesh.copy_vector_to_mesh(sol, 0)
-            mesh_ref.copy_vector_to_mesh(sol_ref, 0)
-            err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
-            ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
-            err_est_rel = err_est_total/ref_sol_norm
-            print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
-            errors.append(err_est_rel)
-            # TODO: adapt using all the vectors:
-            # 0 ... hp, 1 ... h, 2 ... p
-            if adapt_type == "hp":
-                ADAPT_TYPE = 0
-            elif adapt_type == "h":
-                ADAPT_TYPE = 1
-            elif adapt_type == "p":
-                ADAPT_TYPE = 2
-            else:
-                raise ValueError("Unkown adapt_type")
-            adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
-            meshes.append(mesh)
-        pts, orders = mesh_orig.get_mesh_data()
-        mesh = Mesh1D(pts, orders)
-        for m in meshes:
-            pts, orders = m.get_mesh_data()
-            m = Mesh1D(pts, orders)
-            mesh = mesh.union(m)
-        pts, orders = mesh.get_mesh_data()
-        mesh = Mesh(pts, orders)
+        #for sol, sol_ref in zip(sols, sols_ref):
+
+        #mesh = mesh_orig.copy()
+        #mesh.assign_dofs()
+        mesh_ref = mesh.reference_refinement()
+        mesh_ref.assign_dofs()
+        mesh.copy_vector_to_mesh(sol, 0)
+        mesh_ref.copy_vector_to_mesh(sol_ref, 0)
+        err_est_total, err_est_array = calc_error_estimate(NORM, mesh, mesh_ref)
+        ref_sol_norm = calc_solution_norm(NORM, mesh_ref)
+        err_est_rel = err_est_total/ref_sol_norm
+        print "Relative error (est) = %g %%\n" % (100.*err_est_rel)
+        errors.append(err_est_rel)
+        # TODO: adapt using all the vectors:
+        # 0 ... hp, 1 ... h, 2 ... p
+        if adapt_type == "hp":
+            ADAPT_TYPE = 0
+        elif adapt_type == "h":
+            ADAPT_TYPE = 1
+        elif adapt_type == "p":
+            ADAPT_TYPE = 2
+        else:
+            raise ValueError("Unkown adapt_type")
+        adapt(NORM, ADAPT_TYPE, THRESHOLD, err_est_array, mesh, mesh_ref)
+        #meshes.append(mesh)
+
+        #pts, orders = mesh_orig.get_mesh_data()
+        #mesh = Mesh1D(pts, orders)
+        #for m in meshes:
+        #    pts, orders = m.get_mesh_data()
+        #    m = Mesh1D(pts, orders)
+        #    mesh = mesh.union(m)
+        #pts, orders = mesh.get_mesh_data()
+        #mesh = Mesh(pts, orders)
         return mesh
     else:
         raise ValueError("Unknown adapt_type")
