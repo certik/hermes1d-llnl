@@ -19,9 +19,9 @@ from _forms import assemble_schroedinger
 from plot import plot_eigs, plot_file
 
 
-N_elem = 50                         # number of elements
-R = 150                            # right hand side of the domain
-P_init = 3                         # initial polynomal degree
+N_elem = 4                         # number of elements
+R = 100                            # right hand side of the domain
+P_init = 2                         # initial polynomal degree
 error_tol = 1e-8                   # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
@@ -252,13 +252,13 @@ def adapt_mesh(mesh, eigs, l=0, Z=1, adapt_type="hp"):
 
 def main():
     #do_plot([23, 29, 41, 47], [0.1, 0.01, 0.001, 0.004], 1, 0)
-    #pts = arange(0, R, float(R)/(N_elem))
+    pts = arange(0, R, float(R)/(N_elem))
     #pts = list(pts) + [R]
-    par = 100.
-    a, b, = 0., 150.
-    Ne = N_elem
-    r = par**(1./(Ne-1))
-    pts = [(r**i-1)/(r**Ne-1)*(b-a)+a for i in range(Ne+1)]
+    #par = 100.
+    #a, b, = 0., 150.
+    #Ne = N_elem
+    #r = par**(1./(Ne-1))
+    #pts = [(r**i-1)/(r**Ne-1)*(b-a)+a for i in range(Ne+1)]
     #pts = list(pts) + [10000]
     orders = [P_init]*(len(pts)-1)
     #pts = (0, 4.6875, 9.375, 18.75, 23.4375, 28.125, 32.8125, 35.15625, 37.5,
@@ -270,8 +270,8 @@ def main():
     mesh = Mesh(pts, orders)
     conv_graph = []
     l=0
-    Z = 47
-    exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,50+1+l)]
+    Z = 1
+    exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,4+1+l)]
     old_energies = None
     for i in range(1000000):
         print "-"*80
@@ -284,7 +284,7 @@ def main():
         print pts
         print orders
         N_dof, energies, eigs = solve_schroedinger(mesh, l=l, Z=Z,
-                eqn_type=eqn_type, eig_num=50)
+                eqn_type=eqn_type, eig_num=4)
         conv_graph.append((N_dof, energies))
         # This doesn't work well:
         #if old_energies is not None:
