@@ -265,7 +265,7 @@ def main():
     pts = arange(0, R, float(R)/(N_elem))
     #pts = list(pts) + [R]
     #par = 20.
-    #a, b, = 0., 150.
+    #a, b, = 0., 100.
     #Ne = N_elem
     #r = par**(1./(Ne-1))
     #pts = [(r**i-1)/(r**Ne-1)*(b-a)+a for i in range(Ne+1)]
@@ -281,7 +281,8 @@ def main():
     conv_graph = []
     l=0
     Z = 1
-    exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,4+1+l)]
+    N_eig = 3
+    exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,N_eig+1+l)]
     old_energies = None
     for i in range(1000000):
         print "-"*80
@@ -294,7 +295,7 @@ def main():
         print pts
         print orders
         N_dof, energies, eigs = solve_schroedinger(mesh, l=l, Z=Z,
-                eqn_type=eqn_type, eig_num=4)
+                eqn_type=eqn_type, eig_num=N_eig)
         conv_graph.append((N_dof, energies))
         # This doesn't work well:
         #if old_energies is not None:

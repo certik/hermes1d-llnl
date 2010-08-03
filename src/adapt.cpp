@@ -1639,11 +1639,13 @@ int select_hp_refinement(Element *e, Element *e_ref, Element *e_ref2,
     // curve on semilog scale. Performance of p-candidates is artificially 
     // improved
     if (dof_cand - dof_orig > 0) {
-      // p-candidate (preferred - not penalized by the dof number)
-      if (cand_list[i][0] == 0) crit = (log(err_cand) - log(err_orig)) / sqrt(dof_cand - dof_orig); 
-      // hp-candidate
-      else crit = (log(err_cand) - log(err_orig)) / sqrt(dof_cand - dof_orig); 
-    } 
+//        if (cand_list[i][0] == 0)
+ //           // p-candidate (preferred - not penalized by the dof number)
+  //          crit = (log(err_cand) - log(err_orig));
+   //     else
+            // hp-candidate
+        crit = (log(err_cand) - log(err_orig)) / pow(dof_cand - dof_orig, 4.);
+    }
 
     // debug
     if (PRINT_CANDIDATES) {
