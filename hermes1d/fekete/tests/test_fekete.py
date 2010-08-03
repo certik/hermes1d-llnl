@@ -1,6 +1,6 @@
 from math import sin, cos, log, pi, sqrt, e, log, exp
 
-from hermes1d.fekete.fekete import Mesh1D, Function
+from hermes1d.fekete.fekete import Mesh1D, Function, sqrt_sum_squares
 
 def test1():
     m = Mesh1D((-5, -4, 3, 10), (1, 5, 1))
@@ -326,3 +326,31 @@ def test_power():
 
     assert f**2 == Function(lambda x: x**6+2*x**4+x**2, mesh7)
     assert f**3 == Function(lambda x: x**3 + 3*x**5 + 3*x**7 + x**9, mesh8)
+
+
+def test_sqrt_sum_squares():
+    mesh1 = Mesh1D((5, 6), (1,))
+    f1 = Function(lambda x: x, mesh1)
+    f2 = Function(lambda x: 2*x, mesh1)
+    f3 = Function(lambda x: 3*x, mesh1)
+    assert sqrt_sum_squares([f1]) == f1
+    assert sqrt_sum_squares([f2]) == f2
+    assert sqrt_sum_squares([f3]) == f3
+    assert sqrt_sum_squares([f1, f2]) == Function(lambda x: sqrt(5)*x, mesh1)
+    assert sqrt_sum_squares([f1, f3]) == Function(lambda x: sqrt(10)*x, mesh1)
+    assert sqrt_sum_squares([f1, f2, f3]) == Function(lambda x: sqrt(14)*x, mesh1)
+
+    mesh1 = Mesh1D((5, 6), (5,))
+    f1 = Function(lambda x: x, mesh1)
+    f2 = Function(lambda x: 2*x, mesh1)
+    f3 = Function(lambda x: 3*x, mesh1)
+    assert sqrt_sum_squares([f1]) == f1
+    assert sqrt_sum_squares([f2]) == f2
+    assert sqrt_sum_squares([f3]) == f3
+    assert sqrt_sum_squares([f1, f2]) == Function(lambda x: sqrt(5)*x, mesh1)
+    assert sqrt_sum_squares([f1, f3]) == Function(lambda x: sqrt(10)*x, mesh1)
+    assert sqrt_sum_squares([f1, f2, f3]) == Function(lambda x: sqrt(14)*x, mesh1)
+
+    f1 = Function(lambda x: sin(x), mesh1)
+    f2 = Function(lambda x: cos(x), mesh1)
+    assert sqrt_sum_squares([f1, f2]) == Function(lambda x: 1.0, mesh1)

@@ -7,7 +7,7 @@ import logging
 import datetime
 import time
 
-from numpy import empty, arange, array, ndarray, zeros, real
+from numpy import empty, arange, array, ndarray, zeros, real, sqrt as np_sqrt
 from numpy.linalg import solve
 from scipy.integrate import quadrature, fixed_quad
 from sympy import vectorize
@@ -665,6 +665,29 @@ class Function(h1d_wrapper.Function):
 
     def dofs(self):
         return self._mesh.dofs()
+
+def sqrt_sum_squares(fns_list):
+    """
+    Calculates sqrt(f_1**2 + f_2**2 + f_3**2 + ...).
+
+    fns_list = [f_1, f_2, f_3, ...]
+
+    All functions *must* be on the same mesh.
+    """
+    mesh = fns_list[0]._mesh
+    pts = mesh._points
+    orders = empty(len(mesh._orders), dtype="int")
+    values = []
+    for n, (a, b, order) in enumerate(mesh.iter_elems()):
+        x = _fekete.get_fekete_points_phys(order, a, b)
+        vals = 0.
+        for fn in fns_list:
+            vals += _fekete.eval_poly(x, fn._values[n], a, b)**2
+        vals = np_sqrt(vals)
+        values.append(vals)
+        orders[n] = order
+    mesh = Mesh1D(pts, orders)
+    return Function(values, mesh)
 
 def main():
     logger = logging.getLogger("hermes1d")
