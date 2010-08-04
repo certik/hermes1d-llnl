@@ -50,3 +50,4 @@ for i in range(n_eig):
     do_plot(hydrogen_hpfem.R_x[l], hydrogen_hpfem.R_y[n, l],
             n, l, "r", "$hp$-FEM (U)")
 savefig("hydrogen_l_0.png")
+savefig("hydrogen_l_0.pdf")

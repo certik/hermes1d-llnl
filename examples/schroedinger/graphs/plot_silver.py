@@ -44,3 +44,4 @@ for i in range(n_eig):
     do_plot(silver_hpfem.R_x[l], silver_hpfem.R_y[n, l],
             n, l, "r", "$hp$-FEM (L)")
 savefig("silver_l_0.png")
+savefig("silver_l_0.pdf")
