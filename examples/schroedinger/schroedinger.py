@@ -287,7 +287,7 @@ def main():
                 mesh.set_bc_right_dirichlet(0, 0)
             # Use zero dirichlet for eqn_type="R" as well, just to make sure
             # that we agree with sle1d
-            mesh.set_bc_right_dirichlet(0, 0)
+            #mesh.set_bc_right_dirichlet(0, 0)
             pts, orders = mesh.get_mesh_data()
             print "Current mesh:"
             print pts
