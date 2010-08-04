@@ -20,7 +20,7 @@ from plot import plot_eigs, plot_file
 
 
 N_elem = 4                         # number of elements
-R = 150                            # right hand side of the domain
+R = 100                            # right hand side of the domain
 P_init = 1                        # initial polynomal degree
 error_tol = 1e-8                  # error tolerance
 eqn_type="R"                      # either R or rR
@@ -253,8 +253,8 @@ def adapt_mesh(mesh, eigs, l=0, Z=1, adapt_type="hp"):
 
 def main():
     #do_plot([23, 29, 41, 47], [0.1, 0.01, 0.001, 0.004], 1, 0)
-    #pts = arange(0, R, float(R)/(N_elem))
-    #pts = list(pts) + [R]
+    pts = arange(0, R, float(R)/(N_elem))
+    pts = list(pts) + [R]
     #pts = (0., 0.29296875, 0.5859375, 1.171875, 2.34375,
     #            4.6875, 9.375, 18.75, 28.125, 37.5,
     #            56.25, 75., 112.5, 150.)
@@ -266,11 +266,11 @@ def main():
     #        1.12500000e+02,
     #        1.50000000e+02
     #                )
-    par = 20
-    a, b, = 0., 100.
-    Ne = N_elem
-    r = par**(1./(Ne-1))
-    pts = [(r**i-1)/(r**Ne-1)*(b-a)+a for i in range(Ne+1)]
+    #par = 20
+    #a, b, = 0., 100.
+    #Ne = N_elem
+    #r = par**(1./(Ne-1))
+    #pts = [(r**i-1)/(r**Ne-1)*(b-a)+a for i in range(Ne+1)]
     orders = [P_init]*(len(pts)-1)
     #orders = [15,  7,  6,  5,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2]
     #pts = (0, 4.6875, 9.375, 18.75, 23.4375, 28.125, 32.8125, 35.15625, 37.5,

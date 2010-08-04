@@ -6,6 +6,7 @@ from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
 import hydrogen_uniformpfem
 import hydrogen_romanowski
 import hydrogen_hpfem
+import hydrogen_pfem
 
 def do_plot(x, y, n, l, color="k", label=""):
     n_r = n - l - 1
@@ -33,6 +34,10 @@ for i in range(n_eig):
     n = l+1+i
     do_plot(hydrogen_romanowski.R_x[l], hydrogen_romanowski.R_y[n, l],
             n, l, "y", "$h$-FEM (Romanowski)")
+for i in range(n_eig):
+    n = l+1+i
+    do_plot(hydrogen_pfem.R_x[l], hydrogen_pfem.R_y[n, l],
+            n, l, "b", "$p$-FEM")
 for i in range(n_eig):
     n = l+1+i
     do_plot(hydrogen_hpfem.R_x[l], hydrogen_hpfem.R_y[n, l],
