@@ -19,7 +19,7 @@ def do_plot(x, y, n, l, color="k", label=""):
     grid(True)
     ax = gca()
     xlabel("DOFs")
-    ylabel("$E_{num}-E$")
+    ylabel("$E_{num}-E$ [Ha]")
     ax.set_yscale("log")
     ylim(ymin=1e-8)
     title("Eigenvalues (l=%d, Z=1)" % l)
