@@ -4,6 +4,8 @@ from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
         xlabel, ylabel
 
 import silver_uniformpfem
+import silver_uniformpfem50
+import silver_uniformpfem4
 import silver_pfem
 import silver_hpfem
 
@@ -24,7 +26,10 @@ l = 0
 print "Saving to conv_l_0.png"
 for i in range(n_eig):
     n = l+1+i
-    do_plot(silver_uniformpfem.R_x[l], silver_uniformpfem.R_y[n, l], n, l)
-    do_plot(silver_pfem.R_x[l], silver_pfem.R_y[n, l], n, l, "b")
-    do_plot(silver_hpfem.R_x[l], silver_hpfem.R_y[n, l], n, l, "g")
+    do_plot(silver_uniformpfem50.R_x[l], silver_uniformpfem50.R_y[n, l],
+            n, l, "k")
+    do_plot(silver_uniformpfem4.R_x[l], silver_uniformpfem4.R_y[n, l],
+            n, l, "b")
+    do_plot(silver_pfem.R_x[l], silver_pfem.R_y[n, l], n, l, "g")
+    do_plot(silver_hpfem.R_x[l], silver_hpfem.R_y[n, l], n, l, "y")
 savefig("conv_l_0.png")
