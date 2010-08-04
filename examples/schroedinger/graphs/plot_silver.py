@@ -19,7 +19,7 @@ def do_plot(x, y, n, l, color="k"):
     title("l=%d" % l)
     #legend()
 
-n_eig = 4
+n_eig = 50
 l = 0
 print "Saving to conv_l_0.png"
 for i in range(n_eig):

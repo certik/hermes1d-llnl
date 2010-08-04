@@ -279,7 +279,7 @@ def main():
     N_eig = 50
     exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,N_eig+1+l)]
     old_energies = None
-    for i in range(1000000):
+    for i in range(10):
         print "-"*80
         print "adaptivity iteration:", i
         if eqn_type == "rR":
