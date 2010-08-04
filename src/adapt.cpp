@@ -1640,7 +1640,7 @@ int select_hp_refinement(Element *e, Element *e_ref, Element *e_ref2,
     // improved
     if (dof_cand - dof_orig > 0) {
       // p-candidate (preferred - not penalized by the dof number)
-      if (cand_list[i][0] == 0) crit = (log(err_cand) - log(err_orig)) / sqrt(dof_cand - dof_orig); 
+      if (cand_list[i][0] == 0) crit = (log(err_cand) - log(err_orig));
       // hp-candidate
       else crit = (log(err_cand) - log(err_orig)) / sqrt(dof_cand - dof_orig); 
     } 

@@ -22,7 +22,7 @@ from plot import plot_eigs, plot_file
 N_elem = 4                         # number of elements
 R = 100                            # right hand side of the domain
 P_init = 2                         # initial polynomal degree
-error_tol = 1e-8                   # error tolerance
+error_tol = 1e-10                   # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
 THRESHOLD = 0.7
@@ -253,7 +253,7 @@ def adapt_mesh(mesh, eigs, l=0, Z=1, adapt_type="hp"):
 def main():
     #do_plot([23, 29, 41, 47], [0.1, 0.01, 0.001, 0.004], 1, 0)
     pts = arange(0, R, float(R)/(N_elem))
-    #pts = list(pts) + [R]
+    pts = list(pts) + [R]
     #par = 100.
     #a, b, = 0., 150.
     #Ne = N_elem
