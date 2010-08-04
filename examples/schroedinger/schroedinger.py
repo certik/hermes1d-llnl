@@ -21,7 +21,7 @@ from plot import plot_eigs, plot_file
 
 N_elem = 4                         # number of elements
 R = 150                            # right hand side of the domain
-P_init = 2                         # initial polynomal degree
+P_init = 4                         # initial polynomal degree
 error_tol = 1e-10                   # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
@@ -253,8 +253,11 @@ def adapt_mesh(mesh, eigs, l=0, Z=1, adapt_type="hp"):
 
 def main():
     #do_plot([23, 29, 41, 47], [0.1, 0.01, 0.001, 0.004], 1, 0)
-    pts = arange(0, R, float(R)/(N_elem))
-    pts = list(pts) + [R]
+    #pts = arange(0, R, float(R)/(N_elem))
+    #pts = list(pts) + [R]
+    pts = (0., 0.29296875, 0.5859375, 1.171875, 2.34375,
+                4.6875, 9.375, 18.75, 28.125, 37.5,
+                56.25, 75., 112.5, 150.)
     #par = 100.
     #a, b, = 0., 150.
     #Ne = N_elem
@@ -268,11 +271,12 @@ def main():
     #pts = (0, 4.6875, 9.375, 18.75, 23.4375, 28.125, 32.8125, 35.15625, 37.5,
     #        42.1875, 46.875, 49.21875, 51.5625, 56.25, 65.625, 75.0, 150)
     #orders = (10, 8, 9, 4, 4, 4, 2, 2, 3, 2, 2, 1, 2, 2, 1, 2)
+    #orders = [29, 29, 29, 29, 29, 29, 29,  3,  2,  3,  2,  2,  2]
     mesh = Mesh(pts, orders)
     conv_graph = []
     l=0
     Z = 47
-    N_eig = 4
+    N_eig = 50
     exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,N_eig+1+l)]
     old_energies = None
     for i in range(1000000):
