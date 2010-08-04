@@ -21,7 +21,7 @@ from plot import plot_eigs, plot_file
 
 N_elem = 4                         # number of elements
 R = 150                            # right hand side of the domain
-P_init = 13                        # initial polynomal degree
+P_init = 1                        # initial polynomal degree
 error_tol = 1e-8                  # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
@@ -266,8 +266,8 @@ def main():
     #        1.12500000e+02,
     #        1.50000000e+02
     #                )
-    par = 35
-    a, b, = 0., 150.
+    par = 20
+    a, b, = 0., 100.
     Ne = N_elem
     r = par**(1./(Ne-1))
     pts = [(r**i-1)/(r**Ne-1)*(b-a)+a for i in range(Ne+1)]
@@ -283,8 +283,8 @@ def main():
     mesh = Mesh(pts, orders)
     conv_graph = []
     l=0
-    Z = 47
-    N_eig = 50
+    Z = 1
+    N_eig = 3
     exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,N_eig+1+l)]
     old_energies = None
     try:
