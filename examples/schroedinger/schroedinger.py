@@ -278,35 +278,37 @@ def main():
     N_eig = 50
     exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,N_eig+1+l)]
     old_energies = None
-    for i in range(20):
-        print "-"*80
-        print "adaptivity iteration:", i
-        if eqn_type == "rR":
-            mesh.set_bc_left_dirichlet(0, 0)
-            mesh.set_bc_right_dirichlet(0, 0)
-        pts, orders = mesh.get_mesh_data()
-        print "Current mesh:"
-        print pts
-        print orders
-        #stop
-        N_dof, energies, eigs = solve_schroedinger(mesh, l=l, Z=Z,
-                eqn_type=eqn_type, eig_num=N_eig)
-        conv_graph.append((N_dof, energies))
-        # This doesn't work well:
-        #if old_energies is not None:
-        #    err = max(abs(old_energies - energies))
-        #    if err < error_tol:
-        #        print "Maximum error in energies:", err
-        #        break
-        err = max(abs(energies - exact_energies))
-        print "Maximum error in energies:", err
-        if err < error_tol:
-            break
-        old_energies = energies
-    #    exact_energies = array(exact_energies)
-    #    print energies - exact_energies
-        mesh = adapt_mesh(mesh, eigs, l=l, Z=Z, adapt_type="hp")
-    plot_conv(conv_graph, exact=exact_energies, l=l)
+    try:
+        for i in range(10000):
+            print "-"*80
+            print "adaptivity iteration:", i
+            if eqn_type == "rR":
+                mesh.set_bc_left_dirichlet(0, 0)
+                mesh.set_bc_right_dirichlet(0, 0)
+            pts, orders = mesh.get_mesh_data()
+            print "Current mesh:"
+            print pts
+            print orders
+            #stop
+            N_dof, energies, eigs = solve_schroedinger(mesh, l=l, Z=Z,
+                    eqn_type=eqn_type, eig_num=N_eig)
+            conv_graph.append((N_dof, energies))
+            # This doesn't work well:
+            #if old_energies is not None:
+            #    err = max(abs(old_energies - energies))
+            #    if err < error_tol:
+            #        print "Maximum error in energies:", err
+            #        break
+            err = max(abs(energies - exact_energies))
+            print "Maximum error in energies:", err
+            if err < error_tol:
+                break
+            old_energies = energies
+        #    exact_energies = array(exact_energies)
+        #    print energies - exact_energies
+            mesh = adapt_mesh(mesh, eigs, l=l, Z=Z, adapt_type="uniform-p")
+    finally:
+        plot_conv(conv_graph, exact=exact_energies, l=l)
     #plot_eigs(mesh, eigs)
 
 if __name__ == "__main__":
