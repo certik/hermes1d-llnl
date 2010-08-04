@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
-        xlabel, ylabel
+        xlabel, ylabel, ylim
 
 import hydrogen_uniformpfem
 import hydrogen_romanowski
@@ -21,6 +21,7 @@ def do_plot(x, y, n, l, color="k", label=""):
     xlabel("DOFs")
     ylabel("$E_{num}-E$")
     ax.set_yscale("log")
+    ylim(ymin=1e-8)
     title("l=%d" % l)
     legend()
 
