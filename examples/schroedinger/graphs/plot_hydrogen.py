@@ -34,11 +34,11 @@ for i in range(n_eig):
 for i in range(n_eig):
     n = l+1+i
     do_plot(hydrogen_romanowski.R_x[l], hydrogen_romanowski.R_y[n, l],
-            n, l, "y", "$h$-FEM (Romanowski, L)")
+            n, l, "m", "$h$-FEM (Romanowski, U)")
 for i in range(n_eig):
     n = l+1+i
     do_plot(hydrogen_pfem.R_x[l], hydrogen_pfem.R_y[n, l],
-            n, l, "m", "$p$-FEM (L)")
+            n, l, "y", "$p$-FEM (L)")
 for i in range(n_eig):
     n = l+1+i
     do_plot(hydrogen_pfem_uniform_init.R_x[l],
