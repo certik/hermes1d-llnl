@@ -309,7 +309,7 @@ def main():
             old_energies = energies
         #    exact_energies = array(exact_energies)
         #    print energies - exact_energies
-            mesh = adapt_mesh(mesh, eigs, l=l, Z=Z, adapt_type="uniform-p")
+            mesh = adapt_mesh(mesh, eigs, l=l, Z=Z, adapt_type="hp")
     finally:
         plot_conv(conv_graph, exact=exact_energies, l=l)
     #plot_eigs(mesh, eigs)

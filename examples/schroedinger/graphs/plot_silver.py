@@ -30,10 +30,16 @@ for i in range(n_eig):
     n = l+1+i
     do_plot(silver_uniformpfem50.R_x[l], silver_uniformpfem50.R_y[n, l],
             n, l, "y", "uniform $p$-FEM, 50 elms")
+for i in range(n_eig):
+    n = l+1+i
     do_plot(silver_uniformpfem4.R_x[l], silver_uniformpfem4.R_y[n, l],
             n, l, "k", "uniform $p$-FEM, 4 elms")
+for i in range(n_eig):
+    n = l+1+i
     do_plot(silver_pfem.R_x[l], silver_pfem.R_y[n, l],
             n, l, "b", "$p$-FEM")
+for i in range(n_eig):
+    n = l+1+i
     do_plot(silver_hpfem.R_x[l], silver_hpfem.R_y[n, l],
             n, l, "r", "$hp$-FEM")
 savefig("conv_l_0.png")
