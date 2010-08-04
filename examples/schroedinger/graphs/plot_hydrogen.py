@@ -4,6 +4,7 @@ from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
         xlabel, ylabel
 
 import hydrogen_uniformpfem
+import hydrogen_romanowski
 
 def do_plot(x, y, n, l, color="k", label=""):
     n_r = n - l - 1
@@ -27,4 +28,8 @@ for i in range(n_eig):
     n = l+1+i
     do_plot(hydrogen_uniformpfem.R_x[l], hydrogen_uniformpfem.R_y[n, l],
             n, l, "k", "uniform $p$-FEM")
+for i in range(n_eig):
+    n = l+1+i
+    do_plot(hydrogen_romanowski.R_x[l], hydrogen_romanowski.R_y[n, l],
+            n, l, "y", "$h$-FEM (Romanowski)")
 savefig("conv_l_0.png")
