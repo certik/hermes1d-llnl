@@ -298,7 +298,7 @@ def main():
         #    if err < error_tol:
         #        print "Maximum error in energies:", err
         #        break
-        err = max(energies - exact_energies)
+        err = max(abs(energies - exact_energies))
         print "Maximum error in energies:", err
         if err < error_tol:
             break
