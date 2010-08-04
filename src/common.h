@@ -24,7 +24,7 @@ const int ANY = -1234;
 
 // Up to 100 is currently implemented.
 // When you change this, run tests.
-const int MAX_P = 99;                  // max poly degree allowed in elements
+const int MAX_P = 50;                  // max poly degree allowed in elements
                                        // WARNING: projections taking place in 
                                        // transfer_solution()
 // Up to 200 is currently implemented:
