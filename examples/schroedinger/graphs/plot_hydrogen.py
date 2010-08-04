@@ -26,7 +26,7 @@ def do_plot(x, y, n, l, color="k", label=""):
 
 n_eig = 3
 l = 0
-print "Saving to conv_l_0.png"
+print "Saving to hydrogen_l_0.png"
 for i in range(n_eig):
     n = l+1+i
     do_plot(hydrogen_uniformpfem.R_x[l], hydrogen_uniformpfem.R_y[n, l],
@@ -48,4 +48,4 @@ for i in range(n_eig):
     n = l+1+i
     do_plot(hydrogen_hpfem.R_x[l], hydrogen_hpfem.R_y[n, l],
             n, l, "r", "$hp$-FEM (U)")
-savefig("conv_l_0.png")
+savefig("hydrogen_l_0.png")

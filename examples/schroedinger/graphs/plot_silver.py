@@ -25,7 +25,7 @@ def do_plot(x, y, n, l, color="k", label=""):
 
 n_eig = 50
 l = 0
-print "Saving to conv_l_0.png"
+print "Saving to silver_l_0.png"
 for i in range(n_eig):
     n = l+1+i
     do_plot(silver_uniformpfem50.R_x[l], silver_uniformpfem50.R_y[n, l],
@@ -42,4 +42,4 @@ for i in range(n_eig):
     n = l+1+i
     do_plot(silver_hpfem.R_x[l], silver_hpfem.R_y[n, l],
             n, l, "r", "$hp$-FEM")
-savefig("conv_l_0.png")
+savefig("silver_l_0.png")
