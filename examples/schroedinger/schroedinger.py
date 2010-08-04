@@ -266,11 +266,11 @@ def main():
     #        1.12500000e+02,
     #        1.50000000e+02
     #                )
-    #par = 20
-    #a, b, = 0., 100.
-    #Ne = N_elem
-    #r = par**(1./(Ne-1))
-    #pts = [(r**i-1)/(r**Ne-1)*(b-a)+a for i in range(Ne+1)]
+    par = 20
+    a, b, = 0., 100.
+    Ne = N_elem
+    r = par**(1./(Ne-1))
+    pts = [(r**i-1)/(r**Ne-1)*(b-a)+a for i in range(Ne+1)]
     orders = [P_init]*(len(pts)-1)
     #orders = [15,  7,  6,  5,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2]
     #pts = (0, 4.6875, 9.375, 18.75, 23.4375, 28.125, 32.8125, 35.15625, 37.5,
@@ -318,7 +318,7 @@ def main():
             old_energies = energies
         #    exact_energies = array(exact_energies)
         #    print energies - exact_energies
-            mesh = adapt_mesh(mesh, eigs, l=l, Z=Z, adapt_type="hp")
+            mesh = adapt_mesh(mesh, eigs, l=l, Z=Z, adapt_type="p")
     finally:
         plot_conv(conv_graph, exact=exact_energies, l=l)
     #plot_eigs(mesh, eigs)
