@@ -3,7 +3,6 @@
 from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
         xlabel, ylabel
 
-import silver_uniformpfem
 import silver_uniformpfem50
 import silver_uniformpfem4
 import silver_pfem
