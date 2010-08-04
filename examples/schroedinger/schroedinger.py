@@ -22,7 +22,7 @@ from plot import plot_eigs, plot_file
 N_elem = 4                         # number of elements
 R = 150                            # right hand side of the domain
 P_init = 4                         # initial polynomal degree
-error_tol = 1e-10                   # error tolerance
+error_tol = 1e-8                  # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
 THRESHOLD = 0.7
@@ -279,7 +279,7 @@ def main():
     N_eig = 50
     exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,N_eig+1+l)]
     old_energies = None
-    for i in range(10):
+    for i in range(20):
         print "-"*80
         print "adaptivity iteration:", i
         if eqn_type == "rR":
