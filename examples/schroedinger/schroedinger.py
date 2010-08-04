@@ -20,7 +20,7 @@ from plot import plot_eigs, plot_file
 
 
 N_elem = 4                         # number of elements
-R = 100                            # right hand side of the domain
+R = 150                            # right hand side of the domain
 P_init = 2                         # initial polynomal degree
 error_tol = 1e-10                   # error tolerance
 eqn_type="R"                      # either R or rR
@@ -165,8 +165,9 @@ def solve_schroedinger(mesh, l=0, Z=1, eqn_type=eqn_type, eig_num=4):
     assemble_schroedinger(mesh, A, B, l=l, Z=Z, eqn_type=eqn_type)
     eigs = solve_eig_scipy(A.to_scipy_coo(), B.to_scipy_coo())
     eigs = eigs[:eig_num]
-    assert len(eigs) == eig_num
     energies = [E for E, eig in eigs]
+    print energies
+    assert len(eigs) == eig_num
     eigs = [eig for E, eig in eigs]
     return N_dof, array(energies), eigs
 
@@ -270,8 +271,9 @@ def main():
     mesh = Mesh(pts, orders)
     conv_graph = []
     l=0
-    Z = 1
-    exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,4+1+l)]
+    Z = 47
+    N_eig = 4
+    exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,N_eig+1+l)]
     old_energies = None
     for i in range(1000000):
         print "-"*80
@@ -284,7 +286,7 @@ def main():
         print pts
         print orders
         N_dof, energies, eigs = solve_schroedinger(mesh, l=l, Z=Z,
-                eqn_type=eqn_type, eig_num=4)
+                eqn_type=eqn_type, eig_num=N_eig)
         conv_graph.append((N_dof, energies))
         # This doesn't work well:
         #if old_energies is not None:

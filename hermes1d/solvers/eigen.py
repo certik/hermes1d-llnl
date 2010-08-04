@@ -53,9 +53,9 @@ def solve_eig_scipy(A, B):
     print "eigenvalues:"
     eigs = []
     for w, vec in r:
-        if w > 0:
-            break
-        print w
+        #if w > 0:
+        #    break
+        #print w
         eigs.append(vec)
     return r
 
