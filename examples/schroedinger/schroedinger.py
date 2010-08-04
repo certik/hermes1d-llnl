@@ -21,8 +21,8 @@ from plot import plot_eigs, plot_file
 
 N_elem = 4                         # number of elements
 R = 100                            # right hand side of the domain
-P_init = 1                        # initial polynomal degree
-error_tol = 1e-8                  # error tolerance
+P_init = 2                        # initial polynomal degree
+error_tol = 1e-10                  # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
 THRESHOLD = 0.7
