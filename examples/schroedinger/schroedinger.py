@@ -250,6 +250,23 @@ def adapt_mesh(mesh, eigs, l=0, Z=1, adapt_type="hp"):
     else:
         raise ValueError("Unknown adapt_type")
 
+def create_log_mesh(a=0, b= 100, par=20, n_elem=4):
+    """
+    Creates a logarithmic mesh.
+
+    Example::
+
+    >>> create_log_mesh(0, 100, par=20, n_elem=4)
+    array([   0.        ,    3.21724644,   11.95019684,   35.65507127,  100.        ])
+    >>> create_log_mesh(0, 100, par=40, n_elem=4)
+    array([   0.        ,    1.78202223,    7.87645252,   28.71911092,  100.        ])
+    >>> create_log_mesh(0, 100, par=100, n_elem=4)
+    array([   0.        ,    0.78625046,    4.43570179,   21.37495437,  100.        ])
+
+    """
+    r = par**(1./(n_elem-1))
+    pts = [(r**i-1)/(r**n_elem-1)*(b-a)+a for i in range(n_elem+1)]
+    return array(pts)
 
 def main():
     #do_plot([23, 29, 41, 47], [0.1, 0.01, 0.001, 0.004], 1, 0)
