@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from pylab import plot, show, savefig, grid, gca, legend, figure, title, \
-        xlabel, ylabel, ylim
+        xlabel, ylabel, ylim, xlim
 
 import hydrogen_uniformpfem
 import hydrogen_romanowski
@@ -22,6 +22,7 @@ def do_plot(x, y, n, l, color="k", label=""):
     ylabel("$E_{num}-E$ [Ha]")
     ax.set_yscale("log")
     ylim(ymin=1e-8)
+    xlim([0, 90])
     title("Eigenvalues (l=%d, Z=1)" % l)
     legend()
 
