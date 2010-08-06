@@ -19,14 +19,6 @@ from _forms import assemble_schroedinger
 from plot import plot_eigs, plot_file
 
 
-R = 100                            # right hand side of the domain
-P_init = 2                        # initial polynomal degree
-error_tol = 1e-6                  # error tolerance
-eqn_type="R"                      # either R or rR
-NORM = 1 # 1 ... H1; 0 ... L2;
-THRESHOLD = 0.7
-#error_tol = 1e-2
-
 def find_element_romanowski(coeffs):
     """
     Finds the smallest coefficient at each element (error) and return the
@@ -151,7 +143,7 @@ def flip_vectors(mesh, eigs, mesh_ref, eigs_ref, test_it=False):
                 #s.plot(False)
                 #s_ref.plot()
 
-def solve_schroedinger(mesh, l=0, Z=1, eqn_type=eqn_type, eig_num=4):
+def solve_schroedinger(mesh, l=0, Z=1, eqn_type="R", eig_num=4):
     """
     Solves the Schroedinger equation on the given mesh.
 
@@ -170,7 +162,7 @@ def solve_schroedinger(mesh, l=0, Z=1, eqn_type=eqn_type, eig_num=4):
     eigs = [eig for E, eig in eigs]
     return N_dof, array(energies), eigs
 
-def adapt_mesh(mesh, eigs, l=0, Z=1, adapt_type="hp"):
+def adapt_mesh(mesh, eigs, l=0, Z=1, adapt_type="hp", eqn_type="R"):
     """
     Adapts the mesh using the adaptivity type 'adapt_type'.
 
@@ -187,6 +179,8 @@ def adapt_mesh(mesh, eigs, l=0, Z=1, adapt_type="hp"):
         orders = array(orders) + 1
         return Mesh(pts, orders)
     elif adapt_type in ["h", "p", "hp"]:
+        NORM = 1 # 1 ... H1; 0 ... L2;
+        THRESHOLD = 0.7
         mesh_ref = mesh.reference_refinement()
         print "Fine mesh created (%d DOF)." % mesh_ref.get_n_dof()
         N_dof, energies, eigs_ref = solve_schroedinger(mesh_ref, l=l, Z=Z,
@@ -287,37 +281,23 @@ def create_log_mesh(a=0, b=100, par=20, n_elem=4):
     assert len(pts) == n_elem + 1
     return array(pts)
 
-def main():
-    #pts = (0., 0.29296875, 0.5859375, 1.171875, 2.34375,
-    #            4.6875, 9.375, 18.75, 28.125, 37.5,
-    #            56.25, 75., 112.5, 150.)
-    #pts = (0.00000000e+00,  1.46484375e-01, 2.19726562e-01,
-    #        2.92968750e-01, 4.39453125e-01, 5.85937500e-01,
-    #        1.17187500e+00, 2.34375000e+00, 4.68750000e+00,
-    #        9.37500000e+00, 1.87500000e+01, 2.81250000e+01,
-    #        3.75000000e+01, 5.62500000e+01, 7.50000000e+01,
-    #        1.12500000e+02,
-    #        1.50000000e+02
-    #                )
-    #pts = create_log_mesh(0, 150, par=35, n_elem=4)
-    #pts = create_log_mesh(0, 100, par=20, n_elem=4)
-    pts = create_uniform_mesh(0, 100, n_elem=4)
-    orders = [P_init]*(len(pts)-1)
-    #orders = [15,  7,  6,  5,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2]
-    #pts = (0, 4.6875, 9.375, 18.75, 23.4375, 28.125, 32.8125, 35.15625, 37.5,
-    #        42.1875, 46.875, 56.25, 65.625, 75.0, 150)
-    #orders = (10, 8, 9, 4, 3, 3, 2, 2, 3, 2, 3, 2, 1, 1)
-    #pts = (0, 4.6875, 9.375, 18.75, 23.4375, 28.125, 32.8125, 35.15625, 37.5,
-    #        42.1875, 46.875, 49.21875, 51.5625, 56.25, 65.625, 75.0, 150)
-    #orders = (10, 8, 9, 4, 4, 4, 2, 2, 3, 2, 2, 1, 2, 2, 1, 2)
-    #orders = [29, 29, 29, 29, 29, 29, 29,  3,  2,  3,  2,  2,  2]
+def radial_schroedinger_equation_adapt(params, error_tol=1e-8):
+    if params["mesh_uniform"]:
+        pts = create_uniform_mesh(params["a"], params["b"],
+                n_elem=params["el_num"])
+    else:
+        pts = create_log_mesh(params["a"], params["b"],
+                par=params["mesh_par1"],
+                n_elem=params["el_num"])
+    orders = [params["el_order"]]*(len(pts)-1)
     mesh = Mesh(pts, orders)
     conv_graph = []
-    l=0
-    Z = 1
-    N_eig = 3
+    l = params["l"]
+    Z = params["Z"]
+    N_eig = params["eig_num"]
     exact_energies=[-1.*Z**2/(2*n**2) for n in range(1+l,N_eig+1+l)]
     old_energies = None
+    eqn_type = params["eqn_type"]
     try:
         for i in range(10000):
             print "-"*80
@@ -349,10 +329,32 @@ def main():
             old_energies = energies
         #    exact_energies = array(exact_energies)
         #    print energies - exact_energies
-            mesh = adapt_mesh(mesh, eigs, l=l, Z=Z, adapt_type="p")
+            mesh = adapt_mesh(mesh, eigs, l=l, Z=Z,
+                    adapt_type=params["adapt_type"])
     finally:
         plot_conv(conv_graph, exact=exact_energies, l=l)
     #plot_eigs(mesh, eigs)
+
+def main():
+    params_hydrogen_p_L = dict(l=0, Z=1, a=0, b=100, el_num=4, el_order=1,
+            eig_num=3, mesh_uniform=False, mesh_par1=20, adapt_type="p",
+            eqn_type="R")
+    params_hydrogen_p_U = dict(l=0, Z=1, a=0, b=100, el_num=4, el_order=2,
+            eig_num=3, mesh_uniform=True, adapt_type="p", eqn_type="R")
+    params_hydrogen_hp_U = dict(l=0, Z=1, a=0, b=100, el_num=4, el_order=2,
+            eig_num=3, mesh_uniform=True, adapt_type="hp", eqn_type="R")
+    params_hydrogen_h_U = dict(l=0, Z=1, a=0, b=100, el_num=4, el_order=6,
+            eig_num=3, mesh_uniform=True, adapt_type="romanowski",
+            eqn_type="rR")
+
+    params_silver_p_L = dict(l=0, Z=47, a=0, b=150, el_num=4, el_order=13,
+            eig_num=50, mesh_uniform=False, mesh_par1=35, adapt_type="p",
+            eqn_type="R")
+    params_silver_hp_L = dict(l=0, Z=47, a=0, b=150, el_num=4, el_order=13,
+            eig_num=50, mesh_uniform=False, mesh_par1=35, adapt_type="hp",
+            eqn_type="R")
+    radial_schroedinger_equation_adapt(params_hydrogen_hp_U)
+
 
 if __name__ == "__main__":
     main()
