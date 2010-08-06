@@ -250,7 +250,26 @@ def adapt_mesh(mesh, eigs, l=0, Z=1, adapt_type="hp"):
     else:
         raise ValueError("Unknown adapt_type")
 
-def create_log_mesh(a=0, b= 100, par=20, n_elem=4):
+def create_uniform_mesh(a=0, b=100, n_elem=4):
+    """
+    Creates a uniform mesh.
+
+    Example::
+
+    >>> create_uniform_mesh(0, 100, 4)
+    array([   0.,   25.,   50.,   75.,  100.])
+    >>> create_uniform_mesh(0, 100, 5)
+    array([   0.,   20.,   40.,   60.,   80.,  100.])
+    >>> create_uniform_mesh(100, 200, 4)
+    array([ 100.,  125.,  150.,  175.,  200.])
+
+    """
+    pts = arange(a, b, float(b-a)/(n_elem))
+    pts = list(pts) + [b]
+    assert len(pts) == n_elem + 1
+    return array(pts)
+
+def create_log_mesh(a=0, b=100, par=20, n_elem=4):
     """
     Creates a logarithmic mesh.
 
@@ -266,6 +285,7 @@ def create_log_mesh(a=0, b= 100, par=20, n_elem=4):
     """
     r = par**(1./(n_elem-1))
     pts = [(r**i-1)/(r**n_elem-1)*(b-a)+a for i in range(n_elem+1)]
+    assert len(pts) == n_elem + 1
     return array(pts)
 
 def main():
