@@ -19,10 +19,9 @@ from _forms import assemble_schroedinger
 from plot import plot_eigs, plot_file
 
 
-N_elem = 4                         # number of elements
 R = 100                            # right hand side of the domain
 P_init = 2                        # initial polynomal degree
-error_tol = 1e-10                  # error tolerance
+error_tol = 1e-6                  # error tolerance
 eqn_type="R"                      # either R or rR
 NORM = 1 # 1 ... H1; 0 ... L2;
 THRESHOLD = 0.7
@@ -300,8 +299,9 @@ def main():
     #        1.12500000e+02,
     #        1.50000000e+02
     #                )
-    pts = create_log_mesh(0, 150, par=35, n_elem=4)
-    #pts = create_uniform_mesh(0, 100, n_elem=4)
+    #pts = create_log_mesh(0, 150, par=35, n_elem=4)
+    #pts = create_log_mesh(0, 100, par=20, n_elem=4)
+    pts = create_uniform_mesh(0, 100, n_elem=4)
     orders = [P_init]*(len(pts)-1)
     #orders = [15,  7,  6,  5,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2]
     #pts = (0, 4.6875, 9.375, 18.75, 23.4375, 28.125, 32.8125, 35.15625, 37.5,
