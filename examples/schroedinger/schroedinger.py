@@ -346,6 +346,9 @@ def main():
     params_hydrogen_h_U = dict(l=0, Z=1, a=0, b=100, el_num=4, el_order=6,
             eig_num=3, mesh_uniform=True, adapt_type="romanowski",
             eqn_type="rR")
+    params_hydrogen_h_L = dict(l=0, Z=1, a=0, b=100, el_num=4, el_order=17,
+            eig_num=3, mesh_uniform=False, mesh_par1=20,
+            adapt_type="romanowski", eqn_type="rR")
 
     params_silver_p_L = dict(l=0, Z=47, a=0, b=150, el_num=4, el_order=13,
             eig_num=50, mesh_uniform=False, mesh_par1=35, adapt_type="p",
