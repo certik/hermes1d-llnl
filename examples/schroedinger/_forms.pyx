@@ -12,3 +12,6 @@ def assemble_schroedinger(Mesh mesh, Matrix A, Matrix B, l=0, Z=1,
         raise ValueError("Unknown equation type")
     c_assemble_schroedinger(mesh.thisptr, A.thisptr, B.thisptr, l, Z,
             equation_type)
+
+cdef api double Z_eff(double x):
+    return 47.0

@@ -1,12 +1,15 @@
 #include "forms.h"
+#include "_forms_api.h"
 
 static double l = 0;
 static double Z = 1;
 
+/*
 double Z_eff(double x)
 {
     return 47.0-x/50;
 }
+*/
 
 double lhs_R(int num, double *x, double *weights,
                 double *u, double *dudx, double *v, double *dvdx,
@@ -92,7 +95,7 @@ static int _equation_type = -1;
 void assemble_schroedinger(Mesh *mesh, Matrix *A, Matrix *B, int _l, int _Z,
         int equation_type)
 {
-
+    import__forms();
     l = _l;
     Z = _Z;
     if (_equation_type == -1) {
