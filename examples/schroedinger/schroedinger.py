@@ -307,7 +307,7 @@ def radial_schroedinger_equation_adapt(params, error_tol=1e-8):
                 mesh.set_bc_right_dirichlet(0, 0)
             # Use zero dirichlet for eqn_type="R" as well, just to make sure
             # that we agree with sle1d
-            #mesh.set_bc_right_dirichlet(0, 0)
+            mesh.set_bc_right_dirichlet(0, 0)
             pts, orders = mesh.get_mesh_data()
             print "Current mesh:"
             print pts
@@ -359,7 +359,7 @@ def main():
     params_silver_hp_L = dict(l=0, Z=47, a=0, b=150, el_num=4, el_order=13,
             eig_num=50, mesh_uniform=False, mesh_par1=35, adapt_type="hp",
             eqn_type="R")
-    params_silver_uniformp_L = dict(l=0, Z=47, a=0, b=150, el_num=4,
+    params_silver_uniformp_L = dict(l=0, Z=47, a=0, b=104.315255921, el_num=4,
             el_order=47, eig_num=50, mesh_uniform=False, mesh_par1=35,
             adapt_type="uniform-p", eqn_type="R")
     radial_schroedinger_equation_adapt(params_silver_uniformp_L, error_tol=1e-5)
