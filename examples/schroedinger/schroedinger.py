@@ -315,6 +315,9 @@ def radial_schroedinger_equation_adapt(params, error_tol=1e-8):
             #stop
             N_dof, energies, eigs = solve_schroedinger(mesh, l=l, Z=Z,
                     eqn_type=eqn_type, eig_num=N_eig)
+            for n in range(1, 51):
+                print "%d  %10.5f" % (n, energies[n-1])
+            break
             conv_graph.append((N_dof, energies))
             # This doesn't work well:
             if old_energies is not None:
@@ -357,7 +360,7 @@ def main():
             eig_num=50, mesh_uniform=False, mesh_par1=35, adapt_type="hp",
             eqn_type="R")
     params_silver_uniformp_L = dict(l=0, Z=47, a=0, b=150, el_num=4,
-            el_order=40, eig_num=50, mesh_uniform=False, mesh_par1=35,
+            el_order=47, eig_num=50, mesh_uniform=False, mesh_par1=35,
             adapt_type="uniform-p", eqn_type="R")
     radial_schroedinger_equation_adapt(params_silver_uniformp_L, error_tol=1e-5)
 
