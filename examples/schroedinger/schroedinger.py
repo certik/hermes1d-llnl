@@ -52,7 +52,7 @@ def refine_mesh_romanowski(mesh, solutions):
         errors.append(error)
     els2refine = list(set(els2refine))
     print "Will refine the elements:", els2refine
-    mesh = refine_mesh(mesh, els2refine)
+    mesh = refine_mesh_p(mesh, els2refine)
     return mesh
 
 def refine_mesh_h1_adapt(mesh, solutions):
@@ -68,7 +68,7 @@ def refine_mesh_h1_adapt(mesh, solutions):
     print "Fine mesh created (%d DOF)." % mesh_ref.get_n_dof()
     return mesh_ref, [1.0]
 
-def refine_mesh(mesh, els2refine):
+def refine_mesh_h(mesh, els2refine):
     new_pts = []
     pts, orders = mesh.get_mesh_data()
     new_pts.append(pts[0])
@@ -79,6 +79,17 @@ def refine_mesh(mesh, els2refine):
     # assumes uniform order:
     orders = [orders[0]] * (len(new_pts)-1)
     return Mesh(new_pts, orders)
+
+def refine_mesh_p(mesh, els2refine):
+    new_pts = []
+    pts, orders = mesh.get_mesh_data()
+    new_orders = []
+    for id in range(len(orders)):
+        if id in els2refine:
+            new_orders.append(orders[id]+1)
+        else:
+            new_orders.append(orders[id])
+    return Mesh(pts, new_orders)
 
 def do_plot(x, y, n, l):
     n_r = n - l - 1
@@ -346,8 +357,8 @@ def main():
     params_hydrogen_h_U = dict(l=0, Z=1, a=0, b=100, el_num=4, el_order=6,
             eig_num=3, mesh_uniform=True, adapt_type="romanowski",
             eqn_type="rR")
-    params_hydrogen_h_L = dict(l=0, Z=1, a=0, b=100, el_num=4, el_order=17,
-            eig_num=3, mesh_uniform=False, mesh_par1=20,
+    params_hydrogen_h_L = dict(l=0, Z=1, a=0, b=100, el_num=4, el_order=3,
+            eig_num=3, mesh_uniform=True, mesh_par1=20,
             adapt_type="romanowski", eqn_type="rR")
 
     params_silver_p_L = dict(l=0, Z=47, a=0, b=150, el_num=4, el_order=13,
@@ -356,7 +367,7 @@ def main():
     params_silver_hp_L = dict(l=0, Z=47, a=0, b=150, el_num=4, el_order=13,
             eig_num=50, mesh_uniform=False, mesh_par1=35, adapt_type="hp",
             eqn_type="R")
-    radial_schroedinger_equation_adapt(params_hydrogen_h_U, error_tol=1e-6)
+    radial_schroedinger_equation_adapt(params_hydrogen_h_L, error_tol=1e-8)
 
 
 if __name__ == "__main__":
