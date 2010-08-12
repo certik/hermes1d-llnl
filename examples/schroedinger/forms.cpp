@@ -3,6 +3,11 @@
 static double l = 0;
 static double Z = 1;
 
+double Z_eff(double x)
+{
+    return 47.0-x/50;
+}
+
 double lhs_R(int num, double *x, double *weights,
                 double *u, double *dudx, double *v, double *dvdx,
                 double u_prev[MAX_SLN_NUM][MAX_EQN_NUM][MAX_QUAD_PTS_NUM],
@@ -15,7 +20,7 @@ double lhs_R(int num, double *x, double *weights,
         double r = x[i];
         // specify r^2*V:
         // Hydrogen:
-        double rrV = -Z*r; // r^2 * (-1/r) = -r
+        double rrV = -Z_eff(r)*r; // r^2 * (-1/r) = -r
         // Harmonic oscillator:
         //double rrV = r*r*r*r; // r^2 * (r^2) = r^4
         coeff = 0.5*r*r*dudx[i]*dvdx[i] + (rrV + 0.5 * (l + 1)*l) *u[i]*v[i];
