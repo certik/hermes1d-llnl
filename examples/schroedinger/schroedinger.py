@@ -356,7 +356,10 @@ def main():
     params_silver_hp_L = dict(l=0, Z=47, a=0, b=150, el_num=4, el_order=13,
             eig_num=50, mesh_uniform=False, mesh_par1=35, adapt_type="hp",
             eqn_type="R")
-    radial_schroedinger_equation_adapt(params_hydrogen_h_U, error_tol=1e-6)
+    params_silver_uniformp_L = dict(l=0, Z=47, a=0, b=150, el_num=4,
+            el_order=44, eig_num=50, mesh_uniform=False, mesh_par1=35,
+            adapt_type="uniform-p", eqn_type="R")
+    radial_schroedinger_equation_adapt(params_silver_uniformp_L, error_tol=1e-6)
 
 
 if __name__ == "__main__":
