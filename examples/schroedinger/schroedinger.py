@@ -317,15 +317,15 @@ def radial_schroedinger_equation_adapt(params, error_tol=1e-8):
                     eqn_type=eqn_type, eig_num=N_eig)
             conv_graph.append((N_dof, energies))
             # This doesn't work well:
-            #if old_energies is not None:
-            #    err = max(abs(old_energies - energies))
-            #    if err < error_tol:
-            #        print "Maximum error in energies:", err
-            #        break
-            err = max(abs(energies - exact_energies))
-            print "Maximum error in energies:", err
-            if err < error_tol:
-                break
+            if old_energies is not None:
+                err = max(abs(old_energies - energies))
+                print "Maximum error in energies:", err
+                if err < error_tol:
+                    break
+            #err = max(abs(energies - exact_energies))
+            #print "Maximum error in energies:", err
+            #if err < error_tol:
+            #    break
             old_energies = energies
         #    exact_energies = array(exact_energies)
         #    print energies - exact_energies
@@ -357,9 +357,9 @@ def main():
             eig_num=50, mesh_uniform=False, mesh_par1=35, adapt_type="hp",
             eqn_type="R")
     params_silver_uniformp_L = dict(l=0, Z=47, a=0, b=150, el_num=4,
-            el_order=44, eig_num=50, mesh_uniform=False, mesh_par1=35,
+            el_order=40, eig_num=50, mesh_uniform=False, mesh_par1=35,
             adapt_type="uniform-p", eqn_type="R")
-    radial_schroedinger_equation_adapt(params_silver_uniformp_L, error_tol=1e-6)
+    radial_schroedinger_equation_adapt(params_silver_uniformp_L, error_tol=1e-5)
 
 
 if __name__ == "__main__":
